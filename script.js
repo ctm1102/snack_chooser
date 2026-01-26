@@ -134,7 +134,7 @@ function renderSnacks() {
     const favs = getFavorites();
     data = data.filter(s => favs.includes(s.name));
   }
-
+}
   data.forEach(s => {
     const li = document.createElement("li");
     li.innerHTML = `
