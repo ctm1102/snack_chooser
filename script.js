@@ -79,8 +79,12 @@ function toggleTheme() {
 
 function login() {
   const name = document.getElementById("username").value.trim();
-  if (!name) return alert("이름을 입력하세요!");
-  localStorage.setItem("user", name);
+  const pw = prompt("본인 확인을 위한 숫자 4자리를 입력하세요 (예: 1234)"); // 간단한 추가
+  
+  if (!name || !pw) return alert("이름과 암호를 모두 입력하세요!");
+  
+  const userKey = name + "_" + pw; // "홍길동_1234" 형태로 저장
+  localStorage.setItem("user", userKey);
   showUser();
 }
 
