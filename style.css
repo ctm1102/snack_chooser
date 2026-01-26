@@ -5,6 +5,7 @@
   --button: #F2C078;
   --button-hover: #E6AE5C;
   --category: #EED6B7;
+  --border: #D8C3A5;
 }
 
 body.dark {
@@ -14,39 +15,47 @@ body.dark {
   --button: #8C5A2B;
   --button-hover: #A96B34;
   --category: #5A3E2B;
+  --border: #4A3528;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   max-width: 500px;
   margin: auto;
   padding: 20px;
   background: var(--bg);
   color: var(--text);
+  transition: all 0.3s ease;
 }
 
-h1 {
-  text-align: center;
+.card {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
 }
 
 input {
-  width: 100%;
+  width: calc(100% - 22px);
   padding: 10px;
   margin: 8px 0;
-  font-size: 16px;
   border-radius: 6px;
-  border: none;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
 }
 
 button {
-  padding: 10px;
-  margin: 6px 0;
+  padding: 12px;
+  margin: 5px 0;
   width: 100%;
-  font-size: 16px;
   cursor: pointer;
   background: var(--button);
+  color: var(--text);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-weight: bold;
 }
 
 button:hover {
@@ -55,26 +64,45 @@ button:hover {
 
 .categories {
   display: flex;
+  flex-wrap: wrap;
   gap: 5px;
+  margin: 15px 0;
 }
 
 .categories button {
+  flex: 1 1 calc(30% - 5px);
+  font-size: 13px;
   background: var(--category);
 }
+
+#result {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 20px;
+  background: var(--card);
+  border-radius: 10px;
+  border: 2px dashed var(--button);
+  margin: 20px 0;
+}
+
+ul { padding: 0; }
 
 li {
   list-style: none;
   padding: 12px;
   background: var(--card);
-  margin: 8px 0;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
+  border: 1px solid var(--border);
 }
 
-#result {
-  text-align: center;
-  font-weight: bold;
-  margin: 10px 0;
+.fav-btn {
+  width: auto;
+  background: transparent;
+  font-size: 1.2rem;
+  padding: 0 10px;
 }
