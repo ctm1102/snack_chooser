@@ -1,0 +1,80 @@
+:root {
+  --bg: #FFF8EE;
+  --text: #5A3E2B;
+  --card: #FFFFFF;
+  --button: #F2C078;
+  --button-hover: #E6AE5C;
+  --category: #EED6B7;
+}
+
+body.dark {
+  --bg: #2B1E16;
+  --text: #F5E9DC;
+  --card: #3A2A20;
+  --button: #8C5A2B;
+  --button-hover: #A96B34;
+  --category: #5A3E2B;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1 {
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  padding: 10px;
+  margin: 6px 0;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  background: var(--button);
+  border: none;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: var(--button-hover);
+}
+
+.categories {
+  display: flex;
+  gap: 5px;
+}
+
+.categories button {
+  background: var(--category);
+}
+
+li {
+  list-style: none;
+  padding: 12px;
+  background: var(--card);
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+}
+
+#result {
+  text-align: center;
+  font-weight: bold;
+  margin: 10px 0;
+}
