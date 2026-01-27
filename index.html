@@ -17,29 +17,29 @@
   <div id="login-area" class="card">
     <h3 id="auth-title">로그인 또는 가입</h3>
     <input type="text" id="username" placeholder="이름을 입력하세요">
-    <input type="password" id="userpw" placeholder="비밀번호(숫자 4자리)" maxlength="4" inputmode="numeric">
-    <p id="auth-desc" style="font-size: 11px; color: #888;">* 처음 입력하는 이름은 자동으로 가입됩니다.</p>
+    <input type="password" id="userpw" placeholder="비밀번호 (자유롭게 입력)">
+    <p id="auth-desc" style="font-size: 11px; color: #888;">* 처음 만든 비밀번호는 꼭 기억해 주세요.</p>
     <button onclick="handleAuth()" id="auth-btn">시작하기</button>
   </div>
 
   <div id="user-area" class="card" style="display:none;">
     <p id="welcome-msg"></p>
     
-    <div class="allergy-container">
-      <p>🚫 <b>제외할 알러지 성분</b></p>
-      <div class="allergy-grid">
-        <label><input type="checkbox" class="allergy-check" value="milk" onchange="updateAllergy()"> 우유</label>
-        <label><input type="checkbox" class="allergy-check" value="peanut" onchange="updateAllergy()"> 견과류</label>
-        <label><input type="checkbox" class="allergy-check" value="wheat" onchange="updateAllergy()"> 밀가루</label>
-        <label><input type="checkbox" class="allergy-check" value="shrimp" onchange="updateAllergy()"> 새우/해물</label>
-        <label><input type="checkbox" class="allergy-check" value="egg" onchange="updateAllergy()"> 계란</label>
-        <label><input type="checkbox" class="allergy-check" value="soy" onchange="updateAllergy()"> 대두</label>
+    <div class="allergy-section">
+      <p style="margin-bottom: 10px;">🚫 <b>제외할 알러지 성분</b></p>
+      <div class="allergy-flex">
+        <label><input type="checkbox" class="allergy-check" value="milk"> 우유</label>
+        <label><input type="checkbox" class="allergy-check" value="peanut"> 견과류</label>
+        <label><input type="checkbox" class="allergy-check" value="wheat"> 밀가루</label>
+        <label><input type="checkbox" class="allergy-check" value="shrimp"> 새우/해물</label>
+        <label><input type="checkbox" class="allergy-check" value="egg"> 계란</label>
+        <label><input type="checkbox" class="allergy-check" value="soy"> 대두</label>
       </div>
     </div>
 
     <div class="user-buttons">
-      <button onclick="exportData()">📤 데이터 백업</button>
-      <button onclick="importData()">📥 데이터 복구</button>
+      <button onclick="exportData()">📤 백업</button>
+      <button onclick="importData()">📥 복구</button>
       <button onclick="logout()" class="btn-logout">로그아웃</button>
     </div>
   </div>
@@ -61,7 +61,6 @@
   </div>
 
   <div id="result">어떤 간식을 먹을까요?</div>
-
   <ul id="snack-list"></ul>
 
   <script src="script.js"></script>
