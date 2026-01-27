@@ -6,7 +6,6 @@ const snackNames = [
   { name: "월드콘", cat: "icecream", allergies: ["우유", "밀가루", "견과류"] },
   { name: "연양갱", cat: "tradition", allergies: [] },
   { name: "미니약과", cat: "tradition", allergies: ["밀가루"] },
-  { name: "밀키스", cat: "drink", allergies: ["우유"] },
   { name: "콜라", cat: "drink", allergies: [] }
 ];
 
@@ -28,12 +27,12 @@ function closeModal() { document.getElementById('auth-modal').style.display = 'n
 function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
-  if (!name || !pw) return alert("빈칸을 모두 입력해주세요.");
-  if (localStorage.getItem(`snackDB_${name}`)) return alert("이미 가입된 이름입니다.");
+  if (!name || !pw) return alert("입력창을 확인해주세요.");
+  if (localStorage.getItem(`snackUser_${name}`)) return alert("이미 가입된 이름입니다.");
 
   currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
   saveUserData();
-  alert("가입이 완료되었습니다!");
+  alert("환영합니다!");
   closeModal();
   updateUI();
 }
@@ -41,9 +40,9 @@ function handleSignup() {
 function handleLogin() {
   const name = document.getElementById("login-name").value.trim();
   const pw = document.getElementById("login-pw").value.trim();
-  const stored = localStorage.getItem(`snackDB_${name}`);
+  const stored = localStorage.getItem(`snackUser_${name}`);
 
-  if (!stored) return alert("사용자 정보가 없습니다.");
+  if (!stored) return alert("회원정보를 찾을 수 없습니다.");
   const userData = JSON.parse(stored);
   if (userData.pw !== pw) return alert("비밀번호가 틀렸습니다.");
 
@@ -60,11 +59,7 @@ function updateUI() {
     document.getElementById("user-menu").style.display = "flex";
     document.getElementById("header-user-name").innerText = currentUser.name;
     document.getElementById("user-section").style.display = "block";
-    
-    document.getElementById("welcome-msg").innerHTML = currentUser.loginCount > 1 
-      ? `👋 다시 만나서 반가워요, <b>${currentUser.name}</b>님!` 
-      : `🌱 첫 방문을 환영합니다, <b>${currentUser.name}</b>님!`;
-
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요!`;
     renderAllergyList();
   }
   renderSnacks();
@@ -104,8 +99,8 @@ function renderSnacks() {
     const li = document.createElement("li");
     li.className = "gh-snack-item";
     li.innerHTML = `
-      <span class="snack-name-text">${item.name}</span>
-      <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
+      <span>${item.name}</span>
+      <button class="gh-fav-star" style="color:${isFav ? '#fadb14':'#ccc'}; background:none; border:none; font-size:20px; cursor:pointer;" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
     `;
     listEl.appendChild(li);
   });
@@ -113,7 +108,7 @@ function renderSnacks() {
 
 function addFavorite(name) {
   if (!currentUser) {
-    if (confirm("로그인을 해야 사용할 수 있는 기능입니다.\n로그인 화면으로 이동할까요?")) openModal('login');
+    if (confirm("로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?")) openModal('login');
     return;
   }
   const idx = currentUser.favorites.indexOf(name);
@@ -123,37 +118,36 @@ function addFavorite(name) {
   renderSnacks();
 }
 
-function saveUserData() { localStorage.setItem(`snackDB_${currentUser.name}`, JSON.stringify(currentUser)); localStorage.setItem("lastSnackUser", currentUser.name); }
-function logout() { localStorage.removeItem("lastSnackUser"); location.reload(); }
+function saveUserData() { localStorage.setItem(`snackUser_${currentUser.name}`, JSON.stringify(currentUser)); localStorage.setItem("activeSnackUser", currentUser.name); }
+function logout() { localStorage.removeItem("activeSnackUser"); location.reload(); }
 function setCategory(cat) { 
   currentCategory = cat; 
-  showFavOnly = false;
   document.querySelectorAll('.gh-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   renderSnacks(); 
 }
 function toggleFavorites() {
   if (!currentUser && !showFavOnly) {
-    if (confirm("로그인을 해야 즐겨찾기를 볼 수 있습니다.\n로그인 하시겠습니까?")) openModal('login');
+    if (confirm("로그인이 필요합니다.\n로그인 하시겠습니까?")) openModal('login');
     return;
   }
   showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 보기" : "⭐ 즐겨찾기 목록";
   renderSnacks();
 }
 function toggleTheme() { document.body.classList.toggle("dark"); localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); }
 function pickRandom() {
-  const items = document.querySelectorAll(".snack-name-text");
-  if (!items.length) return alert("간식이 없습니다!");
+  const items = document.querySelectorAll(".gh-snack-item span");
+  if (!items.length) return alert("표시할 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `🎯 추천: <b style="color:#007bff">${picked}</b>`;
+  document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary)">${picked}</b>`;
 }
 
 window.onload = () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
-  const lastUser = localStorage.getItem("lastSnackUser");
+  const lastUser = localStorage.getItem("activeSnackUser");
   if (lastUser) {
-    currentUser = JSON.parse(localStorage.getItem(`snackDB_${lastUser}`));
+    currentUser = JSON.parse(localStorage.getItem(`snackUser_${lastUser}`));
     if(currentUser) updateUI();
   } else { renderSnacks(); }
 };
