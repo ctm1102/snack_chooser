@@ -1,69 +1,68 @@
 :root {
-  --gh-blue: #007bff;
-  --gh-bg: #f8f9fa;
-  --gh-white: #ffffff;
-  --gh-text: #212529;
-  --gh-border: #dee2e6;
-  --gh-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --bg: #FFF8EE;        /* 원래의 따뜻한 배경 */
+  --text: #5A3E2B;      /* 원래의 브라운 텍스트 */
+  --card: #FFFFFF;
+  --primary: #e67e22;   /* 주황색 포인트 */
+  --border: #D8C3A5;
 }
 
 body.dark {
-  --gh-bg: #121212;
-  --gh-white: #1e1e1e;
-  --gh-text: #e9ecef;
-  --gh-border: #343a40;
+  --bg: #2B1E16;
+  --text: #F5E9DC;
+  --card: #3A2A20;
+  --border: #4A3528;
 }
 
-body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--gh-bg); color: var(--gh-text); }
+body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
 
-/* 네비게이션 - Geekhub 스타일 */
-.navbar {
-  background: var(--gh-white); border-bottom: 1px solid var(--gh-border);
-  height: 60px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000;
+/* 네비바 - Geekhub 구조 */
+.navbar { background: var(--card); border-bottom: 1px solid var(--border); height: 60px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; }
+.nav-content { width: 100%; max-width: 800px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3rem; font-weight: bold; cursor: pointer; color: var(--primary); }
+.nav-right { display: flex; align-items: center; gap: 15px; }
+.nav-link { font-size: 14px; cursor: pointer; color: var(--text); text-decoration: underline; }
+.btn-signup { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+/* 컨테이너 */
+.container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+/* 알러지 버튼 (절대 안잘림 + 여유있는 간격) */
+.chip-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.allergy-chip { 
+  display: inline-block; padding: 8px 15px; border-radius: 20px; 
+  background: var(--bg); border: 1px solid var(--border); font-size: 14px; 
+  cursor: pointer; white-space: nowrap; 
 }
-.nav-container { width: 100%; max-width: 1000px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 1.25rem; font-weight: 800; cursor: pointer; color: var(--gh-text); }
-.nav-right { display: flex; align-items: center; gap: 20px; }
-.nav-link { font-size: 14px; cursor: pointer; color: #6c757d; font-weight: 500; }
-.btn-signup { background: var(--gh-blue); color: white; border: none; padding: 7px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+.allergy-chip.active { background: #ff4d4d; color: white; border-color: #ff4d4d; }
+.allergy-chip input { display: none; }
 
-/* 컨테이너 및 여백 */
-.container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
+/* 메인 버튼 및 간격 */
+.main-actions { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+.btn-primary { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+.btn-secondary { width: 100%; padding: 12px; background: var(--card); border: 1px solid var(--primary); color: var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* 카드 및 여유로운 간격 */
-.card { background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 30px; margin-bottom: 40px; box-shadow: var(--gh-shadow); }
-.card-title { margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; }
+/* 카테고리 탭 */
+.category-tabs { display: flex; gap: 10px; overflow-x: auto; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab { background: none; border: none; padding: 10px 15px; cursor: pointer; color: #999; font-weight: bold; border-bottom: 3px solid transparent; white-space: nowrap; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-/* 알러지 칩 */
-.chip-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
-.gh-chip { padding: 8px 16px; border: 1px solid var(--gh-border); border-radius: 20px; font-size: 14px; cursor: pointer; background: var(--gh-white); }
-.gh-chip.active { background: #dc3545; color: white; border-color: #dc3545; }
-.gh-chip input { display: none; }
+/* 리스트 및 결과창 */
+.result-display { padding: 30px; text-align: center; background: var(--card); border: 2px dashed var(--primary); border-radius: 15px; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; }
+.snack-list { padding: 0; margin: 0; }
+.snack-item { 
+  list-style: none; background: var(--card); border: 1px solid var(--border); border-radius: 10px; 
+  padding: 15px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; 
+}
 
-/* 메인 버튼 레이아웃 - 버튼 사이 간격 대폭 확보 */
-.hero-actions { margin-bottom: 50px; display: flex; flex-direction: column; gap: 20px; }
-.btn-main-action { width: 100%; padding: 22px; background: var(--gh-blue); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,123,255,0.2); }
-.secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.btn-secondary { padding: 14px; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--gh-text); }
+/* 즐겨찾기 버튼 크기 제한 */
+.fav-btn { background: none; border: none; font-size: 22px; cursor: pointer; width: 40px; color: #ddd; }
+.fav-btn.on { color: #f1c40f; }
 
-/* 탭 메뉴 */
-.tabs-nav { border-bottom: 2px solid var(--gh-border); margin-bottom: 30px; }
-.tabs-list { display: flex; gap: 25px; }
-.tab-item { background: none; border: none; padding: 15px 5px; font-size: 16px; cursor: pointer; color: #adb5bd; border-bottom: 3px solid transparent; transition: 0.2s; }
-.tab-item.active { color: var(--gh-blue); border-bottom-color: var(--gh-blue); font-weight: bold; }
-
-/* 결과 표시창 */
-.result-box { padding: 50px; text-align: center; background: var(--gh-white); border: 2px dashed var(--gh-blue); border-radius: 15px; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
-
-/* 리스트 항목 간격 */
-.snack-list-wrapper { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-.snack-item { list-style: none; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; }
-
-/* 모달 디자인 */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-.modal-card { background: var(--gh-white); width: 90%; max-width: 400px; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-.input-stack { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-.input-stack input { padding: 15px; border: 1px solid var(--gh-border); border-radius: 8px; font-size: 15px; background: var(--gh-bg); color: var(--gh-text); }
-.btn-submit-full { width: 100%; padding: 15px; background: var(--gh-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.pw-notice { color: #dc3545; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+/* 모달 입력창 */
+.gh-input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
+.modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000; }
+.close-btn { font-size: 25px; cursor: pointer; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.switch-text { text-align: center; margin-top: 15px; font-size: 14px; }
+.switch-text span { color: var(--primary); cursor: pointer; text-decoration: underline; }
