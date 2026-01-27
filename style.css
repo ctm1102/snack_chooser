@@ -1,60 +1,44 @@
-/* 기존 스타일은 유지하고 아래 부분 위주로 수정/추가하세요 */
+:root { --bg: #FFF8EE; --text: #5A3E2B; --card: #FFFFFF; --button: #F2C078; --border: #D8C3A5; }
+body.dark { --bg: #2B1E16; --text: #F5E9DC; --card: #3A2A20; --button: #8C5A2B; --border: #4A3528; }
 
-.allergy-section {
-  background: rgba(0,0,0,0.03);
-  padding: 12px;
-  border-radius: 10px;
-  margin: 10px 0;
-}
+body { font-family: sans-serif; max-width: 400px; margin: auto; padding: 20px; background: var(--bg); color: var(--text); }
+.card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
 
-.allergy-flex {
-  display: flex;
-  flex-wrap: wrap; /* 화면이 좁으면 다음 줄로 넘김 */
-  gap: 10px;      /* 항목 간 간격 */
-}
-
-.allergy-flex label {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  white-space: nowrap; /* 글자가 짤려서 줄바꿈되는 것 방지 */
+/* 알러지 아이템 커스텀 (글자 안짤림) */
+.allergy-item {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 4px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 13px;
   cursor: pointer;
-  background: var(--card);
-  padding: 4px 8px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
+}
+.allergy-item.active { background: #ff7675; color: white; border-color: #ff7675; }
+.allergy-item input { display: none; }
+
+/* 입력창 */
+input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 5px; border-radius: 8px; border: 1px solid var(--border); }
+
+/* 즐겨찾기 버튼 크기 조절 */
+.snack-name { flex: 1; }
+.fav-btn {
+  width: 40px !important; /* 버튼 너비 고정 */
+  height: 40px;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  font-size: 1.2rem !important;
 }
 
-.allergy-flex input {
-  margin-right: 5px;
-  width: auto;
-}
+button { padding: 12px; width: 100%; cursor: pointer; background: var(--button); color: var(--text); border: none; border-radius: 8px; font-weight: bold; }
+.user-buttons { display: flex; gap: 5px; margin-top: 10px; }
+.user-buttons button { font-size: 11px; padding: 8px; flex: 1; }
+.btn-logout { background: #999 !important; color: white !important; }
 
-/* 다크모드 대응 */
-body.dark .allergy-section {
-  background: rgba(255,255,255,0.05);
-}
+.categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
+.categories button { font-size: 12px; padding: 8px; background: var(--border); }
 
-/* 입력창 및 기타 버튼 */
-input[type="text"], input[type="password"] {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-}
-
-.user-buttons {
-  display: flex;
-  gap: 5px;
-  margin-top: 10px;
-}
-
-.user-buttons button {
-  font-size: 11px;
-  padding: 8px;
-  flex: 1;
-}
-
-.btn-logout { background: #ff7675 !important; color: white !important; }
+li { list-style: none; padding: 8px 12px; background: var(--card); margin-bottom: 5px; display: flex; align-items: center; border-radius: 8px; border: 1px solid var(--border); }
+#result { text-align: center; padding: 15px; background: var(--card); border-radius: 12px; border: 2px dashed var(--button); }
