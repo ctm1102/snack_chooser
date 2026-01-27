@@ -1,110 +1,100 @@
 :root {
-  --primary: #3498db;
-  --primary-hover: #2980b9;
-  --bg: #f3f4f6;
+  --primary: #007bff;
+  --bg: #ffffff;
+  --body-bg: #f8f9fa;
+  --text: #212529;
+  --border: #dee2e6;
   --card-bg: #ffffff;
-  --text: #333;
-  --border: #e1e4e8;
-  --red: #ff4d4d;
 }
 
 body.dark {
-  --bg: #121212;
-  --card-bg: #1e1e1e;
-  --text: #e0e0e0;
+  --bg: #1e1e1e;
+  --body-bg: #121212;
+  --text: #f8f9fa;
   --border: #333;
+  --card-bg: #1e1e1e;
 }
 
-body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+body { margin: 0; font-family: -apple-system, sans-serif; background: var(--body-bg); color: var(--text); }
 
-/* 네비게이션바 */
+/* Geekhub Navbar */
 .navbar {
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border);
-  height: 60px;
-  position: sticky; top: 0; z-index: 1000;
-  display: flex; justify-content: center;
+  height: 56px; background: var(--bg); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000;
 }
-.navbar-content {
-  width: 100%; max-width: 800px; padding: 0 20px;
+.navbar-inner {
+  width: 100%; max-width: 1000px; padding: 0 16px;
   display: flex; justify-content: space-between; align-items: center;
 }
-.logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); cursor: pointer; }
-.nav-links { display: flex; align-items: center; gap: 20px; }
-.nav-link { font-size: 14px; cursor: pointer; font-weight: 500; }
-.signup-btn {
-  background: var(--primary); color: white; border: none; padding: 6px 16px;
-  border-radius: 6px; font-weight: bold; cursor: pointer;
+.logo { font-size: 1.25rem; font-weight: bold; color: var(--text); cursor: pointer; }
+.nav-auth { display: flex; align-items: center; gap: 16px; }
+.nav-item { font-size: 14px; cursor: pointer; color: var(--text); }
+.nav-signup-btn {
+  background: var(--primary); color: white; border: none; padding: 6px 12px;
+  border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px;
 }
 
-/* 컨테이너 */
-.container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
-.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-.shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+/* Container */
+.main-container { max-width: 640px; margin: 32px auto; padding: 0 16px; }
+.gh-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.gh-title { margin-top: 0; font-size: 18px; }
 
-/* 알러지 칩 */
-.allergy-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-.chip {
-  padding: 6px 14px; background: var(--bg); border: 1px solid var(--border);
-  border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap;
+/* Chips (알러지 버튼 짤림 방지) */
+.chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.gh-chip {
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 100px;
+  font-size: 13px; cursor: pointer; background: var(--bg); white-space: nowrap;
 }
-.chip.active { background: var(--red); color: white; border-color: var(--red); }
-.chip input { display: none; }
+.gh-chip.active { background: #ff4d4f; color: white; border-color: #ff4d4f; }
+.gh-chip input { display: none; }
 
-/* 메인 액션 */
-.btn-primary-large {
-  width: 100%; padding: 18px; background: var(--primary); color: white;
-  border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
-  cursor: pointer; margin-bottom: 12px;
+/* Buttons */
+.gh-btn-primary-large {
+  width: 100%; padding: 16px; background: var(--primary); color: white;
+  border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;
 }
-.btn-outline {
-  width: 100%; padding: 10px; background: transparent; border: 1px solid var(--primary);
-  color: var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer;
-}
+.sub-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 8px; }
+.gh-btn-outline { background: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.gh-btn-theme { padding: 10px; background: var(--border); border: none; border-radius: 6px; cursor: pointer; }
 
-/* 카테고리 탭 */
-.category-tabs { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
-.tab {
-  flex: 0 0 auto; padding: 8px 16px; background: none; border: none;
-  color: #888; cursor: pointer; font-weight: bold; border-bottom: 2px solid transparent;
+/* Tabs */
+.gh-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--border); margin: 24px 0; }
+.gh-tab {
+  background: none; border: none; padding: 8px 4px; font-size: 14px; cursor: pointer;
+  color: #666; border-bottom: 2px solid transparent;
 }
-.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.gh-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: bold; }
 
-/* 결과창 (크기 최적화) */
-.result-display {
-  text-align: center; padding: 25px; background: var(--card-bg);
-  border: 2px dashed var(--primary); border-radius: 12px;
-  font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;
+/* List & Result */
+.gh-result-box {
+  padding: 32px; text-align: center; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 8px; font-size: 18px; font-weight: bold; margin-bottom: 16px;
 }
+.gh-snack-list { padding: 0; margin: 0; }
+.gh-snack-item {
+  list-style: none; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px 16px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.gh-fav-star { background: none; border: none; font-size: 20px; cursor: pointer; color: #ccc; }
+.gh-fav-star.on { color: #fadb14; }
 
-/* 리스트 */
-.snack-list { padding: 0; margin: 0; }
-.snack-item {
-  list-style: none; display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 20px; background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 10px; margin-bottom: 8px;
-}
-.fav-btn {
-  background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #ccc;
-}
-.fav-btn.on { color: gold; }
-
-/* 모달 */
-.modal-overlay {
+/* Modal */
+.gh-modal-overlay {
   display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000;
+  background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 2000;
 }
-.modal-card { width: 90%; max-width: 380px; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.close-btn { font-size: 24px; cursor: pointer; }
-.input-group input {
-  width: 100%; padding: 12px; margin-bottom: 10px; box-sizing: border-box;
-  border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text);
+.gh-modal-card {
+  background: var(--card-bg); width: 100%; max-width: 360px; padding: 32px;
+  border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
-.btn-submit {
-  width: 100%; padding: 12px; background: var(--primary); color: white;
-  border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+.gh-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-close { font-size: 24px; cursor: pointer; }
+.gh-input-group input {
+  width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid var(--border);
+  border-radius: 6px; margin-bottom: 12px; background: var(--bg); color: var(--text);
 }
-.notice-red { color: var(--red); font-size: 12px; font-weight: bold; margin-bottom: 10px; }
-.switch-auth { font-size: 13px; text-align: center; margin-top: 15px; }
-.switch-auth span { color: var(--primary); cursor: pointer; text-decoration: underline; }
+.gh-btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.pw-warning { color: #ff4d4f; font-size: 12px; margin-bottom: 12px; font-weight: bold; }
+.gh-modal-footer { margin-top: 20px; text-align: center; font-size: 14px; }
+.gh-modal-footer span { color: var(--primary); cursor: pointer; text-decoration: underline; }
