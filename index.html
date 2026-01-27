@@ -8,79 +8,75 @@
 </head>
 <body>
 
-  <header class="gh-navbar">
-    <div class="gh-nav-container">
+  <header class="gh-header">
+    <div class="gh-nav-inner">
       <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
-      <div id="auth-menu" class="gh-auth-links">
-        <span class="gh-link" onclick="openModal('login')">로그인</span>
+      <div id="auth-menu" class="gh-auth-zone">
+        <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
         <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
       </div>
-      <div id="user-menu" class="gh-auth-links" style="display: none;">
-        <span id="header-user-name" class="gh-user-info"></span>
-        <span class="gh-link logout" onclick="logout()">로그아웃</span>
+      <div id="user-menu" class="gh-auth-zone" style="display: none;">
+        <span id="header-user-name" class="gh-user-name"></span>
+        <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
       </div>
     </div>
   </header>
 
-  <main class="gh-container">
+  <main class="gh-main-container">
     <section id="user-section" class="gh-card" style="display:none;">
-      <h3 class="gh-card-title">설정</h3>
-      <p id="welcome-msg" class="gh-welcome"></p>
-      <div class="gh-allergy-box">
-        <label class="gh-label">🚫 제외할 알러지</label>
-        <div id="allergy-list" class="gh-chip-group"></div>
+      <h3 class="gh-card-title">My Preferences</h3>
+      <p id="welcome-msg" class="gh-welcome-txt"></p>
+      <div class="gh-allergy-group">
+        <label class="gh-label">🚫 제외할 알러지 (글자 잘림 없음)</label>
+        <div id="allergy-list" class="gh-chips"></div>
       </div>
-      <div class="gh-card-footer">
-        <button onclick="exportData()" class="gh-btn-ghost">백업</button>
-        <button onclick="importData()" class="gh-btn-ghost">복구</button>
-        <button onclick="toggleTheme()" class="gh-btn-ghost">테마 변경</button>
+      <div class="gh-card-actions">
+        <button onclick="exportData()" class="gh-btn-text">📤 데이터 백업</button>
+        <button onclick="importData()" class="gh-btn-text">📥 데이터 복구</button>
+        <button onclick="toggleTheme()" class="gh-btn-text">🎨 테마 변경</button>
       </div>
     </section>
 
-    <div class="gh-hero">
-      <button onclick="pickRandom()" class="gh-btn-primary">🎲 오늘의 간식 뽑기</button>
+    <div class="gh-hero-section">
+      <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
       <div class="gh-hero-sub">
         <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
       </div>
     </div>
 
     <nav class="gh-tabs">
-      <button onclick="setCategory('all')" class="gh-tab active">전체</button>
-      <button onclick="setCategory('snack')" class="gh-tab">과자</button>
-      <button onclick="setCategory('icecream')" class="gh-tab">빙과</button>
-      <button onclick="setCategory('tradition')" class="gh-tab">전통</button>
-      <button onclick="setCategory('candy')" class="gh-tab">젤리</button>
-      <button onclick="setCategory('drink')" class="gh-tab">음료</button>
+      <div class="gh-tab-list">
+        <button onclick="setCategory('all')" class="gh-tab-btn active">전체</button>
+        <button onclick="setCategory('snack')" class="gh-tab-btn">과자</button>
+        <button onclick="setCategory('icecream')" class="gh-tab-btn">빙과</button>
+        <button onclick="setCategory('tradition')" class="gh-tab-btn">전통</button>
+        <button onclick="setCategory('candy')" class="gh-tab-btn">젤리/사탕</button>
+        <button onclick="setCategory('drink')" class="gh-tab-btn">음료</button>
+      </div>
     </nav>
 
-    <div id="result" class="gh-result-display">어떤 간식을 먹을까요?</div>
+    <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <div id="auth-modal" class="gh-modal-overlay">
-    <div class="gh-modal-card">
-      <div class="gh-modal-header">
+  <div id="auth-modal" class="gh-modal">
+    <div class="gh-modal-box">
+      <div class="gh-modal-head">
         <h2 id="modal-title">로그인</h2>
-        <span class="gh-close" onclick="closeModal()">&times;</span>
+        <span class="gh-modal-close" onclick="closeModal()">&times;</span>
       </div>
-      
-      <div id="login-form">
-        <div class="gh-input-group">
-          <input type="text" id="login-name" placeholder="이름">
-          <input type="password" id="login-pw" placeholder="비밀번호">
-        </div>
+      <div id="login-form" class="gh-form">
+        <input type="text" id="login-name" class="gh-input" placeholder="성함">
+        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-        <p class="gh-switch">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
+        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
       </div>
-
-      <div id="signup-form" style="display:none;">
-        <div class="gh-input-group">
-          <input type="text" id="signup-name" placeholder="이름">
-          <input type="password" id="signup-pw" placeholder="비밀번호">
-        </div>
-        <p class="gh-pw-alert">* 비밀번호는 나중에 찾을 수 없으니 꼭 기억하세요!</p>
-        <button class="gh-btn-submit" onclick="handleSignup()">가입하기</button>
-        <p class="gh-switch">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
+      <div id="signup-form" class="gh-form" style="display:none;">
+        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
+        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
+        <p class="gh-pw-warning">* 주의: 비밀번호는 찾을 수 없으니 꼭 기억하세요!</p>
+        <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
+        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
       </div>
     </div>
   </div>
