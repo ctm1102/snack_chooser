@@ -8,55 +8,75 @@
 </head>
 <body>
 
-  <h1>🍪 Snack Chooser</h1>
+  <header class="navbar">
+    <div class="logo" onclick="location.reload()">🍪 SnackHub</div>
+    <div id="auth-menu">
+      <button class="nav-btn login-trigger" onclick="openModal('login')">로그인</button>
+      <button class="nav-btn signup-trigger" onclick="openModal('signup')">회원가입</button>
+    </div>
+    <div id="user-menu" style="display: none;">
+      <span id="header-user-name"></span>
+      <button class="nav-btn" onclick="logout()">로그아웃</button>
+    </div>
+  </header>
 
-  <div style="text-align: right; margin-bottom: 10px;">
-    <button onclick="toggleTheme()" style="width: auto; padding: 5px 15px;">🎨 테마</button>
-  </div>
-
-  <div id="login-area" class="card">
-    <input type="text" id="username" placeholder="이름을 입력하세요">
-    <input type="password" id="userpw" placeholder="비밀번호 입력">
-    <p id="auth-desc" style="font-size: 11px; color: #ff4d4d; margin-top: 5px; font-weight: bold;">
-      * 처음 만든 비밀번호는 꼭 기억해 주세요.
-    </p>
-    <button onclick="handleAuth()">시작하기</button>
-  </div>
-
-  <div id="user-area" class="card" style="display:none;">
-    <p id="welcome-msg"></p>
-    
-    <div class="allergy-box">
-      <p style="margin-bottom: 8px; font-size: 14px;">🚫 <b>제외할 알러지</b></p>
-      <div id="allergy-list">
-        </div>
+  <main class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+      <button onclick="toggleTheme()" class="theme-btn">🎨 테마 변경</button>
     </div>
 
-    <div class="user-buttons">
-      <button onclick="exportData()">📤 백업</button>
-      <button onclick="importData()">📥 복구</button>
-      <button onclick="logout()" class="btn-logout">로그아웃</button>
+    <section id="user-section" class="card shadow" style="display:none;">
+      <p id="welcome-msg"></p>
+      <div class="allergy-box">
+        <p class="section-title">🚫 제외할 알러지 설정</p>
+        <div id="allergy-list" class="flex-wrap"></div>
+      </div>
+      <div class="backup-area">
+        <button onclick="exportData()">📤 백업</button>
+        <button onclick="importData()">📥 복구</button>
+      </div>
+    </section>
+
+    <div class="main-controls">
+      <button onclick="pickRandom()" class="btn-main">🎲 오늘의 간식 뽑기</button>
+      <button onclick="toggleFavorites()" id="fav-toggle-btn" class="btn-sub">⭐ 즐겨찾기만 보기</button>
+    </div>
+
+    <nav class="categories">
+      <button onclick="setCategory('all')">전체</button>
+      <button onclick="setCategory('snack')">과자</button>
+      <button onclick="setCategory('icecream')">빙과</button>
+      <button onclick="setCategory('tradition')">전통</button>
+      <button onclick="setCategory('candy')">젤리</button>
+      <button onclick="setCategory('drink')">음료</button>
+    </nav>
+
+    <div id="result" class="card dashed">어떤 간식을 먹을까요?</div>
+    <ul id="snack-list" class="snack-grid"></ul>
+  </main>
+
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-content card shadow">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      
+      <div id="login-form">
+        <h2>로그인</h2>
+        <input type="text" id="login-name" placeholder="이름 입력">
+        <input type="password" id="login-pw" placeholder="비밀번호 입력">
+        <button class="btn-full" onclick="handleLogin()">로그인</button>
+      </div>
+
+      <div id="signup-form" style="display:none;">
+        <h2>회원가입</h2>
+        <input type="text" id="signup-name" placeholder="이름 입력">
+        <input type="password" id="signup-pw" placeholder="비밀번호 입력">
+        <p style="color: #ff4d4d; font-size: 11px; margin-top: 5px; font-weight: bold;">
+          * 비밀번호는 분실 시 찾을 수 없으니 꼭 기억하세요!
+        </p>
+        <button class="btn-full" onclick="handleSignup()">가입하기</button>
+      </div>
     </div>
   </div>
-
-  <hr>
-
-  <div class="main-controls">
-    <button onclick="pickRandom()" class="btn-primary" style="background: #e67e22; color: white;">🎲 오늘의 간식 뽑기</button>
-    <button onclick="toggleFavorites()" id="fav-toggle-btn">⭐ 즐겨찾기 목록만 보기</button>
-  </div>
-
-  <div class="categories">
-    <button onclick="setCategory('all')">전체</button>
-    <button onclick="setCategory('snack')">과자</button>
-    <button onclick="setCategory('icecream')">빙과</button>
-    <button onclick="setCategory('tradition')">전통</button>
-    <button onclick="setCategory('candy')">젤리</button>
-    <button onclick="setCategory('drink')">음료</button>
-  </div>
-
-  <div id="result">어떤 간식을 먹을까요?</div>
-  <ul id="snack-list"></ul>
 
   <script src="script.js"></script>
 </body>
