@@ -1,114 +1,69 @@
 :root {
-  --gh-primary: #007bff;
+  --gh-blue: #007bff;
   --gh-bg: #f8f9fa;
-  --gh-card: #ffffff;
-  --gh-text: #333;
-  --gh-border: #e1e4e8;
-  --gh-shadow: rgba(0, 0, 0, 0.05);
+  --gh-white: #ffffff;
+  --gh-text: #212529;
+  --gh-border: #dee2e6;
+  --gh-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 body.dark {
   --gh-bg: #121212;
-  --gh-card: #1e1e1e;
-  --gh-text: #f0f0f0;
-  --gh-border: #333;
+  --gh-white: #1e1e1e;
+  --gh-text: #e9ecef;
+  --gh-border: #343a40;
 }
 
-body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); }
+body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--gh-bg); color: var(--gh-text); }
 
-/* 상단 네비게이션 */
-.gh-header {
-  background: var(--gh-card);
-  border-bottom: 1px solid var(--gh-border);
-  height: 64px;
-  display: flex; justify-content: center;
-  position: sticky; top: 0; z-index: 100;
+/* 네비게이션 - Geekhub 스타일 */
+.navbar {
+  background: var(--gh-white); border-bottom: 1px solid var(--gh-border);
+  height: 60px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000;
 }
-.gh-header-container {
-  width: 100%; max-width: 1000px; padding: 0 20px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.gh-logo { font-size: 1.2rem; font-weight: 800; cursor: pointer; }
-.gh-nav-group { display: flex; align-items: center; gap: 24px; }
-.gh-nav-item { font-size: 14px; cursor: pointer; color: #666; font-weight: 500; }
-.gh-btn-signup {
-  background: var(--gh-primary); color: white; border: none;
-  padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;
-}
+.nav-container { width: 100%; max-width: 1000px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.25rem; font-weight: 800; cursor: pointer; color: var(--gh-text); }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-link { font-size: 14px; cursor: pointer; color: #6c757d; font-weight: 500; }
+.btn-signup { background: var(--gh-blue); color: white; border: none; padding: 7px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-/* 메인 컨테이너 */
-.gh-main { max-width: 680px; margin: 40px auto; padding: 0 20px; }
+/* 컨테이너 및 여백 */
+.container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
 
-/* 카드 스타일 */
-.gh-card {
-  background: var(--gh-card);
-  border: 1px solid var(--gh-border);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 32px; /* 카드 사이 간격 */
-}
-.shadow { box-shadow: 0 4px 20px var(--gh-shadow); }
-.gh-card-title { margin: 0 0 16px 0; font-size: 1.1rem; }
+/* 카드 및 여유로운 간격 */
+.card { background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 30px; margin-bottom: 40px; box-shadow: var(--gh-shadow); }
+.card-title { margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; }
 
-/* 알러지 칩 그룹 */
-.gh-chip-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.gh-chip {
-  padding: 8px 16px; border: 1px solid var(--gh-border); border-radius: 50px;
-  font-size: 14px; cursor: pointer; background: var(--gh-card); white-space: nowrap;
-}
-.gh-chip.active { background: #ff4d4f; color: white; border-color: #ff4d4f; }
+/* 알러지 칩 */
+.chip-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
+.gh-chip { padding: 8px 16px; border: 1px solid var(--gh-border); border-radius: 20px; font-size: 14px; cursor: pointer; background: var(--gh-white); }
+.gh-chip.active { background: #dc3545; color: white; border-color: #dc3545; }
 .gh-chip input { display: none; }
 
-/* 메인 버튼들 (간격 확보) */
-.gh-hero { margin-bottom: 40px; }
-.gh-btn-main {
-  width: 100%; padding: 20px; background: var(--gh-primary); color: white;
-  border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
-  cursor: pointer; margin-bottom: 16px; /* 버튼 아래 간격 */
-}
-.gh-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.gh-btn-secondary {
-  padding: 12px; background: var(--gh-card); border: 1px solid var(--gh-border);
-  border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gh-text);
-}
+/* 메인 버튼 레이아웃 - 버튼 사이 간격 대폭 확보 */
+.hero-actions { margin-bottom: 50px; display: flex; flex-direction: column; gap: 20px; }
+.btn-main-action { width: 100%; padding: 22px; background: var(--gh-blue); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,123,255,0.2); }
+.secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.btn-secondary { padding: 14px; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--gh-text); }
 
 /* 탭 메뉴 */
-.gh-tabs-container { border-bottom: 1px solid var(--gh-border); margin-bottom: 24px; }
-.gh-tabs { display: flex; gap: 20px; }
-.gh-tab {
-  background: none; border: none; padding: 12px 4px; font-size: 15px;
-  cursor: pointer; color: #888; border-bottom: 2px solid transparent;
-}
-.gh-tab.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); font-weight: bold; }
+.tabs-nav { border-bottom: 2px solid var(--gh-border); margin-bottom: 30px; }
+.tabs-list { display: flex; gap: 25px; }
+.tab-item { background: none; border: none; padding: 15px 5px; font-size: 16px; cursor: pointer; color: #adb5bd; border-bottom: 3px solid transparent; transition: 0.2s; }
+.tab-item.active { color: var(--gh-blue); border-bottom-color: var(--gh-blue); font-weight: bold; }
 
-/* 결과창 */
-.gh-result-card {
-  padding: 40px; text-align: center; background: var(--gh-card);
-  border: 2px dashed var(--gh-primary); border-radius: 12px;
-  font-size: 1.25rem; font-weight: bold; margin-bottom: 24px;
-}
+/* 결과 표시창 */
+.result-box { padding: 50px; text-align: center; background: var(--gh-white); border: 2px dashed var(--gh-blue); border-radius: 15px; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
 
-/* 리스트 항목 */
-.gh-list { padding: 0; margin: 0; }
-.gh-snack-item {
-  list-style: none; background: var(--gh-card); border: 1px solid var(--gh-border);
-  border-radius: 10px; padding: 16px 20px; margin-bottom: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-}
+/* 리스트 항목 간격 */
+.snack-list-wrapper { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.snack-item { list-style: none; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; }
 
 /* 모달 디자인 */
-.gh-modal {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
-}
-.gh-modal-content {
-  background: var(--gh-card); width: 100%; max-width: 400px;
-  padding: 40px; border-radius: 16px; position: relative;
-}
-.gh-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.gh-input {
-  width: 100%; padding: 14px; margin-bottom: 12px; box-sizing: border-box;
-  border: 1px solid var(--gh-border); border-radius: 8px; background: var(--gh-bg); color: var(--gh-text);
-}
-.gh-btn-submit { width: 100%; padding: 14px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-.gh-alert-text { color: #ff4d4f; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+.modal-card { background: var(--gh-white); width: 90%; max-width: 400px; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.input-stack { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+.input-stack input { padding: 15px; border: 1px solid var(--gh-border); border-radius: 8px; font-size: 15px; background: var(--gh-bg); color: var(--gh-text); }
+.btn-submit-full { width: 100%; padding: 15px; background: var(--gh-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.pw-notice { color: #dc3545; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
