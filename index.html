@@ -9,83 +9,73 @@
 <body>
 
   <header class="navbar">
-    <div class="nav-container">
-      <div class="logo" onclick="location.reload()">🍪 Random Snack Chooser</div>
+    <div class="nav-content">
+      <div class="logo" onclick="location.reload()">🍪 Snack Chooser</div>
       <div id="auth-menu" class="nav-right">
         <span class="nav-link" onclick="openModal('login')">로그인</span>
         <button class="btn-signup" onclick="openModal('signup')">회원가입</button>
       </div>
       <div id="user-menu" class="nav-right" style="display: none;">
-        <span id="header-user-name" class="user-name-tag"></span>
-        <span class="nav-link logout-text" onclick="logout()">로그아웃</span>
+        <span id="header-user-name" class="user-info"></span>
+        <span class="nav-link" onclick="logout()">로그아웃</span>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <section id="user-section" class="card gh-style" style="display:none;">
-      <h3 class="card-title">내 취향 정보</h3>
-      <p id="welcome-msg" class="welcome-msg"></p>
-      
-      <div class="allergy-container">
-        <label class="section-label">🚫 제외할 알러지 성분</label>
+    <section id="user-section" class="card" style="display:none;">
+      <p id="welcome-msg" style="margin-bottom: 20px; font-weight: bold;"></p>
+      <div class="allergy-area">
+        <p class="section-label">🚫 제외할 알러지 (글자 안잘림)</p>
         <div id="allergy-list" class="chip-group"></div>
       </div>
-
-      <div class="card-footer-btns">
-        <button onclick="exportData()" class="btn-ghost">📤 백업</button>
-        <button onclick="importData()" class="btn-ghost">📥 복구</button>
+      <div class="btn-row" style="margin-top: 20px;">
+        <button onclick="exportData()" class="btn-small">📤 백업</button>
+        <button onclick="importData()" class="btn-small">📥 복구</button>
+        <button onclick="toggleTheme()" class="btn-small">🎨 테마</button>
       </div>
     </section>
 
-    <div class="hero-actions">
-      <button onclick="pickRandom()" class="btn-main-action">🎲 오늘의 간식 뽑기</button>
-      <div class="secondary-actions">
-        <button onclick="toggleFavorites()" id="fav-toggle-btn" class="btn-secondary">⭐ 즐겨찾기만 보기</button>
-        <button onclick="toggleTheme()" class="btn-secondary">🎨 테마 변경</button>
-      </div>
+    <div class="main-actions">
+      <button onclick="pickRandom()" class="btn-primary">🎲 오늘의 간식 뽑기</button>
+      <button onclick="toggleFavorites()" id="fav-toggle-btn" class="btn-secondary">⭐ 즐겨찾기 목록만 보기</button>
     </div>
 
-    <nav class="tabs-nav">
-      <div class="tabs-list">
-        <button onclick="setCategory('all')" class="tab-item active">전체</button>
-        <button onclick="setCategory('snack')" class="tab-item">과자</button>
-        <button onclick="setCategory('icecream')" class="tab-item">빙과</button>
-        <button onclick="setCategory('tradition')" class="tab-item">전통</button>
-        <button onclick="setCategory('candy')" class="tab-item">젤리</button>
-        <button onclick="setCategory('drink')" class="tab-item">음료</button>
-      </div>
+    <nav class="category-tabs">
+      <button onclick="setCategory('all')" class="tab active">전체</button>
+      <button onclick="setCategory('snack')" class="tab">과자</button>
+      <button onclick="setCategory('icecream')" class="tab">빙과</button>
+      <button onclick="setCategory('tradition')" class="tab">전통</button>
+      <button onclick="setCategory('candy')" class="tab">젤리</button>
+      <button onclick="setCategory('drink')" class="tab">음료</button>
     </nav>
 
-    <div id="result" class="result-box">어떤 간식을 먹을까요?</div>
-    
-    <ul id="snack-list" class="snack-list-wrapper"></ul>
+    <div id="result" class="result-display">어떤 간식을 먹을까요?</div>
+    <ul id="snack-list" class="snack-list"></ul>
   </main>
 
   <div id="auth-modal" class="modal-overlay">
-    <div class="modal-card">
+    <div class="modal-content card">
       <div class="modal-header">
-        <h2 id="modal-title">로그인</h2>
-        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title" style="margin:0;">로그인</h2>
+        <span class="close-btn" onclick="closeModal()">&times;</span>
       </div>
       
       <div id="login-form">
-        <div class="input-stack">
-          <input type="text" id="login-name" placeholder="이름을 입력하세요">
-          <input type="password" id="login-pw" placeholder="비밀번호">
-        </div>
-        <button class="btn-submit-full" onclick="handleLogin()">로그인</button>
-        <p class="auth-switch">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
+        <input type="text" id="login-name" class="gh-input" placeholder="이름 입력">
+        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호 입력">
+        <button class="btn-primary" onclick="handleLogin()">로그인</button>
+        <p class="switch-text">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
       </div>
 
       <div id="signup-form" style="display:none;">
-        <div class="input-stack">
-          <input type="text" id="signup-name" placeholder="사용할 이름">
-          <input type="password" id="signup-pw" placeholder="비밀번호 설정">
-        </div>
-        <p class="pw-notice">* 처음 만든 비밀번호는 꼭 기억해 주세요!</p>
-        <button class="btn-submit-full" onclick="handleSignup()">가입하기</button>
-        <p class="auth-switch">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
+        <input type="text" id="signup-name" class="gh-input" placeholder="이름 입력">
+        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호 입력">
+        <p style="color: #ff4d4d; font-size: 13px; font-weight: bold; margin: 10px 0;">
+          * 처음 만든 비밀번호는 꼭 기억해 주세요!
+        </p>
+        <button class="btn-primary" onclick="handleSignup()">가입하기</button>
+        <p class="switch-text">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
       </div>
     </div>
   </div>
