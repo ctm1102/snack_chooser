@@ -16,12 +16,26 @@
 
   <div id="login-area" class="card">
     <input type="text" id="username" placeholder="이름을 입력하세요">
-    <button onclick="login()">로그인</button>
+    <input type="password" id="userpw" placeholder="비밀번호(숫자 4자리)" maxlength="4">
+    <button onclick="login()">로그인 / 시작하기</button>
   </div>
 
   <div id="user-area" class="card" style="display:none;">
-    <p><b id="user-name"></b>님 환영합니다 😋</p>
-    <button onclick="logout()">로그아웃</button>
+    <p id="welcome-msg"></p>
+    
+    <div class="allergy-settings">
+      <p><small>🚫 제외할 알러지 성분 선택:</small></p>
+      <label><input type="checkbox" class="allergy-check" value="milk" onchange="updateAllergy()"> 우유</label>
+      <label><input type="checkbox" class="allergy-check" value="peanut" onchange="updateAllergy()"> 견과류</label>
+      <label><input type="checkbox" class="allergy-check" value="wheat" onchange="updateAllergy()"> 밀</label>
+      <label><input type="checkbox" class="allergy-check" value="shrimp" onchange="updateAllergy()"> 새우</label>
+    </div>
+
+    <div style="display: flex; gap: 5px; margin-top: 10px;">
+      <button onclick="exportData()" style="font-size: 11px;">📤 데이터 내보내기(기기이동)</button>
+      <button onclick="importData()" style="font-size: 11px;">📥 데이터 불러오기</button>
+      <button onclick="logout()" style="background: #999; color: white;">로그아웃</button>
+    </div>
   </div>
 
   <hr>
