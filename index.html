@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Snack Chooser</title>
+  <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,30 +11,25 @@
   <h1>🍪 Snack Chooser</h1>
 
   <div style="text-align: right; margin-bottom: 10px;">
-    <button onclick="toggleTheme()" style="width: auto; padding: 5px 15px;">🎨 테마 변경</button>
+    <button onclick="toggleTheme()" style="width: auto; padding: 5px 15px;">🎨 테마</button>
   </div>
 
   <div id="login-area" class="card">
-    <h3 id="auth-title">로그인 또는 가입</h3>
     <input type="text" id="username" placeholder="이름을 입력하세요">
-    <input type="password" id="userpw" placeholder="비밀번호 (자유롭게 입력)">
-    <p id="auth-desc" style="font-size: 11px; color: #888;">* 처음 만든 비밀번호는 꼭 기억해 주세요.</p>
-    <button onclick="handleAuth()" id="auth-btn">시작하기</button>
+    <input type="password" id="userpw" placeholder="비밀번호 입력">
+    <p id="auth-desc" style="font-size: 11px; color: #ff4d4d; margin-top: 5px; font-weight: bold;">
+      * 처음 만든 비밀번호는 꼭 기억해 주세요.
+    </p>
+    <button onclick="handleAuth()">시작하기</button>
   </div>
 
   <div id="user-area" class="card" style="display:none;">
     <p id="welcome-msg"></p>
     
-    <div class="allergy-section">
-      <p style="margin-bottom: 10px;">🚫 <b>제외할 알러지 성분</b></p>
-      <div class="allergy-flex">
-        <label><input type="checkbox" class="allergy-check" value="milk"> 우유</label>
-        <label><input type="checkbox" class="allergy-check" value="peanut"> 견과류</label>
-        <label><input type="checkbox" class="allergy-check" value="wheat"> 밀가루</label>
-        <label><input type="checkbox" class="allergy-check" value="shrimp"> 새우/해물</label>
-        <label><input type="checkbox" class="allergy-check" value="egg"> 계란</label>
-        <label><input type="checkbox" class="allergy-check" value="soy"> 대두</label>
-      </div>
+    <div class="allergy-box">
+      <p style="margin-bottom: 8px; font-size: 14px;">🚫 <b>제외할 알러지</b></p>
+      <div id="allergy-list">
+        </div>
     </div>
 
     <div class="user-buttons">
