@@ -1,18 +1,19 @@
 /* ======================
-   1. 데이터 설정 (알러지 정보 추가)
-   - milk, peanut, wheat, shrimp 등
+   1. 데이터 설정 (알러지 태그 추가)
 ====================== */
 const snackNames = [
   { name: "포카칩", cat: "snack", allergies: [] },
   { name: "새우깡", cat: "snack", allergies: ["shrimp", "wheat"] },
-  { name: "꼬북칩초코", cat: "snack", allergies: ["milk", "wheat"] },
+  { name: "매운새우깡", cat: "snack", allergies: ["shrimp", "wheat"] },
+  { name: "꼬북칩초코츄러스", cat: "snack", allergies: ["milk", "wheat", "soy"] },
   { name: "메로나", cat: "icecream", allergies: ["milk"] },
   { name: "월드콘", cat: "icecream", allergies: ["milk", "wheat", "peanut"] },
-  { name: "아몬드봉봉", cat: "icecream", allergies: ["milk", "peanut"] },
+  { name: "연양갱", cat: "tradition", allergies: [] },
   { name: "미니약과", cat: "tradition", allergies: ["wheat"] },
-  { name: "우유우유", cat: "drink", allergies: ["milk"] },
+  { name: "하리보", cat: "candy", allergies: [] },
+  { name: "밀키스", cat: "drink", allergies: ["milk"] },
   { name: "콜라", cat: "drink", allergies: [] },
-  // ... 나머지 데이터에도 allergies: [] 형태로 추가 가능
+  { name: "바나나우유", cat: "drink", allergies: ["milk"] }
 ];
 
 let currentCategory = "all";
@@ -20,64 +21,72 @@ let showFavOnly = false;
 let currentUser = null;
 
 /* ======================
-   2. 로그인 및 회원 관리
+   2. 회원가입 및 로그인 통합 로직
 ====================== */
-function login() {
+function handleAuth() {
   const name = document.getElementById("username").value.trim();
   const pw = document.getElementById("userpw").value.trim();
 
-  if (!name || pw.length !== 4) return alert("이름과 숫자 4자리 비밀번호를 입력하세요!");
+  if (!name || pw.length !== 4) {
+    alert("이름과 숫자 4자리 비밀번호를 정확히 입력해주세요.");
+    return;
+  }
 
-  const userKey = `user_${name}`;
-  const existingUser = JSON.parse(localStorage.getItem(userKey));
+  const userKey = `userDB_${name}`;
+  const storedData = localStorage.getItem(userKey);
 
-  if (existingUser) {
-    if (existingUser.pw !== pw) {
-      return alert("이미 존재하는 이름입니다. 비밀번호가 틀렸습니다.");
+  if (storedData) {
+    // [로그인 시도] 이미 존재하는 사용자일 경우
+    const userData = JSON.parse(storedData);
+    if (userData.pw === pw) {
+      // 비밀번호 일치
+      userData.loginCount += 1;
+      currentUser = userData;
+      saveUserData();
+      showUserArea();
+    } else {
+      // 비밀번호 불일치 (경고 알림)
+      alert("이미 존재하는 이름입니다! 비밀번호 4자리가 틀렸습니다. 다시 확인해주세요.");
     }
-    // 기존 유저 로그인 (방문 횟수 증가)
-    existingUser.loginCount += 1;
-    currentUser = existingUser;
   } else {
-    // 신규 유저 등록
-    currentUser = {
+    // [회원가입] 새로운 사용자일 경우
+    const newUser = {
       name: name,
       pw: pw,
       loginCount: 1,
       favorites: [],
       allergies: []
     };
-    alert("새로운 사용자로 등록되었습니다!");
+    currentUser = newUser;
+    saveUserData();
+    alert(`반가워요 ${name}님! 회원 등록이 완료되었습니다.`);
+    showUserArea();
   }
-
-  saveUserData();
-  showUserArea();
 }
 
 function saveUserData() {
   if (!currentUser) return;
-  localStorage.setItem(`user_${currentUser.name}`, JSON.stringify(currentUser));
-  localStorage.setItem("lastLoginUser", currentUser.name);
+  localStorage.setItem(`userDB_${currentUser.name}`, JSON.stringify(currentUser));
+  localStorage.setItem("lastSessionUser", currentUser.name);
 }
 
 function showUserArea() {
   document.getElementById("login-area").style.display = "none";
   document.getElementById("user-area").style.display = "block";
   
-  // 횟수별 인사말
   const msgEl = document.getElementById("welcome-msg");
   const count = currentUser.loginCount;
-  let ment = `😋 ${currentUser.name}님 환영합니다!`;
   
-  if (count === 1) ment = `🌱 처음 오셨네요! 반가워요, ${currentUser.name}님!`;
-  else if (count >= 2 && count < 5) ment = `👋 다시 만나서 정말 반가워요, ${currentUser.name}님!`;
-  else if (count >= 5) ment = `👑 단골 손님! ${currentUser.name}님, 오늘도 맛있는 간식 고르세요!`;
+  // 횟수별 멘트 분기
+  let greeting = `👋 안녕하세요, ${currentUser.name}님!`;
+  if (count === 1) greeting = `🌱 처음 오셨네요! 반가워요, ${currentUser.name}님!`;
+  else if (count >= 2 && count < 10) greeting = `😊 다시 만나서 반가워요, ${currentUser.name}님!`;
+  else if (count >= 10) greeting = `👑 우리 동네 최고의 간식 대장, ${currentUser.name}님!`;
   
-  msgEl.innerHTML = `<b>${ment}</b> (방문: ${count}회)`;
+  msgEl.innerHTML = `<b>${greeting}</b><br><small>(누적 방문: ${count}회)</small>`;
 
-  // 체크박스 상태 복원
-  const checks = document.querySelectorAll('.allergy-check');
-  checks.forEach(c => {
+  // 알러지 체크박스 상태 복원
+  document.querySelectorAll('.allergy-check').forEach(c => {
     c.checked = currentUser.allergies.includes(c.value);
   });
 
@@ -85,12 +94,12 @@ function showUserArea() {
 }
 
 function logout() {
-  localStorage.removeItem("lastLoginUser");
+  localStorage.removeItem("lastSessionUser");
   location.reload();
 }
 
 /* ======================
-   3. 알러지 및 즐겨찾기 로직
+   3. 알러지 및 렌더링
 ====================== */
 function updateAllergy() {
   const checks = document.querySelectorAll('.allergy-check:checked');
@@ -99,34 +108,16 @@ function updateAllergy() {
   renderSnacks();
 }
 
-function addFavorite(name) {
-  if (!currentUser) return alert("로그인 후 이용 가능합니다!");
-  
-  const idx = currentUser.favorites.indexOf(name);
-  if (idx > -1) currentUser.favorites.splice(idx, 1);
-  else currentUser.favorites.push(name);
-  
-  saveUserData();
-  renderSnacks();
-}
-
-/* ======================
-   4. 필터 및 렌더링
-====================== */
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
-  if (!listEl) return;
   listEl.innerHTML = "";
 
   const filtered = snackNames.filter(item => {
-    // 1. 알러지 필터 (사용자가 선택한 알러지 성분이 간식에 하나라도 있으면 제외)
-    const hasAllergy = currentUser && item.allergies.some(a => currentUser.allergies.includes(a));
-    if (hasAllergy) return false;
-
-    // 2. 즐겨찾기 필터
+    // 알러지 필터링
+    if (currentUser && item.allergies.some(a => currentUser.allergies.includes(a))) return false;
+    // 즐겨찾기 필터링
     if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
-    
-    // 3. 카테고리 필터
+    // 카테고리 필터링
     if (currentCategory === "all") return true;
     return item.cat === currentCategory;
   });
@@ -135,31 +126,37 @@ function renderSnacks() {
     const isFav = currentUser && currentUser.favorites.includes(item.name);
     const li = document.createElement("li");
     li.innerHTML = `
-      <span>${item.name} ${item.allergies.length > 0 ? '⚠️' : ''}</span>
+      <span>${item.name}</span>
       <button class="fav-btn" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
     `;
     listEl.appendChild(li);
   });
 }
 
+function addFavorite(name) {
+  const idx = currentUser.favorites.indexOf(name);
+  if (idx > -1) currentUser.favorites.splice(idx, 1);
+  else currentUser.favorites.push(name);
+  saveUserData();
+  renderSnacks();
+}
+
 function pickRandom() {
   const listEl = document.getElementById("snack-list");
   const items = listEl.querySelectorAll("li span");
-  if (items.length === 0) return alert("조건에 맞는 간식이 없습니다!");
+  if (items.length === 0) return alert("조건에 맞는 간식이 없어요!");
 
   const randomIndex = Math.floor(Math.random() * items.length);
-  const pickedName = items[randomIndex].innerText.replace('⚠️', '').trim();
-  document.getElementById("result").innerText = `🎯 오늘의 선택: ${pickedName}!`;
+  const pickedName = items[randomIndex].innerText;
+  document.getElementById("result").innerHTML = `🎯 오늘의 선택<br><span style="font-size: 1.5rem; color:#e67e22;">${pickedName}</span>`;
 }
 
-// 카테고리 설정
 function setCategory(cat) {
   currentCategory = cat;
   showFavOnly = false;
   renderSnacks();
 }
 
-// 즐겨찾기 토글
 function toggleFavorites() {
   showFavOnly = !showFavOnly;
   document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
@@ -167,41 +164,36 @@ function toggleFavorites() {
 }
 
 /* ======================
-   5. 데이터 동기화 (기기 이동용)
+   4. 기타 기능 (테마, 백업)
 ====================== */
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light");
+}
+
 function exportData() {
-  const data = JSON.stringify(currentUser);
-  prompt("이 코드를 복사해서 다른 기기에서 '불러오기' 하세요:", data);
+  const data = btoa(encodeURIComponent(JSON.stringify(currentUser))); // 암호화된 느낌의 문자열 생성
+  prompt("아래 코드를 복사해서 메모장에 저장하거나 기기를 옮길 때 사용하세요!", data);
 }
 
 function importData() {
-  const data = prompt("내보내기 했던 코드를 붙여넣으세요:");
+  const data = prompt("복사해둔 코드를 붙여넣으세요:");
   if (data) {
     try {
-      const parsed = JSON.parse(data);
-      localStorage.setItem(`user_${parsed.name}`, data);
-      alert("데이터를 성공적으로 가져왔습니다! 로그인해주세요.");
+      const parsed = JSON.parse(decodeURIComponent(atob(data)));
+      localStorage.setItem(`userDB_${parsed.name}`, JSON.stringify(parsed));
+      alert("데이터 복구 완료! 로그인을 진행해주세요.");
       location.reload();
-    } catch(e) {
-      alert("올바르지 않은 데이터입니다.");
-    }
+    } catch(e) { alert("잘못된 코드입니다."); }
   }
 }
 
-// 테마 변경
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-}
-
-// 초기 로드
 window.onload = () => {
-  if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
-  
-  const lastUser = localStorage.getItem("lastLoginUser");
+  if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
+  const lastUser = localStorage.getItem("lastSessionUser");
   if (lastUser) {
-    currentUser = JSON.parse(localStorage.getItem(`user_${lastUser}`));
-    showUserArea();
+    currentUser = JSON.parse(localStorage.getItem(`userDB_${lastUser}`));
+    if(currentUser) showUserArea();
   }
   renderSnacks();
 };
