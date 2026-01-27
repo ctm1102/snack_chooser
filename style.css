@@ -1,42 +1,19 @@
-:root {
-  --bg: #FFF8EE;
-  --text: #5A3E2B;
-  --card: #FFFFFF;
-  --button: #F2C078;
-  --button-hover: #E6AE5C;
-  --category: #EED6B7;
-  --border: #D8C3A5;
+/* 기존 스타일 그대로 유지하시되, 아래 부분만 추가/수정해주세요 */
+
+.allergy-settings {
+  font-size: 13px;
+  background: rgba(0,0,0,0.05);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
-body.dark {
-  --bg: #2B1E16;
-  --text: #F5E9DC;
-  --card: #3A2A20;
-  --button: #8C5A2B;
-  --button-hover: #A96B34;
-  --category: #5A3E2B;
-  --border: #4A3528;
+.allergy-settings label {
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
-body {
-  font-family: 'Arial', sans-serif;
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
-  background: var(--bg);
-  color: var(--text);
-  transition: all 0.3s ease;
-}
-
-.card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-}
-
-input {
+input[type="password"] {
   width: calc(100% - 22px);
   padding: 10px;
   margin: 8px 0;
@@ -46,63 +23,7 @@ input {
   color: var(--text);
 }
 
-button {
-  padding: 12px;
-  margin: 5px 0;
-  width: 100%;
-  cursor: pointer;
-  background: var(--button);
-  color: var(--text);
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-button:hover {
-  background: var(--button-hover);
-}
-
-.categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin: 15px 0;
-}
-
-.categories button {
-  flex: 1 1 calc(30% - 5px);
-  font-size: 13px;
-  background: var(--category);
-}
-
-#result {
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 20px;
-  background: var(--card);
-  border-radius: 10px;
-  border: 2px dashed var(--button);
-  margin: 20px 0;
-}
-
-ul { padding: 0; }
-
-li {
-  list-style: none;
-  padding: 12px;
-  background: var(--card);
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-}
-
-.fav-btn {
-  width: auto;
-  background: transparent;
-  font-size: 1.2rem;
-  padding: 0 10px;
+/* 다크모드 대응 */
+body.dark .allergy-settings {
+  background: rgba(255,255,255,0.1);
 }
