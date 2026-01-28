@@ -6,11 +6,10 @@ let snackNames = [
   const snacks = [
   // --- 최신 트렌드 & 요청 품목 ---
   { name: "두바이 초콜릿 (카다이프)", cat: "chocolate", allergies: ["우유", "밀", "피스타치오"], link: "https://www.google.com/search?q=두바이초콜릿" },
-  { name: "두바이식 초코쿠키", cat: "snack", allergies: ["우유", "밀", "피스타치오"], link: "https://www.google.com/search?q=두바이쿠키" },
+  { name: "두쫀쿠(두바이 쫀득 쿠키)", cat: "snack", allergies: ["우유", "밀", "피스타치오"], link: "https://www.google.com/search?q=두쫀쿠" },
   { name: "미스터비스트 피스터블 밀크 초콜릿", cat: "chocolate", allergies: ["우유"], link: "https://www.google.com/search?q=피스터블" },
   { name: "미스터비스트 피스터블 다크 초콜릿", cat: "chocolate", allergies: [], link: "https://www.google.com/search?q=피스터블" },
   { name: "미스터비스트 피스터블 피넛버터", cat: "chocolate", allergies: ["땅콩", "우유"], link: "https://www.google.com/search?q=피스터블" },
-  { name: "두쫀쿠 (두부 쫀득 쿠키)", cat: "snack", allergies: ["대두", "밀", "계란"], link: "https://www.google.com/search?q=두쫀쿠" },
   { name: "이클립스 피치향", cat: "candy", allergies: ["복숭아"], link: "https://www.google.com/search?q=이클립스+피치" },
   { name: "이클립스 스트로베리향", cat: "candy", allergies: [], link: "https://www.google.com/search?q=이클립스+딸기" },
   { name: "이클립스 페퍼민트향", cat: "candy", allergies: [], link: "https://www.google.com/search?q=이클립스+페퍼민트" },
@@ -300,14 +299,37 @@ let snackNames = [
   { name: "마지막 1000번째 간식(껌)", cat: "candy", allergies: [], link: "https://www.google.com" }
 ];
 
-const snackList = document.getElementById('snackList');
-const searchInput = document.getElementById('searchInput');
-const filterBtns = document.querySelectorAll('.filter-btn');
-
 let activeFilter = 'all';
 let searchWord = '';
 
+// 3. 엔터키 검색 기능
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchWord = e.target.value;
+        render();
+    }
+});
+
+// 4. 랜덤 뽑기 기능
+document.getElementById('randomBtn').addEventListener('click', () => {
+    const pool = activeFilter === 'all' ? snacks : snacks.filter(s => s.cat === activeFilter);
+    const randomSnack = pool[Math.floor(Math.random() * pool.length)];
+    alert(`🎯 추천 간식: ${randomSnack.name}`);
+    window.open(randomSnack.link, '_blank');
+});
+
+// 5. 로그인 및 해싱 (SHA-256 가상 예시)
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// 6. 렌더링 함수
 function render() {
+    const snackList = document.getElementById('snackList');
     snackList.innerHTML = '';
     
     const filtered = snacks.filter(item => {
@@ -328,20 +350,15 @@ function render() {
     });
 }
 
-// 이벤트 바인딩
-searchInput.addEventListener('input', (e) => {
-    searchWord = e.target.value;
-    render();
-});
-
-filterBtns.forEach(btn => {
+// 카테고리 클릭 이벤트
+document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeFilter = btn.dataset.filter;
         render();
     });
 });
 
-// 데이터 로드 시 초기 렌더링
+// 초기 실행
 render();
