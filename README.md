@@ -1,4 +1,4 @@
-# 🍪 Random Snack Chooser
+# 🍪 Snack Chooser
 
 간식을 랜덤으로 추천해주는 웹사이트입니다.
 
