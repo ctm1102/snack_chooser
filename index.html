@@ -24,6 +24,11 @@
   </header>
 
   <main class="gh-main-container">
+    <div class="hash-section">
+    <input type="text" id="pwInput" placeholder="해싱할 비밀번호 입력">
+    <button onclick="generateHash()">SHA-256 변환</button>
+    <div id="hashResult" style="word-break: break-all; margin-top: 10px;"></div>
+</div>
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
