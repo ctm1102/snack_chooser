@@ -7,10 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <nav class="navbar">
         <div class="nav-content">
             <h1 class="logo">Snack Chooser</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="검색 후 엔터를 누르세요...">
+            </div>
+            <div id="authSection">
+                </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="action-bar">
             <div class="filters">
                 <button class="filter-btn active" data-filter="all">전체</button>
                 <button class="filter-btn" data-filter="snack">과자</button>
@@ -18,14 +27,11 @@
                 <button class="filter-btn" data-filter="chocolate">초콜릿</button>
                 <button class="filter-btn" data-filter="candy">젤리/사탕</button>
             </div>
-            <input type="text" id="searchInput" placeholder="간식 검색...">
+            <button id="randomBtn" class="primary-btn">🎰 오늘 뭐 먹지? (뽑기)</button>
         </div>
-    </nav>
 
-    <div class="container">
-        <div id="snackList" class="snack-grid">
-            </div>
-    </div>
+        <div id="snackList" class="snack-grid"></div>
+    </main>
 
     <script src="script.js"></script>
 </body>
