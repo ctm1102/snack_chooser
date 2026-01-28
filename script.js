@@ -299,58 +299,49 @@ let snackNames = [
   { name: "맥스봉", cat: "snack", allergies: ["우유", "대두", "밀", "계란"], link: "http://www.cj.co.kr" },
   { name: "마지막 1000번째 간식(껌)", cat: "candy", allergies: [], link: "https://www.google.com" }
 ];
-// 필터 및 검색 기능 구현
 const snackList = document.getElementById('snackList');
 const searchInput = document.getElementById('searchInput');
 const filterBtns = document.querySelectorAll('.filter-btn');
 
-let currentFilter = 'all';
-let searchQuery = '';
+let activeFilter = 'all';
+let searchWord = '';
 
-function displaySnacks() {
+function render() {
     snackList.innerHTML = '';
     
-    const filtered = snacks.filter(snack => {
-        const matchesFilter = currentFilter === 'all' || snack.cat === currentFilter;
-        const matchesSearch = snack.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesFilter && matchesSearch;
+    const filtered = snacks.filter(item => {
+        const isCat = activeFilter === 'all' || item.cat === activeFilter;
+        const isSearch = item.name.toLowerCase().includes(searchWord.toLowerCase());
+        return isCat && isSearch;
     });
 
-    filtered.forEach(snack => {
-        const card = document.createElement('div');
-        card.className = 'snack-card';
-        card.innerHTML = `
-            <div>
-                <span class="category">${snack.cat}</span>
-                <h3>${snack.name}</h3>
-                <p class="allergies">${snack.allergies.length > 0 ? '⚠️ ' + snack.allergies.join(', ') : '알레르기 정보 없음'}</p>
-            </div>
-            <a href="${snack.link}" target="_blank" class="btn-link">정보 보기</a>
+    filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'snack-card';
+        div.innerHTML = `
+            <span class="category-tag">${item.cat}</span>
+            <h3 onclick="window.open('${item.link}', '_blank')">${item.name}</h3>
+            <p class="allergy-info">알레르기: ${item.allergies.join(', ') || '없음'}</p>
         `;
-        snackList.appendChild(card);
+        snackList.appendChild(div);
     });
-
-    // 결과가 없을 때 처리
-    if (filtered.length === 0) {
-        snackList.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px;">검색 결과가 없습니다.</p>`;
-    }
 }
 
-// 이벤트 리스너: 검색
+// 검색 이벤트
 searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    displaySnacks();
+    searchWord = e.target.value;
+    render();
 });
 
-// 이벤트 리스너: 카테고리 필터
+// 필터 이벤트
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        displaySnacks();
+        activeFilter = btn.dataset.filter;
+        render();
     });
 });
 
-// 초기 실행
-displaySnacks();
+// 시작
+render();
