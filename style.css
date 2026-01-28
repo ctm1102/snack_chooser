@@ -1,45 +1,47 @@
+/* 기본 초기 스타일 */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: sans-serif; background-color: #f4f4f4; padding-bottom: 50px; }
+body { font-family: sans-serif; background-color: #f4f4f4; color: #333; }
 
-/* 네비바 스타일 */
+/* 네비게이션 바 (유지된 디자인) */
 .navbar {
     position: sticky; top: 0; background: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 100; padding: 15px 0;
 }
 .nav-content {
-    max-width: 1000px; margin: 0 auto; display: flex;
+    max-width: 1100px; margin: 0 auto; display: flex;
     justify-content: space-between; align-items: center; padding: 0 20px;
 }
-.logo { font-size: 20px; color: #333; }
+.logo { font-size: 24px; color: #ff6b6b; font-weight: bold; }
 
 /* 검색 및 필터 */
-#searchInput { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-.filters { display: flex; gap: 8px; }
+#searchInput { padding: 8px 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+.filters { display: flex; gap: 10px; }
 .filter-btn {
-    padding: 6px 12px; border: 1px solid #ddd; background: #fff;
-    cursor: pointer; border-radius: 4px;
+    padding: 7px 14px; border: none; background: #eee;
+    cursor: pointer; border-radius: 15px; transition: 0.2s;
 }
-.filter-btn.active { background: #333; color: #fff; border-color: #333; }
+.filter-btn.active { background: #ff6b6b; color: #fff; }
 
-/* 초기 그리드 레이아웃 */
-.container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+/* 원본 그리드 및 카드 스타일 */
+.container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
 .snack-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
 }
 
-/* 초기 카드 디자인 */
 .snack-card {
-    background: #fff; border: 1px solid #ddd; padding: 15px;
-    border-radius: 8px; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid #eee; padding: 20px;
+    border-radius: 10px; display: flex; flex-direction: column;
+    transition: transform 0.2s;
 }
+.snack-card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-/* 이름 클릭 기능 스타일 */
+/* 이름 클릭 기능 */
 .snack-card h3 {
-    margin-bottom: 10px; cursor: pointer; color: #007bff;
+    margin: 10px 0; font-size: 18px; cursor: pointer; color: #222;
 }
-.snack-card h3:hover { text-decoration: underline; color: #0056b3; }
+.snack-card h3:hover { color: #ff6b6b; text-decoration: underline; }
 
-.category-tag { font-size: 12px; color: #888; margin-bottom: 5px; }
-.allergy-info { font-size: 13px; color: #d9534f; margin-top: auto; padding-top: 10px; }
+.category-tag { font-size: 12px; color: #999; text-transform: uppercase; }
+.allergy-info { font-size: 13px; color: #e74c3c; margin-top: auto; padding-top: 15px; }
