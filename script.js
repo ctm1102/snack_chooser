@@ -299,6 +299,7 @@ let snackNames = [
   { name: "맥스봉", cat: "snack", allergies: ["우유", "대두", "밀", "계란"], link: "http://www.cj.co.kr" },
   { name: "마지막 1000번째 간식(껌)", cat: "candy", allergies: [], link: "https://www.google.com" }
 ];
+
 const snackList = document.getElementById('snackList');
 const searchInput = document.getElementById('searchInput');
 const filterBtns = document.querySelectorAll('.filter-btn');
@@ -310,9 +311,9 @@ function render() {
     snackList.innerHTML = '';
     
     const filtered = snacks.filter(item => {
-        const isCat = activeFilter === 'all' || item.cat === activeFilter;
-        const isSearch = item.name.toLowerCase().includes(searchWord.toLowerCase());
-        return isCat && isSearch;
+        const matchesCat = activeFilter === 'all' || item.cat === activeFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchWord.toLowerCase());
+        return matchesCat && matchesSearch;
     });
 
     filtered.forEach(item => {
@@ -321,19 +322,18 @@ function render() {
         div.innerHTML = `
             <span class="category-tag">${item.cat}</span>
             <h3 onclick="window.open('${item.link}', '_blank')">${item.name}</h3>
-            <p class="allergy-info">알레르기: ${item.allergies.join(', ') || '없음'}</p>
+            <p class="allergy-info">⚠️ ${item.allergies.join(', ') || '없음'}</p>
         `;
         snackList.appendChild(div);
     });
 }
 
-// 검색 이벤트
+// 이벤트 바인딩
 searchInput.addEventListener('input', (e) => {
     searchWord = e.target.value;
     render();
 });
 
-// 필터 이벤트
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
@@ -343,5 +343,5 @@ filterBtns.forEach(btn => {
     });
 });
 
-// 시작
+// 데이터 로드 시 초기 렌더링
 render();
