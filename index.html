@@ -91,3 +91,14 @@
   <script src="script.js"></script>
 </body>
 </html>
+function generateHash() {
+    const pw = document.getElementById('pwInput').value;
+    if (!pw) {
+        alert("비밀번호를 입력하세요!");
+        return;
+    }
+    
+    // SHA-256 알고리즘으로 해싱
+    const hash = CryptoJS.SHA256(pw).toString();
+    document.getElementById('hashResult').innerText = "해시값: " + hash;
+}
