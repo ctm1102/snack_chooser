@@ -1,61 +1,55 @@
-/* 기존 코드 유지 */
-:root {
-  --gh-bg: #FFF8EE;
-  --gh-card-bg: #FFFFFF;
-  --gh-text: #5A3E2B;
-  --gh-primary: #E67E22;
-  --gh-border: #E1D4C1;
+/* 기본 초기화 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; color: #333; line-height: 1.6; }
+
+/* 네비게이션 바 (고정형) */
+.navbar {
+    position: sticky; top: 0; background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; padding: 1rem 0;
+}
+.nav-content {
+    max-width: 1200px; margin: 0 auto; display: flex;
+    flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 0 20px;
+}
+.logo { font-size: 1.5rem; color: #ff6b6b; font-weight: bold; }
+
+/* 검색창 */
+#searchInput {
+    padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px;
+    width: 250px; outline: none; transition: 0.3s;
+}
+#searchInput:focus { border-color: #ff6b6b; box-shadow: 0 0 5px rgba(255,107,107,0.3); }
+
+/* 필터 버튼 */
+.filters { display: flex; gap: 10px; margin: 10px 0; }
+.filter-btn {
+    padding: 8px 16px; border: none; background: #eee;
+    border-radius: 15px; cursor: pointer; transition: 0.3s;
+}
+.filter-btn.active { background: #ff6b6b; color: white; }
+
+/* 그리드 레이아웃 */
+.container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+.snack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
 }
 
-body.dark {
-  --gh-bg: #2B1E16;
-  --gh-card-bg: #3A2A20;
-  --gh-text: #F5E9DC;
-  --gh-border: #4A3528;
+/* 간식 카드 (원래대로 돌려놓은 디자인) */
+.snack-card {
+    background: white; border: 1px solid #eee; border-radius: 12px;
+    padding: 20px; transition: transform 0.2s, box-shadow 0.2s;
+    display: flex; flex-direction: column; justify-content: space-between;
 }
-
-body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
-
-/* 검색바 스타일 */
-.gh-search-container { flex: 1; max-width: 400px; margin: 0 20px; }
-#gh-search-input {
-  width: 100%;
-  padding: 10px 15px;
-  border-radius: 20px;
-  border: 1px solid var(--gh-border);
-  background: var(--gh-bg);
-  color: var(--gh-text);
-  outline: none;
+.snack-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.snack-card h3 { font-size: 1.1rem; margin-bottom: 10px; color: #222; }
+.snack-card .category {
+    display: inline-block; font-size: 0.75rem; background: #f0f0f0;
+    padding: 3px 8px; border-radius: 5px; color: #666; margin-bottom: 10px;
 }
-
-/* 검색 결과 영역 */
-.gh-search-results {
-  background: var(--gh-card-bg);
-  border: 2px solid var(--gh-primary);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+.snack-card .allergies { font-size: 0.85rem; color: #ff8787; margin-bottom: 15px; }
+.snack-card .btn-link {
+    text-align: center; text-decoration: none; background: #333;
+    color: white; padding: 8px; border-radius: 6px; font-size: 0.9rem;
 }
-.search-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gh-border); margin-bottom: 15px; }
-.search-item { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed var(--gh-border); }
-.search-item h1 { font-size: 2rem; margin: 10px 0; color: var(--gh-text); }
-.allergy-alert { color: #E74C3C; font-weight: bold; }
-.official-link { display: inline-block; margin-top: 10px; color: var(--gh-primary); text-decoration: none; font-weight: bold; }
-
-/* 기존 Navbar & UI 유지 */
-.gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
-.gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
-.gh-logo { font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; flex-shrink: 0; }
-.gh-auth-zone { display: flex; align-items: center; gap: 24px; flex-shrink: 0; }
-.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 600; color: #777; }
-.gh-main-container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
-.gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 32px; margin-bottom: 32px; }
-.gh-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-.gh-chip { padding: 10px 18px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 14px; cursor: pointer; background: var(--gh-bg); }
-.gh-chip.active { background: #E74C3C; color: white; border-color: #E74C3C; }
-.gh-chip input { display: none; }
-.gh-btn-main { width: 100%; padding: 22px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 800; cursor: pointer; }
-.gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-.gh-snack-item { list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
-.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-.gh-modal-box { background: var(--gh-card-bg); width: 100%; max-width: 400px; padding: 40px; border-radius: 16px; }
