@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
-  <!-- CryptoJS 라이브러리 추가 -->
-  <script src="https://cdnjs.cloudflare.com"></script>
 </head>
 <body>
 
   <header class="gh-header">
     <div class="gh-nav-inner">
       <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
+      
+      <div class="gh-search-container">
+        <input type="text" id="gh-search-input" placeholder="간식 검색..." onkeyup="handleSearch(event)">
+      </div>
+
       <div id="auth-menu" class="gh-auth-zone">
         <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
-        <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
-      </div>
+        </div>
       <div id="user-menu" class="gh-auth-zone" style="display: none;">
         <span id="header-user-name" class="gh-user-name"></span>
         <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
@@ -25,6 +27,14 @@
   </header>
 
   <main class="gh-main-container">
+    <div id="search-results-area" class="gh-search-results" style="display:none;">
+      <div class="search-header">
+        <h2>검색 결과</h2>
+        <button onclick="closeSearch()" class="gh-btn-text">닫기</button>
+      </div>
+      <div id="search-output"></div>
+    </div>
+
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -61,25 +71,22 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 인증 모달 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="modal-title">로그인</h2>
         <span class="gh-modal-close" onclick="closeModal()">&times;</span>
       </div>
-      <!-- 로그인 폼 -->
       <div id="login-form" class="gh-form">
         <input type="text" id="login-name" class="gh-input" placeholder="성함">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
         <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
       </div>
-      <!-- 회원가입 폼 -->
       <div id="signup-form" class="gh-form" style="display:none;">
         <input type="text" id="signup-name" class="gh-input" placeholder="성함">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <p class="gh-pw-warning">* 비밀번호는 해싱되어 안전하게 보관됩니다.</p>
+        <p class="gh-pw-warning">* 주의: 보안을 위해 단순한 비밀번호는 피하세요!</p>
         <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
         <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
       </div>
