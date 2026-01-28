@@ -207,23 +207,18 @@ const snackNames = [
   { name: "봉봉", cat: "drink", allergies: [] },
   { name: "쌕쌕 오렌지", cat: "drink", allergies: [] },
   { name: "갈아만든배", cat: "drink", allergies: [] }
-  // [추가] 제로(Zero) 및 저당 시리즈
   { name: "롯데 제로 초콜릿칩쿠키", cat: "snack", allergies: ["밀가루", "계란", "우유"] },
   { name: "롯데 제로 카카오 케이크", cat: "snack", allergies: ["밀가루", "계란", "우유"] },
   { name: "롯데 제로 후르츠 젤리", cat: "candy", allergies: [] },
   { name: "롯데 제로 아이스 초코바", cat: "icecream", allergies: ["우유"] },
   { name: "롯데 제로 밀크 모나카", cat: "icecream", allergies: ["밀가루", "우유"] },
   { name: "크라운 무설탕 땅콩카라멜", cat: "candy", allergies: ["견과류", "우유"] },
-
-  // [추가] 이클립스(Eclipse) 시리즈
   { name: "이클립스 페퍼민트", cat: "candy", allergies: [] },
   { name: "이클립스 스피어민트", cat: "candy", allergies: [] },
   { name: "이클립스 스트로베리향", cat: "candy", allergies: [] },
   { name: "이클립스 피치향", cat: "candy", allergies: [] },
   { name: "이클립스 소프트 츄 페퍼민트", cat: "candy", allergies: [] },
   { name: "이클립스 소프트 츄 레몬", cat: "candy", allergies: [] },
-
-  // [추가] 과자류 (Snack) - 스테디셀러 및 신제품
   { name: "꼬깔콘 고소한맛", cat: "snack", allergies: [] },
   { name: "꼬깔콘 군옥수수맛", cat: "snack", allergies: [] },
   { name: "꼬깔콘 매콤달콤맛", cat: "snack", allergies: [] },
@@ -258,8 +253,6 @@ const snackNames = [
   { name: "쿠쿠다스 커피", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "미초코", cat: "snack", allergies: ["밀가루", "우유"] },
   { name: "초코픽", cat: "snack", allergies: ["밀가루", "우유"] },
-
-  // [추가] 초콜릿/캔디 (Candy/Chocolate)
   { name: "자일리톨 오리지널", cat: "candy", allergies: [] },
   { name: "자일리톨 알파", cat: "candy", allergies: [] },
   { name: "애니타임", cat: "candy", allergies: ["우유"] },
@@ -278,8 +271,6 @@ const snackNames = [
   { name: "M&M 피넛", cat: "candy", allergies: ["우유", "견과류"] },
   { name: "M&M 밀크", cat: "candy", allergies: ["우유"] },
   { name: "몰티져스", cat: "candy", allergies: ["우유", "밀가루"] },
-
-  // [추가] 빙과류 (Icecream)
   { name: "요맘때 딸기", cat: "icecream", allergies: ["우유"] },
   { name: "요맘때 플레인", cat: "icecream", allergies: ["우유"] },
   { name: "테트리스 아이스크림", cat: "icecream", allergies: [] },
@@ -294,8 +285,6 @@ const snackNames = [
   { name: "호두마루 홈", cat: "icecream", allergies: ["우유", "견과류"] },
   { name: "나뚜루 바닐라", cat: "icecream", allergies: ["우유", "계란"] },
   { name: "나뚜루 녹차", cat: "icecream", allergies: ["우유"] },
-
-  // [추가] 전통 과자류 (Tradition)
   { name: "쌀로별", cat: "tradition", allergies: ["대두"] },
   { name: "인절미 스낵", cat: "tradition", allergies: ["대두"] },
   { name: "고구마형 과자", cat: "tradition", allergies: ["밀가루"] },
@@ -305,8 +294,6 @@ const snackNames = [
   { name: "오란다 강정", cat: "tradition", allergies: ["밀가루"] },
   { name: "단팥빵", cat: "tradition", allergies: ["밀가루", "우유"] },
   { name: "계란 과자", cat: "snack", allergies: ["계란", "밀가루", "우유"] },
-
-  // [추가] 음료 (Drink)
   { name: "코카콜라 제로", cat: "drink", allergies: [] },
   { name: "펩시 제로 슈거", cat: "drink", allergies: [] },
   { name: "칠성사이다 제로", cat: "drink", allergies: [] },
