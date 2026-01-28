@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한국 간식 데이터베이스 1000</title>
+    <title>간식 데이터베이스</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <nav class="navbar">
         <div class="nav-content">
-            <h1 class="logo">SnackDB</h1>
+            <h1 class="logo">간식 리스트</h1>
             <div class="filters">
                 <button class="filter-btn active" data-filter="all">전체</button>
                 <button class="filter-btn" data-filter="snack">과자</button>
@@ -18,14 +18,13 @@
                 <button class="filter-btn" data-filter="chocolate">초콜릿</button>
                 <button class="filter-btn" data-filter="candy">젤리/사탕</button>
             </div>
-            <input type="text" id="searchInput" placeholder="간식 이름을 검색하세요...">
+            <input type="text" id="searchInput" placeholder="간식 검색...">
         </div>
     </nav>
 
-    <main class="container">
-        <div id="snackList" class="snack-grid">
-            </div>
-    </main>
+    <div class="container">
+        <div id="snackList" class="snack-grid"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
