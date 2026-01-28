@@ -298,67 +298,234 @@ let snackNames = [
   { name: "맥스봉", cat: "snack", allergies: ["우유", "대두", "밀", "계란"], link: "http://www.cj.co.kr" },
   { name: "마지막 1000번째 간식(껌)", cat: "candy", allergies: [], link: "https://www.google.com" }
 ];
+// 1. 데이터 및 상태 변수
+const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두", "피스타치오", "땅콩"];
+let currentCategory = "all";
+let showFavOnly = false;
+let currentUser = null;
+let searchWord = ''; 
 
-let activeFilter = 'all';
-let searchWord = '';
+// 2. 인증 관련 (모달 제어)
+function openModal(type) {
+  document.getElementById('auth-modal').style.display = 'flex';
+  const isLogin = type === 'login';
+  document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
+  document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
+}
 
-// 3. 엔터키 검색 기능
-const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        searchWord = e.target.value;
-        render();
-    }
-});
+function closeModal() { 
+  document.getElementById('auth-modal').style.display = 'none'; 
+}
 
-// 4. 랜덤 뽑기 기능
-document.getElementById('randomBtn').addEventListener('click', () => {
-    const pool = activeFilter === 'all' ? snacks : snacks.filter(s => s.cat === activeFilter);
-    const randomSnack = pool[Math.floor(Math.random() * pool.length)];
-    alert(`🎯 추천 간식: ${randomSnack.name}`);
-    window.open(randomSnack.link, '_blank');
-});
-
-// 5. 로그인 및 해싱 (SHA-256 가상 예시)
+// 3. 비밀번호 해싱 (SHA-256 보안)
 async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// 6. 렌더링 함수
-function render() {
-    const snackList = document.getElementById('snackList');
-    snackList.innerHTML = '';
+// 4. 회원가입 및 로그인 처리
+async function handleSignup() {
+  const name = document.getElementById("signup-name").value.trim();
+  const pw = document.getElementById("signup-pw").value.trim();
+  if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
+  if (localStorage.getItem(`snackDB_${name}`)) return alert("이미 등록된 이름입니다.");
+
+  const hashedPw = await hashPassword(pw);
+  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
+  saveUserData();
+  alert("가입 성공! 환영합니다.");
+  closeModal();
+  updateUI();
+}
+
+async function handleLogin() {
+  const name = document.getElementById("login-name").value.trim();
+  const pw = document.getElementById("login-pw").value.trim();
+  const stored = localStorage.getItem(`snackDB_${name}`);
+  if (!stored) return alert("사용자 정보가 없습니다.");
+
+  const userData = JSON.parse(stored);
+  const hashedPw = await hashPassword(pw);
+  if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
+
+  userData.loginCount++;
+  currentUser = userData;
+  saveUserData();
+  closeModal();
+  updateUI();
+}
+
+// 5. UI 업데이트 및 알레르기 리스트
+function updateUI() {
+  if (currentUser) {
+    document.getElementById("auth-menu").style.display = "none";
+    document.getElementById("user-menu").style.display = "flex";
+    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+    document.getElementById("user-section").style.display = "block";
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요! (총 ${snackNames.length}종 구비)`;
+    renderAllergyList();
+  }
+  renderSnacks();
+}
+
+function renderAllergyList() {
+  const container = document.getElementById("allergy-list");
+  if(!container) return;
+  container.innerHTML = "";
+  allergyTypes.forEach(type => {
+    const isChecked = currentUser.allergies.includes(type);
+    const label = document.createElement("label");
+    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
+    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
+    container.appendChild(label);
+  });
+}
+
+function updateAllergy(el) {
+  if (el.checked) currentUser.allergies.push(el.value);
+  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+  saveUserData();
+  renderSnacks();
+  renderAllergyList();
+}
+
+// 6. 메인 간식 리스트 렌더링
+function renderSnacks() {
+  const listEl = document.getElementById("snack-list");
+  if(!listEl) return;
+  listEl.innerHTML = "";
+
+  const filtered = snackNames.filter(item => {
+    // 검색어 필터링
+    const matchesSearch = item.name.toLowerCase().includes(searchWord.toLowerCase());
+    if (!matchesSearch) return false;
     
-    const filtered = snacks.filter(item => {
-        const matchesCat = activeFilter === 'all' || item.cat === activeFilter;
-        const matchesSearch = item.name.toLowerCase().includes(searchWord.toLowerCase());
-        return matchesCat && matchesSearch;
-    });
+    // 알레르기 필터링
+    if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
+    
+    // 즐겨찾기 필터링
+    if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
+    
+    // 카테고리 필터링
+    return currentCategory === "all" || item.cat === currentCategory;
+  });
 
-    filtered.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'snack-card';
-        div.innerHTML = `
-            <span class="category-tag">${item.cat}</span>
-            <h3 onclick="window.open('${item.link}', '_blank')">${item.name}</h3>
-            <p class="allergy-info">⚠️ ${item.allergies.join(', ') || '없음'}</p>
-        `;
-        snackList.appendChild(div);
-    });
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'snack-card';
+    div.innerHTML = `
+        <span class="category-tag">${item.cat}</span>
+        <h3 onclick="window.open('${item.link}', '_blank')" style="cursor:pointer;">${item.name}</h3>
+        <p class="allergy-info">⚠️ ${item.allergies.join(', ') || '없음'}</p>
+        <button class="fav-btn" onclick="addFavorite('${item.name}')">
+          ${(currentUser && currentUser.favorites.includes(item.name)) ? '❤️' : '🤍'}
+        </button>
+    `;
+    listEl.appendChild(div);
+  });
 }
 
-// 카테고리 클릭 이벤트
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = btn.dataset.filter;
-        render();
+// 7. [수정됨] 이벤트 리스너 통합 및 즉시 실행 보장
+function initEventListeners() {
+  // 검색창 엔터키 이벤트
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchWord = e.target.value; 
+        renderSnacks(); 
+      }
     });
-});
+  }
 
-// 초기 실행
-render();
+  // 랜덤 뽑기 버튼 이벤트
+  const randomBtn = document.getElementById('randomBtn');
+  if (randomBtn) {
+    randomBtn.addEventListener('click', () => {
+      const pool = currentCategory === 'all' ? snackNames : snackNames.filter(s => s.cat === currentCategory);
+      if (pool.length === 0) return alert("조건에 맞는 간식이 없습니다!");
+      const selected = pool[Math.floor(Math.random() * pool.length)];
+      alert(`🎯 오늘의 추천 간식: ${selected.name}`);
+      window.open(selected.link, '_blank'); 
+    });
+  }
+
+  // 카테고리 필터 버튼 이벤트들
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      setCategory(btn.dataset.filter, e.target);
+    });
+  });
+}
+
+// 8. 기타 유틸리티 함수들
+function addFavorite(name) {
+  if (!currentUser) {
+    if (confirm("즐겨찾기는 로그인이 필요합니다. 로그인 화면으로 갈까요?")) openModal('login');
+    return;
+  }
+  const idx = currentUser.favorites.indexOf(name);
+  if (idx > -1) currentUser.favorites.splice(idx, 1);
+  else currentUser.favorites.push(name);
+  saveUserData();
+  renderSnacks();
+}
+
+function saveUserData() { 
+  if(!currentUser) return;
+  localStorage.setItem(`snackDB_${currentUser.name}`, JSON.stringify(currentUser)); 
+  localStorage.setItem("currentSnackSession", currentUser.name); 
+}
+
+function logout() { 
+  localStorage.removeItem("currentSnackSession"); 
+  location.reload(); 
+}
+
+function setCategory(cat, el) { 
+  currentCategory = cat; 
+  document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderSnacks(); 
+}
+
+function toggleFavorites() {
+  if (!currentUser && !showFavOnly) {
+    if (confirm("로그인 후 즐겨찾기를 관리할 수 있습니다. 로그인하시겠습니까?")) openModal('login');
+    return;
+  }
+  showFavOnly = !showFavOnly;
+  const favBtn = document.getElementById("fav-toggle-btn");
+  if(favBtn) favBtn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  renderSnacks();
+}
+
+function toggleTheme() { 
+  document.body.classList.toggle("dark"); 
+  localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); 
+}
+
+// 9. 초기 로딩 (안전한 실행 순서)
+window.addEventListener('DOMContentLoaded', () => {
+  // 테마 설정
+  if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
+  
+  // 이벤트 등록
+  initEventListeners();
+  
+  // 세션 확인 및 초기 렌더링
+  const last = localStorage.getItem("currentSnackSession");
+  if (last) {
+    const data = localStorage.getItem(`snackDB_${last}`);
+    if (data) {
+      currentUser = JSON.parse(data);
+      updateUI();
+      return;
+    }
+  }
+  renderSnacks(); // 로그인 정보 없으면 일반 리스트 출력
+});
