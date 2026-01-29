@@ -1,30 +1,33 @@
-/* 즐겨찾기 별 버튼 스타일 */
-.fav-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  color: #ddd; /* 즐겨찾기 안 했을 때 회색 별 */
-  transition: all 0.2s ease;
-  padding: 0;
+/* 검색바 스타일 */
+.gh-search-container {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 20px;
 }
 
-/* 별이 켜졌을 때 (즐겨찾기 상태) */
-.fav-btn.on {
-  color: #F1C40F; /* 반짝이는 노란색 */
-  transform: scale(1.1);
-  text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+#gh-search-input {
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--gh-border);
+    background: var(--gh-bg);
+    outline: none;
+    transition: 0.3s;
 }
 
-/* 버튼 클릭 시 살짝 커지는 효과 */
-.fav-btn:active {
-  transform: scale(1.3);
+#gh-search-input:focus {
+    border-color: var(--gh-primary);
+    box-shadow: 0 0 8px rgba(230, 126, 34, 0.2);
 }
 
-/* 마우스를 올렸을 때 */
-.fav-btn:hover {
-  filter: brightness(1.1);
+/* 검색 결과 상세 */
+#search-detail h1 {
+    color: var(--gh-text);
+    border-bottom: 3px solid var(--gh-primary);
+    display: inline-block;
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+    .gh-search-container { display: none; } /* 모바일에서 공간 부족 시 숨김 */
 }
