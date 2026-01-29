@@ -297,99 +297,184 @@ let snackNames = [
   { name: "천하장사 소시지", cat: "snack", allergies: ["우유", "대두", "밀", "계란"], link: "https://www.jinju.co.kr" },
   { name: "맥스봉", cat: "snack", allergies: ["우유", "대두", "밀", "계란"], link: "http://www.cj.co.kr" },
   { name: "마지막 1000번째 간식(껌)", cat: "candy", allergies: [], link: "https://www.google.com" }
-];
+];/* =========================
+   GLOBAL STATE
+========================= */
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 let searchKeyword = "";
 
-function openModal(type) {
-  document.getElementById("auth-modal").style.display = "flex";
-  const isLogin = type === "login";
-  document.getElementById("modal-title").innerText = isLogin ? "로그인" : "회원가입";
-  document.getElementById("login-form").style.display = isLogin ? "block" : "none";
-  document.getElementById("signup-form").style.display = isLogin ? "none" : "block";
+/* =========================
+   PBKDF2 / CRYPTO UTIL
+========================= */
+const encoder = new TextEncoder();
+
+function bufToHex(buffer) {
+  return [...new Uint8Array(buffer)]
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-function closeModal() {
-  document.getElementById("auth-modal").style.display = "none";
+function hexToBuf(hex) {
+  return new Uint8Array(
+    hex.match(/.{2}/g).map(b => parseInt(b, 16))
+  );
 }
 
-function handleSignup() {
-  const name = signup-name.value.trim();
-  const pw = signup-pw.value.trim();
-  if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
+async function deriveKey(password, salt) {
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
 
-  currentUser = { name, pw, favorites: [], allergies: [] };
-  localStorage.setItem(`snackDB_${name}`, JSON.stringify(currentUser));
-  closeModal();
-  updateUI();
+  return crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 100000,
+      hash: "SHA-256"
+    },
+    baseKey,
+    256
+  );
 }
 
-function handleLogin() {
-  const name = login-name.value.trim();
-  const pw = login-pw.value.trim();
-  const stored = localStorage.getItem(`snackDB_${name}`);
-  if (!stored) return alert("사용자 없음");
+async function createPasswordHash(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await deriveKey(password, salt);
+  return {
+    salt: bufToHex(salt),
+    hash: bufToHex(hash)
+  };
+}
 
-  const user = JSON.parse(stored);
-  if (user.pw !== pw) return alert("비밀번호 오류");
+async function verifyPassword(password, saltHex, hashHex) {
+  const salt = hexToBuf(saltHex);
+  const hash = await deriveKey(password, salt);
+  return bufToHex(hash) === hashHex;
+}
 
+/* =========================
+   AUTH (SIGNUP / LOGIN)
+========================= */
+async function signup(username, password) {
+  if (!username || !password) throw "입력 누락";
+  if (localStorage.getItem(`user_${username}`))
+    throw "이미 존재하는 계정";
+
+  const { salt, hash } = await createPasswordHash(password);
+
+  const user = {
+    username,
+    salt,
+    hash,
+    createdAt: Date.now()
+  };
+
+  localStorage.setItem(`user_${username}`, JSON.stringify(user));
+}
+
+async function login(username, password) {
+  const saved = localStorage.getItem(`user_${username}`);
+  if (!saved) return false;
+
+  const user = JSON.parse(saved);
+  const ok = await verifyPassword(password, user.salt, user.hash);
+  if (!ok) return false;
+
+  localStorage.setItem("authSession", username);
   currentUser = user;
-  localStorage.setItem("currentSnackSession", name);
-  closeModal();
-  updateUI();
+  return true;
+}
+
+/* =========================
+   SESSION
+========================= */
+function loadSession() {
+  const username = localStorage.getItem("authSession");
+  if (!username) return;
+
+  const data = localStorage.getItem(`user_${username}`);
+  if (data) currentUser = JSON.parse(data);
 }
 
 function logout() {
-  localStorage.removeItem("currentSnackSession");
-  location.reload();
+  localStorage.removeItem("authSession");
+  currentUser = null;
+  alert("로그아웃");
 }
 
-function handleSearch(v) {
-  searchKeyword = v.toLowerCase();
-  renderSnacks();
+/* =========================
+   ACCOUNT TRANSFER
+========================= */
+function exportAccount() {
+  const username = localStorage.getItem("authSession");
+  if (!username) return alert("로그인 필요");
+
+  const data = localStorage.getItem(`user_${username}`);
+  if (!data) return alert("계정 없음");
+
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${username}_account.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 
-function setCategory(cat) {
-  currentCategory = cat;
-  document.querySelectorAll(".gh-tab-btn").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-  renderSnacks();
+function importAccount(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const user = JSON.parse(reader.result);
+      if (!user.username || !user.salt || !user.hash)
+        throw "잘못된 파일";
+
+      localStorage.setItem(
+        `user_${user.username}`,
+        JSON.stringify(user)
+      );
+      alert("계정 복원 완료");
+    } catch {
+      alert("가져오기 실패");
+    }
+  };
+  reader.readAsText(file);
 }
 
-function toggleFavorites() {
-  showFavOnly = !showFavOnly;
-  renderSnacks();
-}
-
-function renderSnacks() {
-  const list = document.getElementById("snack-list");
-  list.innerHTML = "";
-
-  snackNames
-    .filter(i =>
-      (!searchKeyword || i.name.toLowerCase().includes(searchKeyword)) &&
-      (currentCategory === "all" || i.cat === currentCategory)
-    )
-    .forEach(i => {
-      const li = document.createElement("li");
-      li.className = "gh-snack-item";
-      li.innerHTML = `<span>${i.name}</span>`;
-      list.appendChild(li);
-    });
-}
-
-function pickRandom() {
-  if (!snackNames.length) return alert("간식 데이터 없음");
-  const pick = snackNames[Math.floor(Math.random() * snackNames.length)];
-  result.innerHTML = `🎯 추천 결과: <b>${pick.name}</b>`;
-}
-
-window.onload = () => {
-  const last = localStorage.getItem("currentSnackSession");
-  if (last) {
-    currentUser = JSON.parse(localStorage.getItem(`snackDB_${last}`));
-    updateUI();
+/* =========================
+   UI HANDLERS
+========================= */
+async function handleSignup() {
+  try {
+    await signup(
+      document.getElementById("su-name").value.trim(),
+      document.getElementById("su-pw").value.trim()
+    );
+    alert("가입 완료");
+  } catch (e) {
+    alert(e);
   }
-};
+}
+
+async function handleLogin() {
+  const ok = await login(
+    document.getElementById("li-name").value.trim(),
+    document.getElementById("li-pw").value.trim()
+  );
+  alert(ok ? "로그인 성공" : "로그인 실패");
+}
+
+/* =========================
+   INIT
+========================= */
+loadSession();
