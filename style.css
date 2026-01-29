@@ -1,69 +1,67 @@
 :root {
-  --gh-blue: #007bff;
-  --gh-bg: #f8f9fa;
-  --gh-white: #ffffff;
-  --gh-text: #212529;
-  --gh-border: #dee2e6;
-  --gh-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --gh-bg: #FFF8EE;        /* 원래의 따뜻한 베이지 배경 */
+  --gh-card-bg: #FFFFFF;
+  --gh-text: #5A3E2B;      /* 원래의 브라운 텍스트 */
+  --gh-primary: #E67E22;   /* 주황색 포인트 */
+  --gh-border: #E1D4C1;    /* 부드러운 테두리 */
 }
 
 body.dark {
-  --gh-bg: #121212;
-  --gh-white: #1e1e1e;
-  --gh-text: #e9ecef;
-  --gh-border: #343a40;
+  --gh-bg: #2B1E16;
+  --gh-card-bg: #3A2A20;
+  --gh-text: #F5E9DC;
+  --gh-border: #4A3528;
 }
 
-body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--gh-bg); color: var(--gh-text); }
+body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
 
-/* 네비게이션 - Geekhub 스타일 */
-.navbar {
-  background: var(--gh-white); border-bottom: 1px solid var(--gh-border);
-  height: 60px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000;
-}
-.nav-container { width: 100%; max-width: 1000px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 1.25rem; font-weight: 800; cursor: pointer; color: var(--gh-text); }
-.nav-right { display: flex; align-items: center; gap: 20px; }
-.nav-link { font-size: 14px; cursor: pointer; color: #6c757d; font-weight: 500; }
-.btn-signup { background: var(--gh-blue); color: white; border: none; padding: 7px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+/* Geekhub Navbar */
+.gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+.gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+.gh-logo { font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
+.gh-auth-zone { display: flex; align-items: center; gap: 24px; }
+.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 600; color: #777; }
+.gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* 컨테이너 및 여백 */
-.container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
+/* Container & Cards */
+.gh-main-container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+.gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 32px; margin-bottom: 32px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+.gh-card-title { margin-top: 0; font-size: 1.1rem; color: var(--gh-primary); }
 
-/* 카드 및 여유로운 간격 */
-.card { background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 30px; margin-bottom: 40px; box-shadow: var(--gh-shadow); }
-.card-title { margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; }
-
-/* 알러지 칩 */
-.chip-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
-.gh-chip { padding: 8px 16px; border: 1px solid var(--gh-border); border-radius: 20px; font-size: 14px; cursor: pointer; background: var(--gh-white); }
-.gh-chip.active { background: #dc3545; color: white; border-color: #dc3545; }
+/* 알러지 칩 - 안 잘리게 개선 */
+.gh-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.gh-chip { padding: 10px 18px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 14px; cursor: pointer; background: var(--gh-bg); white-space: nowrap; }
+.gh-chip.active { background: #E74C3C; color: white; border-color: #E74C3C; }
 .gh-chip input { display: none; }
 
-/* 메인 버튼 레이아웃 - 버튼 사이 간격 대폭 확보 */
-.hero-actions { margin-bottom: 50px; display: flex; flex-direction: column; gap: 20px; }
-.btn-main-action { width: 100%; padding: 22px; background: var(--gh-blue); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,123,255,0.2); }
-.secondary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.btn-secondary { padding: 14px; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--gh-text); }
+/* 히어로 버튼 영역 - 간격 대폭 확대 */
+.gh-hero-section { margin-bottom: 48px; display: flex; flex-direction: column; gap: 20px; }
+.gh-btn-main { width: 100%; padding: 22px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: 800; cursor: pointer; transition: transform 0.1s; }
+.gh-btn-main:active { transform: scale(0.98); }
+.gh-btn-outline { width: 100%; padding: 14px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-/* 탭 메뉴 */
-.tabs-nav { border-bottom: 2px solid var(--gh-border); margin-bottom: 30px; }
-.tabs-list { display: flex; gap: 25px; }
-.tab-item { background: none; border: none; padding: 15px 5px; font-size: 16px; cursor: pointer; color: #adb5bd; border-bottom: 3px solid transparent; transition: 0.2s; }
-.tab-item.active { color: var(--gh-blue); border-bottom-color: var(--gh-blue); font-weight: bold; }
+/* 카테고리 탭 */
+.gh-tabs { border-bottom: 1px solid var(--gh-border); margin-bottom: 32px; overflow-x: auto; }
+.gh-tab-list { display: flex; gap: 24px; }
+.gh-tab-btn { background: none; border: none; padding: 14px 4px; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
-/* 결과 표시창 */
-.result-box { padding: 50px; text-align: center; background: var(--gh-white); border: 2px dashed var(--gh-blue); border-radius: 15px; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
+/* 결과 영역 */
+.gh-result-card { padding: 48px; text-align: center; background: var(--gh-card-bg); border: 2px dashed var(--gh-primary); border-radius: 16px; font-size: 1.4rem; font-weight: bold; margin-bottom: 32px; }
 
-/* 리스트 항목 간격 */
-.snack-list-wrapper { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-.snack-item { list-style: none; background: var(--gh-white); border: 1px solid var(--gh-border); border-radius: 10px; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; }
+/* 리스트 항목 */
+.gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.gh-snack-item { list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+.gh-fav-star { background: none; border: none; font-size: 24px; cursor: pointer; color: #ddd; }
+.gh-fav-star.on { color: #F1C40F; }
 
-/* 모달 디자인 */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-.modal-card { background: var(--gh-white); width: 90%; max-width: 400px; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-.input-stack { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-.input-stack input { padding: 15px; border: 1px solid var(--gh-border); border-radius: 8px; font-size: 15px; background: var(--gh-bg); color: var(--gh-text); }
-.btn-submit-full { width: 100%; padding: 15px; background: var(--gh-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.pw-notice { color: #dc3545; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+/* 모달 */
+.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+.gh-modal-box { background: var(--gh-card-bg); width: 100%; max-width: 400px; padding: 40px; border-radius: 16px; position: relative; }
+.gh-input { width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid var(--gh-border); border-radius: 8px; box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text); font-size: 15px; }
+.gh-btn-submit { width: 100%; padding: 15px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.gh-pw-warning { color: #E74C3C; font-size: 13px; font-weight: bold; margin: 10px 0; }
+.gh-modal-foot { text-align: center; margin-top: 20px; font-size: 14px; }
+.gh-modal-foot span { color: var(--gh-primary); text-decoration: underline; cursor: pointer; }
+.gh-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.gh-modal-close { font-size: 28px; cursor: pointer; }
