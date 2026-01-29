@@ -1,3 +1,436 @@
+/* 기본 스타일 */
+:root {
+    --gh-primary: #e67e22; /* 주황색 */
+    --gh-secondary: #f39c12; /* 노란색 */
+    --gh-bg: #f4f6f8; /* 밝은 배경 */
+    --gh-bg-dark: #2c3e50; /* 어두운 배경 */
+    --gh-text: #34495e; /* 어두운 텍스트 */
+    --gh-text-light: #ecf0f1; /* 밝은 텍스트 */
+    --gh-border: #bdc3c7; /* 회색 테두리 */
+    --gh-card-bg: #ffffff; /* 카드 배경 */
+    --gh-card-bg-dark: #34495e; /* 다크모드 카드 배경 */
+    --gh-shadow: rgba(0, 0, 0, 0.1);
+}
+
+body.dark {
+    --gh-bg: #2c3e50;
+    --gh-text: #ecf0f1;
+    --gh-border: #7f8c8d;
+    --gh-card-bg: #34495e;
+    --gh-shadow: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: var(--gh-bg);
+    color: var(--gh-text);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+}
+
+/* 헤더 */
+.gh-header {
+    background-color: var(--gh-card-bg);
+    box-shadow: var(--gh-shadow) 0px 2px 4px;
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.gh-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.gh-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--gh-primary);
+    cursor: pointer;
+}
+
+.gh-auth-zone {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.gh-nav-link {
+    color: var(--gh-text);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.gh-nav-link:hover {
+    color: var(--gh-primary);
+}
+
+.gh-nav-link.logout {
+    color: #e74c3c;
+}
+
+.gh-btn-signup {
+    background-color: var(--gh-primary);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.gh-btn-signup:hover {
+    background-color: var(--gh-secondary);
+}
+
+/* 메인 컨테이너 */
+.gh-main-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* 카드 스타일 */
+.gh-card {
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 4px 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.gh-card-title {
+    color: var(--gh-primary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--gh-border);
+    padding-bottom: 10px;
+}
+
+.gh-welcome-txt {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.gh-allergy-group {
+    margin-bottom: 20px;
+}
+
+.gh-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.gh-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.gh-chip {
+    background-color: var(--gh-bg);
+    border: 1px solid var(--gh-border);
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.gh-chip input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.gh-chip.active {
+    background-color: var(--gh-primary);
+    color: white;
+    border-color: var(--gh-primary);
+}
+
+.gh-card-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    border-top: 1px solid var(--gh-border);
+    padding-top: 15px;
+}
+
+.gh-btn-text {
+    background: none;
+    border: none;
+    color: var(--gh-text);
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: color 0.2s;
+}
+
+.gh-btn-text:hover {
+    color: var(--gh-primary);
+}
+
+/* 히어로 섹션 */
+.gh-hero-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.gh-btn-main {
+    background-color: var(--gh-primary);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: var(--gh-shadow) 0px 5px 15px;
+}
+
+.gh-btn-main:hover {
+    background-color: var(--gh-secondary);
+    transform: translateY(-2px);
+}
+
+.gh-hero-sub {
+    margin-top: 20px;
+}
+
+.gh-btn-outline {
+    background: none;
+    color: var(--gh-primary);
+    border: 2px solid var(--gh-primary);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.gh-btn-outline:hover {
+    background-color: var(--gh-primary);
+    color: white;
+}
+
+/* 탭 메뉴 */
+.gh-tabs {
+    margin-bottom: 20px;
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 2px 8px;
+    padding: 10px;
+}
+
+.gh-tab-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.gh-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1em;
+    cursor: pointer;
+    color: var(--gh-text);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.gh-tab-btn:hover {
+    background-color: var(--gh-bg);
+}
+
+.gh-tab-btn.active {
+    background-color: var(--gh-primary);
+    color: white;
+    font-weight: bold;
+}
+
+/* 결과 카드 */
+.gh-result-card {
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 2px 8px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+/* 간식 리스트 */
+.gh-snack-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.gh-snack-item {
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 2px 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer; /* 클릭 가능하도록 커서 변경 */
+}
+
+.gh-snack-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gh-shadow) 0px 6px 16px;
+}
+
+.gh-snack-item span {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.gh-fav-star {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.gh-fav-star.on {
+    color: var(--gh-secondary);
+}
+
+/* 모달 */
+.gh-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1001; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    justify-content: center;
+    align-items: center;
+}
+
+.gh-modal-box {
+    background-color: var(--gh-card-bg);
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 8px 20px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.gh-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--gh-border);
+    padding-bottom: 10px;
+}
+
+.gh-modal-head h2 {
+    margin: 0;
+    color: var(--gh-primary);
+}
+
+.gh-modal-close {
+    color: var(--gh-text);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.gh-modal-close:hover,
+.gh-modal-close:focus {
+    color: #e74c3c;
+    text-decoration: none;
+}
+
+.gh-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.gh-input {
+    width: calc(100% - 20px);
+    padding: 12px 10px;
+    border: 1px solid var(--gh-border);
+    border-radius: 8px;
+    background-color: var(--gh-bg);
+    color: var(--gh-text);
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gh-input:focus {
+    border-color: var(--gh-primary);
+    box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+    outline: none;
+}
+
+.gh-btn-submit {
+    background-color: var(--gh-primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.gh-btn-submit:hover {
+    background-color: var(--gh-secondary);
+}
+
+.gh-pw-warning {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin-top: -10px;
+    margin-bottom: 5px;
+}
+
+.gh-modal-foot {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.gh-modal-foot span {
+    color: var(--gh-primary);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.gh-modal-foot span:hover {
+    text-decoration: underline;
+}
+
 /* 검색바 스타일 */
 .gh-search-container {
     flex: 1;
@@ -13,6 +446,7 @@
     background: var(--gh-bg);
     outline: none;
     transition: 0.3s;
+    color: var(--gh-text); /* 다크모드 텍스트 색상 적용 */
 }
 
 #gh-search-input:focus {
@@ -21,13 +455,124 @@
 }
 
 /* 검색 결과 상세 */
+#search-detail {
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 4px 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
 #search-detail h1 {
-    color: var(--gh-text);
+    color: var(--gh-text); /* 일반 텍스트 색상으로 변경 */
     border-bottom: 3px solid var(--gh-primary);
     display: inline-block;
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+#search-detail p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#search-detail a {
+    color: var(--gh-primary);
+    text-decoration: none;
+}
+
+#search-detail a:hover {
+    text-decoration: underline;
+}
+
+.allergy-highlight {
+    color: #e74c3c; /* 빨간색으로 강조 */
+    font-weight: bold;
+}
+
+/* 간식 카드 스타일 (renderSnacks 함수에서 사용) */
+.snack-card {
+    background-color: var(--gh-card-bg);
+    border-radius: 10px;
+    box-shadow: var(--gh-shadow) 0px 2px 8px;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.snack-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gh-shadow) 0px 6px 16px;
+}
+
+.snack-card h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 5px 0;
+    color: var(--gh-text);
+}
+
+.snack-card .category-tag {
+    background-color: var(--gh-secondary);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+}
+
+.snack-card .allergy-info {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
+
+.snack-card .fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
 }
 
 /* 모바일 대응 */
-@media (max-width: 600px) {
-    .gh-search-container { display: none; } /* 모바일에서 공간 부족 시 숨김 */
+@media (max-width: 768px) {
+    .gh-nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    .gh-search-container {
+        order: 3; /* 모바일에서 검색창을 아래로 이동 */
+        width: 100%;
+        margin: 10px 0;
+    }
+    .gh-logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .gh-auth-zone {
+        width: 100%;
+        justify-content: center;
+    }
+    .gh-tab-list {
+        justify-content: flex-start;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+    }
+    .gh-tab-btn {
+        flex-shrink: 0;
+    }
+    .gh-snack-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
 }
