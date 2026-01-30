@@ -255,7 +255,7 @@ function updateUI() {
     document.getElementById("user-menu").style.display = "flex";
     document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
     document.getElementById("user-section").style.display = "block";
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요! (총 ${snackNames.length}종 구비)`;
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요!`;
     renderAllergyList();
   }
   renderSnacks();
