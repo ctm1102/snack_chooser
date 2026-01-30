@@ -213,7 +213,7 @@ const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "�
 
 // 1. Supabase 프로젝트 설정 (대시보드에서 키를 확인해 넣어주세요)
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'; // 대시보드 API Settings에서 복사
+const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; // 대시보드 API Settings에서 복사
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
