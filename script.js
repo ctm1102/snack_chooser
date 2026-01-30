@@ -208,12 +208,17 @@ const snackNames = [
   { name: "쌕쌕 오렌지", cat: "drink", allergies: [] },
   { name: "갈아만든배", cat: "drink", 
 ];
-
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
 // 2. Supabase 설정 (변수명 충돌 방지를 위해 _supabase 사용)
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; 
+
+// 라이브러리가 로드되지 않았을 경우를 대비한 안전장치
+if (typeof supabase === 'undefined') {
+  alert("Supabase 라이브러리가 로드되지 않았습니다. index.html의 CDN 설정을 확인하세요.");
+}
+
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
@@ -222,15 +227,21 @@ let showFavOnly = false;
 
 // --- 모달 제어 ---
 function openModal(type) {
-  document.getElementById('auth-modal').style.display = 'flex';
+  const modal = document.getElementById('auth-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
   const isLogin = type === 'login';
   document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
   document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
   document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
 }
-function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
 
-// --- 회원가입 (Supabase Auth + Database) ---
+function closeModal() { 
+  const modal = document.getElementById('auth-modal');
+  if (modal) modal.style.display = 'none'; 
+}
+
+// --- 회원가입 ---
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
@@ -364,11 +375,15 @@ async function logout() {
   location.reload();
 }
 
-// --- 카테고리 필터 ---
+// --- 카테고리 필터 (event 객체 오류 수정) ---
 function setCategory(cat) { 
   currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  if (event) event.target.classList.add('active');
+  
+  // 클릭된 버튼에 active 클래스 부여
+  if (window.event) {
+    window.event.target.classList.add('active');
+  }
   renderSnacks(); 
 }
 
@@ -379,7 +394,8 @@ function toggleFavorites() {
     return;
   }
   showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  const btn = document.getElementById("fav-toggle-btn");
+  if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
   renderSnacks();
 }
 
@@ -393,13 +409,17 @@ function pickRandom() {
 
 // --- 페이지 로드 시 세션 확인 ---
 window.onload = async () => {
-  const { data: { session } } = await _supabase.auth.getSession();
-  if (session) {
-    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
-    currentUser = profile;
-    updateUI();
-  } else {
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+      const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      currentUser = profile;
+      updateUI();
+    } else {
+      renderSnacks();
+    }
+  } catch (e) {
+    console.error("초기 로드 중 오류 발생:", e);
     renderSnacks();
   }
 };
-
