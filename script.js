@@ -207,7 +207,7 @@ const snackNames = [
   { name: "봉봉", cat: "drink", allergies: [] },
   { name: "쌕쌕 오렌지", cat: "drink", allergies: [] },
   { name: "갈아만든배", cat: "drink", 
-   ];
+];
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
