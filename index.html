@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 1. 해시 라이브러리 (정상 주소) -->
-  <script src="https://cdnjs.cloudflare.com"></script>
 </head>
 <body>
 
@@ -23,14 +21,6 @@
       </div>
     </div>
   </header>
-
-  <!-- 2. 추가된 비밀번호 해시 섹션 -->
-  <div style="margin: 20px auto; max-width: 800px; background: #f4f4f4; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h4 style="margin-top:0;">🔐 비밀번호 해시 변환기</h4>
-    <input type="text" id="pwInput" placeholder="비밀번호 입력" style="padding: 8px; width: 60%; border: 1px solid #ccc; border-radius: 4px;">
-    <button onclick="generateHash()" style="padding: 8px 15px; cursor: pointer; background: #4a90e2; color: white; border: none; border-radius: 4px;">변환</button>
-    <p id="hashResult" style="word-break: break-all; font-size: 12px; color: #555; margin-top: 10px; background: #fff; padding: 5px; min-height: 20px;"></p>
-  </div>
 
   <main class="gh-main-container">
     <section id="user-section" class="gh-card" style="display:none;">
@@ -91,21 +81,6 @@
     </div>
   </div>
 
-  <!-- 기존 스크립트 파일 로드 -->
   <script src="script.js"></script>
-  
-  <!-- 3. 해시 처리용 스크립트 추가 -->
-  <script>
-    function generateHash() {
-        const pw = document.getElementById('pwInput').value;
-        if (!pw) {
-            alert("비밀번호를 입력하세요!");
-            return;
-        }
-        // CryptoJS를 사용한 SHA-256 해싱
-        const hash = CryptoJS.SHA256(pw).toString();
-        document.getElementById('hashResult').innerText = "결과 해시값: " + hash;
-    }
-  </script>
 </body>
 </html>
