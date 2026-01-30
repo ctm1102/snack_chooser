@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
+  <!-- 1. Supabase 라이브러리를 먼저 불러와야 합니다 (추가됨) -->
+  <script src="https://cdn.jsdelivr.net"></script>
 </head>
 <body>
 
@@ -26,10 +28,13 @@
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
+      <!-- "개 간식 구비" 문구가 들어갈 곳 (추가됨) -->
+      <p id="snack-status" style="font-size:0.9rem; color:var(--gh-primary);"></p> 
       <div class="gh-allergy-group">
         <label class="gh-label">🚫 제외할 알러지</label>
         <div id="allergy-list" class="gh-chips"></div>
       </div>
+    </section> <!-- 태그 닫힘 누락 수정 -->
 
     <div class="gh-hero-section">
       <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
@@ -75,6 +80,7 @@
     </div>
   </div>
 
+  <!-- 2. 내 스크립트는 라이브러리 아래에 위치해야 합니다 -->
   <script src="script.js"></script>
 </body>
 </html>
