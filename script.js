@@ -210,6 +210,10 @@ const snackNames = [
 ];
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
+const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_KEY = 'your-anon-key';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
