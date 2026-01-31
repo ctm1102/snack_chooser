@@ -206,8 +206,8 @@ const snackNames = [
   { name: "맥콜", cat: "drink", allergies: ["밀가루"] },
   { name: "봉봉", cat: "drink", allergies: [] },
   { name: "쌕쌕 오렌지", cat: "drink", allergies: [] },
-  { name: "갈아만든배", cat: "drink", 
-];
+  { name: "갈아만든배", cat: "drink", allergies: [] }
+  ];
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
 // 2. Supabase 설정 (변수명 충돌 방지를 위해 _supabase 사용)
