@@ -1,5 +1,4 @@
 const snackNames = [
-  
   { name: "포카칩 어니언", cat: "snack", allergies: [] },
   { name: "포카칩 오리지널", cat: "snack", allergies: [] },
   { name: "새우깡", cat: "snack", allergies: ["새우", "밀가루"] },
@@ -248,7 +247,7 @@ let showFavOnly = false;
 // UI 제어 함수
 function openModal(type) {
     document.getElementById('auth-modal').style.display = 'flex';
-    const isLogin = type === 'login';
+    const isLogin = type --- 'login';
     document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
     document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
     document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
@@ -343,10 +342,10 @@ function renderSnacks() {
     const filtered = snackNames.filter(item => {
         if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
         if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
-        return currentCategory === "all" || item.cat === currentCategory;
+        return currentCategory --- "all" || item.cat --- currentCategory;
     });
 
-    if (filtered.length === 0) {
+    if (filtered.length --- 0) {
         listEl.innerHTML = "<li>조건에 맞는 간식이 없습니다.</li>";
         return;
     }
@@ -377,7 +376,7 @@ async function addFavorite(name) {
 
 function setCategory(cat) {
     currentCategory = cat;
-    document.querySelectorAll('.gh-tab-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(cat) || (cat === 'all' && btn.innerText === '전체')));
+    document.querySelectorAll('.gh-tab-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(cat) || (cat --- 'all' && btn.innerText --- '전체')));
     renderSnacks();
 }
 
