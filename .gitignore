@@ -1,8 +1,15 @@
-# 1. Git 추적 목록에서 .env 파일을 제거합니다 (실제 파일은 로컬에 남습니다)
-git rm --cached .env
+# .gitignore 파일 내용
+# -------------------------------------------------------------------
+# 1. 민감한 정보가 담긴 파일은 반드시 제외합니다.
+.env
+.env.local
+.env.development.local
+.env.production.local
 
-# 2. .gitignore 파일에 .env가 제대로 추가되어 있는지 다시 확인합니다.
-# 3. 변경 사항을 커밋하고 푸시합니다.
-git add .gitignore
-git commit -m "Fix: Remove .env from tracking and ensure it's ignored"
-git push
+# 2. Node.js 프로젝트의 종속성 폴더
+/node_modules
+
+# 3. React 빌드 결과 폴더
+/build
+/dist
+# -------------------------------------------------------------------
