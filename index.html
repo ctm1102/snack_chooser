@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 1. Supabase 라이브러리 로드 경로를 올바르게 수정했습니다. -->
+  <!-- Supabase 라이브러리 로드 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -64,13 +64,13 @@
         <h2 id="modal-title">로그인</h2>
         <span class="gh-modal-close" onclick="closeModal()">&times;</span>
       </div>
-      <!-- 로그인 폼 -->
+      <!-- 로그인 폼 (ID: login-name, login-pw) -->
       <div id="login-form" class="gh-form">
         <input type="text" id="login-name" class="gh-input" placeholder="성함(이메일)">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
       </div>
-      <!-- 회원가입 폼 -->
+      <!-- 회원가입 폼 (ID: signup-name, signup-pw) - 이메일 필드 제거됨 -->
       <div id="signup-form" class="gh-form" style="display:none;">
         <input type="text" id="signup-name" class="gh-input" placeholder="성함(이메일)">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
