@@ -1,5 +1,5 @@
 const snackNames = [
-{ name: "포카칩 어니언", cat: "snack", allergies: [] },
+  { name: "포카칩 어니언", cat: "snack", allergies: [] },
   { name: "포카칩 오리지널", cat: "snack", allergies: [] },
   { name: "새우깡", cat: "snack", allergies: ["새우", "밀가루"] },
   { name: "매운새우깡", cat: "snack", allergies: ["새우", "밀가루"] },
@@ -203,7 +203,6 @@ const snackNames = [
   { name: "펩시 제로 슈거 (라임)", cat: "drink", allergies: [] },
   { name: "칠성사이다 제로", cat: "drink", allergies: [] },
   { name: "웰치스 제로 (포도)", cat: "drink", allergies: [] },
-  { name: "닥터페퍼 제로", cat: "drink", allergies: [] },
   { name: "보리차 (하늘보리)", cat: "drink", allergies: [] },
   { name: "옥수수수염차", cat: "drink", allergies: [] },
   { name: "나랑드사이다", cat: "drink", allergies: [] },
