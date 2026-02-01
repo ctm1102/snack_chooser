@@ -228,199 +228,187 @@ const snackNames = [
   ];
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
+대두"];
 
-// 2. Supabase 설정 (변수명 _supabase 사용)
+// Supabase 초기화 (변수명 client로 변경하여 충돌 방지)
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; // 실제 키로 유지
+
+let client;
+try {
+    client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (e) {
+    console.error("Supabase 로드 실패:", e);
+    alert("Supabase 라이브러리 로드에 실패했습니다. 인터넷 연결을 확인하세요.");
+}
 
 let currentUser = null;
 let currentCategory = "all";
 let showFavOnly = false;
 
-// --- 모달 제어 ---
+// UI 제어 함수
 function openModal(type) {
-  document.getElementById('auth-modal').style.display = 'flex';
-  const isLogin = type === 'login';
-  document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
-  document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('auth-modal').style.display = 'flex';
+    const isLogin = type === 'login';
+    document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
+    document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
 }
 function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
 
-// --- 회원가입 ---
+// 회원가입
 async function handleSignup() {
-  const name = document.getElementById("signup-name").value.trim();
-  const pw = document.getElementById("signup-pw").value.trim();
-  if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
+    const name = document.getElementById("signup-name").value.trim();
+    const pw = document.getElementById("signup-pw").value.trim();
+    if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
 
-  const { data, error } = await _supabase.auth.signUp({
-    email: name.includes('@') ? name : `${name}@test.com`,
-    password: pw,
-  });
+    const { data, error } = await client.auth.signUp({
+        email: name.includes('@') ? name : `${name}@test.com`,
+        password: pw
+    });
 
-  if (error) return alert("가입 실패: " + error.message);
-
-  if (data.user) {
-    await _supabase.from('profiles').insert([{ id: data.user.id, name: name, favorites: [], allergies: [] }]);
+    if (error) return alert("가입 실패: " + error.message);
+    
+    // 프로필 초기 데이터 생성
+    await client.from('profiles').upsert({ id: data.user.id, name: name, favorites: [], allergies: [] });
     alert("가입 성공! 로그인을 진행해주세요.");
     openModal('login');
-  }
 }
 
-// --- 로그인 ---
+// 로그인
 async function handleLogin() {
-  const name = document.getElementById("login-name").value.trim();
-  const pw = document.getElementById("login-pw").value.trim();
+    const name = document.getElementById("login-name").value.trim();
+    const pw = document.getElementById("login-pw").value.trim();
 
-  const { data, error } = await _supabase.auth.signInWithPassword({
-    email: name.includes('@') ? name : `${name}@test.com`,
-    password: pw,
-  });
+    const { data, error } = await client.auth.signInWithPassword({
+        email: name.includes('@') ? name : `${name}@test.com`,
+        password: pw
+    });
 
-  if (error) return alert("로그인 실패: 정보를 확인하세요.");
-  const { data: profile } = await _supabase.from('profiles').select('*').eq('id', data.user.id).single();
-  currentUser = profile;
-  closeModal();
-  updateUI();
+    if (error) return alert("로그인 실패: 정보를 확인하세요.");
+
+    const { data: profile } = await client.from('profiles').select('*').eq('id', data.user.id).single();
+    currentUser = profile;
+    closeModal();
+    updateUI();
 }
 
-// --- 데이터 동기화 ---
+// 데이터 동기화
 async function syncData() {
-  if (!currentUser) return;
-  await _supabase.from('profiles').update({ allergies: currentUser.allergies, favorites: currentUser.favorites }).eq('id', currentUser.id);
+    if (!currentUser) return;
+    await client.from('profiles').update({
+        allergies: currentUser.allergies,
+        favorites: currentUser.favorites
+    }).eq('id', currentUser.id);
 }
 
-// --- UI 업데이트 ---
+// UI 갱신
 function updateUI() {
-  if (currentUser) {
-    document.getElementById("auth-menu").style.display = "none";
-    document.getElementById("user-menu").style.display = "flex";
-    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-    document.getElementById("user-section").style.display = "block";
-    
-    const count = currentUser.favorites ? currentUser.favorites.length : 0;
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요!`;
-    const snackStatus = document.getElementById("snack-status");
-    if (snackStatus) snackStatus.innerText = `(${count}개 간식 구비 중)`;
-    renderAllergyList();
-  }
-  renderSnacks();
+    if (currentUser) {
+        document.getElementById("auth-menu").style.display = "none";
+        document.getElementById("user-menu").style.display = "flex";
+        document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+        document.getElementById("user-section").style.display = "block";
+        document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 환영합니다!`;
+        
+        const count = currentUser.favorites ? currentUser.favorites.length : 0;
+        document.getElementById("snack-status").innerText = `(${count}개 간식 구비 중)`;
+        renderAllergyList();
+    }
+    renderSnacks();
 }
 
-// --- 알러지 칩 렌더링 ---
 function renderAllergyList() {
-  const container = document.getElementById("allergy-list");
-  if (!container) return;
-  container.innerHTML = "";
-  allergyTypes.forEach(type => {
-    const isChecked = currentUser.allergies.includes(type);
-    const label = document.createElement("label");
-    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
-    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
-    container.appendChild(label);
-  });
+    const container = document.getElementById("allergy-list");
+    container.innerHTML = "";
+    allergyTypes.forEach(type => {
+        const isChecked = currentUser.allergies.includes(type);
+        const label = document.createElement("label");
+        label.className = `gh-chip ${isChecked ? 'active' : ''}`;
+        label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
+        container.appendChild(label);
+    });
 }
 
 async function updateAllergy(el) {
-  if (el.checked) currentUser.allergies.push(el.value);
-  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
-  await syncData();
-  renderSnacks();
-  renderAllergyList();
-}
-
-// --- 간식 리스트 렌더링 (필터링 로직 강화) ---
-function renderSnacks() {
-  const listEl = document.getElementById("snack-list");
-  if (!listEl) return;
-  listEl.innerHTML = "";
-  
-  const filtered = snackNames.filter(item => {
-    // 1. 알러지 필터: 내 알러지가 포함된 간식 제외
-    if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
-    // 2. 즐겨찾기 필터: ⭐ 별표 누른 것만 보기 모드일 때
-    if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
-    // 3. 카테고리 필터: 탭에서 선택한 카테고리만 보기
-    return currentCategory === "all" || item.cat === currentCategory;
-  });
-
-  if (filtered.length === 0) {
-    listEl.innerHTML = `<li style="padding:20px; color:#999; text-align:center;">조건에 맞는 간식이 없습니다.</li>`;
-  }
-
-  filtered.forEach(item => {
-    const isFav = currentUser && currentUser.favorites.includes(item.name);
-    const li = document.createElement("li");
-    li.className = "gh-snack-item";
-    li.innerHTML = `
-      <span style="font-weight:700;">${item.name}</span>
-      <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
-    `;
-    listEl.appendChild(li);
-  });
-}
-
-// --- 즐겨찾기 기능 ---
-async function addFavorite(name) {
-  if (!currentUser) {
-    if (confirm("로그인이 필요합니다. 이동할까요?")) openModal('login');
-    return;
-  }
-  const idx = currentUser.favorites.indexOf(name);
-  if (idx > -1) currentUser.favorites.splice(idx, 1);
-  else currentUser.favorites.push(name);
-  await syncData();
-  updateUI();
-}
-
-// --- 로그아웃 ---
-async function logout() {
-  await _supabase.auth.signOut();
-  currentUser = null;
-  location.reload();
-}
-
-// --- 카테고리 설정 ---
-function setCategory(cat) { 
-  currentCategory = cat; 
-  document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  if (event) event.target.classList.add('active');
-  renderSnacks(); 
-}
-
-// --- 즐겨찾기 토글 ---
-function toggleFavorites() {
-  if (!currentUser && !showFavOnly) {
-    if (confirm("로그인이 필요합니다. 이동할까요?")) openModal('login');
-    return;
-  }
-  showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
-  renderSnacks();
-}
-
-// --- 랜덤 뽑기 (에러 방지 강화) ---
-function pickRandom() {
-  const listEl = document.getElementById("snack-list");
-  const items = listEl.querySelectorAll(".gh-snack-item span");
-  
-  if (items.length === 0) {
-    return alert("현재 화면에 표시된 간식이 없습니다. 카테고리나 알러지 설정을 확인하세요.");
-  }
-  
-  const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary)">${picked}</b>`;
-}
-
-// --- 초기 로드 ---
-window.onload = async () => {
-  const { data: { session } } = await _supabase.auth.getSession();
-  if (session) {
-    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
-    currentUser = profile;
+    if (el.checked) currentUser.allergies.push(el.value);
+    else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+    await syncData();
     updateUI();
-  } else {
+}
+
+function renderSnacks() {
+    const listEl = document.getElementById("snack-list");
+    listEl.innerHTML = "";
+    
+    const filtered = snackNames.filter(item => {
+        if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
+        if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
+        return currentCategory === "all" || item.cat === currentCategory;
+    });
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = "<li>조건에 맞는 간식이 없습니다.</li>";
+        return;
+    }
+
+    filtered.forEach(item => {
+        const isFav = currentUser && currentUser.favorites.includes(item.name);
+        const li = document.createElement("li");
+        li.className = "gh-snack-item";
+        li.innerHTML = `
+            <span>${item.name}</span>
+            <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
+        `;
+        listEl.appendChild(li);
+    });
+}
+
+async function addFavorite(name) {
+    if (!currentUser) {
+        if (confirm("로그인이 필요합니다. 로그인 화면으로 갈까요?")) openModal('login');
+        return;
+    }
+    const idx = currentUser.favorites.indexOf(name);
+    if (idx > -1) currentUser.favorites.splice(idx, 1);
+    else currentUser.favorites.push(name);
+    await syncData();
+    updateUI();
+}
+
+function setCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.gh-tab-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(cat) || (cat === 'all' && btn.innerText === '전체')));
     renderSnacks();
-  }
+}
+
+function toggleFavorites() {
+    if (!currentUser) return alert("로그인 후 이용 가능합니다.");
+    showFavOnly = !showFavOnly;
+    document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+    renderSnacks();
+}
+
+function pickRandom() {
+    const items = document.querySelectorAll(".gh-snack-item span");
+    if (!items.length) return alert("목록이 비어있습니다.");
+    const picked = items[Math.floor(Math.random() * items.length)].innerText;
+    document.getElementById("result").innerHTML = `🎯 추천 결과: <b>${picked}</b>`;
+}
+
+function logout() {
+    client.auth.signOut();
+    location.reload();
+}
+
+// 초기 로드
+window.onload = async () => {
+    const { data: { session } } = await client.auth.getSession();
+    if (session) {
+        const { data: profile } = await client.from('profiles').select('*').eq('id', session.user.id).single();
+        currentUser = profile;
+        updateUI();
+    } else {
+        renderSnacks();
+    }
 };
