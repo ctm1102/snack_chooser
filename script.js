@@ -254,14 +254,14 @@ function openModal(type) {
 }
 function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
 
-// 회원가입
+// 회원가입 (이메일 필드 제거됨)
 async function handleSignup() {
     const name = document.getElementById("signup-name").value.trim();
     const pw = document.getElementById("signup-pw").value.trim();
     if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
 
     const { data, error } = await client.auth.signUp({
-        email: name.includes('@') ? name : `${name}@test.com`,
+        email: name.includes('@') ? name : `${name}@test.com`, // 성함이 이메일 형식이 아니면 @test.com을 붙여 임시 이메일 생성
         password: pw
     });
 
@@ -273,7 +273,7 @@ async function handleSignup() {
     openModal('login');
 }
 
-// 로그인
+// 로그인 (이메일 필드 제거됨)
 async function handleLogin() {
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
