@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 1. Supabase 라이브러리 (버전 2.40.0 고정으로 안정성 확보) -->
-  <script src="https://cdn.jsdelivr.net"></script>
+  <!-- 1. Supabase 라이브러리 로드 경로를 올바르게 수정했습니다. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -48,7 +48,7 @@
         <button onclick="setCategory('snack')" class="gh-tab-btn">과자</button>
         <button onclick="setCategory('icecream')" class="gh-tab-btn">아이스크림</button>
         <button onclick="setCategory('tradition')" class="gh-tab-btn">전통</button>
-        <button onclick="setCategory('candy')" class="gh-tab-btn">사탕&젤리</button>
+        <button onclick="setCategory('candy')" class="gh-tab-btn">사탕&amp;젤리</button>
         <button onclick="setCategory('drink')" class="gh-tab-btn">음료</button>
       </div>
     </nav>
