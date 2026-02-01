@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Supabase 라이브러리 주소 수정 (@2 버전 명시) -->
+  <!-- 1. Supabase 라이브러리 (버전 2.40.0 고정으로 안정성 확보) -->
   <script src="https://cdn.jsdelivr.net"></script>
 </head>
 <body>
@@ -25,7 +25,6 @@
   </header>
 
   <main class="gh-main-container">
-    <!-- 유저 섹션 시작 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -34,7 +33,7 @@
         <label class="gh-label">🚫 제외할 알러지</label>
         <div id="allergy-list" class="gh-chips"></div>
       </div>
-    </section> <!-- 섹션 닫힘 확인 완료 -->
+    </section>
 
     <div class="gh-hero-section">
       <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
@@ -58,30 +57,28 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 모달 창 (로그인/회원가입) -->
+  <!-- 모달 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="modal-title">로그인</h2>
         <span class="gh-modal-close" onclick="closeModal()">&times;</span>
       </div>
+      <!-- 로그인 폼 -->
       <div id="login-form" class="gh-form">
-        <input type="text" id="login-name" class="gh-input" placeholder="성함">
+        <input type="text" id="login-name" class="gh-input" placeholder="성함(이메일)">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" style="cursor:pointer; color:blue;">회원가입</span></p>
       </div>
+      <!-- 회원가입 폼 -->
       <div id="signup-form" class="gh-form" style="display:none;">
-        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
+        <input type="text" id="signup-name" class="gh-input" placeholder="성함(이메일)">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <p class="gh-pw-warning">* 주의: 비밀번호는 찾을 수 없으니 꼭 기억하세요!</p>
         <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
-        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')" style="cursor:pointer; color:blue;">로그인</span></p>
       </div>
     </div>
   </div>
 
-  <!-- script.js는 라이브러리 아래 위치 -->
   <script src="script.js"></script>
 </body>
 </html>
