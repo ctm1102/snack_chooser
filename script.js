@@ -228,7 +228,6 @@ const snackNames = [
   ];
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
-대두"];
 
 // Supabase 초기화 (변수명 client로 변경하여 충돌 방지)
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
