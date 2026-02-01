@@ -228,9 +228,9 @@ const snackNames = [
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
-// Supabase 초기화 (변수명 client로 변경하여 충돌 방지)
+// Supabase 초기화 (보안상 위험하지만, 모바일 환경에서 테스트를 위해 유지)
 const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; // 실제 키로 유지
+const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1D'; 
 
 let client;
 try {
@@ -320,7 +320,7 @@ function renderAllergyList() {
     const container = document.getElementById("allergy-list");
     container.innerHTML = "";
     allergyTypes.forEach(type => {
-        const isChecked = currentUser.allergies.includes(type);
+        const isChecked = currentUser && currentUser.allergies.includes(type);
         const label = document.createElement("label");
         label.className = `gh-chip ${isChecked ? 'active' : ''}`;
         label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
@@ -329,6 +329,7 @@ function renderAllergyList() {
 }
 
 async function updateAllergy(el) {
+    if (!currentUser) return alert("로그인 후 알레르기 설정을 변경할 수 있습니다.");
     if (el.checked) currentUser.allergies.push(el.value);
     else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
     await syncData();
@@ -376,7 +377,10 @@ async function addFavorite(name) {
 
 function setCategory(cat) {
     currentCategory = cat;
-    document.querySelectorAll('.gh-tab-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(cat) || (cat --- 'all' && btn.innerText --- '전체')));
+    document.querySelectorAll('.gh-tab-btn').forEach(btn => {
+        const isActive = (cat --- 'all' && btn.innerText.includes('전체')) || btn.innerText.includes(cat);
+        btn.classList.toggle('active', isActive);
+    });
     renderSnacks();
 }
 
@@ -395,18 +399,24 @@ function pickRandom() {
 }
 
 function logout() {
+    if (!client) return alert("Supabase 연결이 안 되어 로그아웃할 수 없습니다.");
     client.auth.signOut();
     location.reload();
 }
 
 // 초기 로드
 window.onload = async () => {
-    const { data: { session } } = await client.auth.getSession();
-    if (session) {
-        const { data: profile } = await client.from('profiles').select('*').eq('id', session.user.id).single();
-        currentUser = profile;
-        updateUI();
+    if (client) {
+        const { data: { session } } = await client.auth.getSession();
+        if (session) {
+            const { data: profile } = await client.from('profiles').select('*').eq('id', session.user.id).single();
+            currentUser = profile;
+            updateUI();
+        } else {
+            renderSnacks();
+        }
     } else {
+        console.warn("Supabase 연결 실패. 로그인/즐겨찾기 기능은 비활성화됩니다.");
         renderSnacks();
     }
 };
