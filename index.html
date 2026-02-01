@@ -1,84 +1,46 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snack Chooser</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Supabase 라이브러리 로드 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lily's Workspace</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="gh-header">
-    <div class="gh-nav-inner">
-      <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
-      <div id="auth-menu" class="gh-auth-zone">
-        <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
-        <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
-      </div>
-      <div id="user-menu" class="gh-auth-zone" style="display: none;">
-        <span id="header-user-name" class="gh-user-name"></span>
-        <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
-      </div>
-    </div>
-  </header>
-
-  <main class="gh-main-container">
-    <section id="user-section" class="gh-card" style="display:none;">
-      <h3 class="gh-card-title">My Preferences</h3>
-      <p id="welcome-msg" class="gh-welcome-txt"></p>
-      <p id="snack-status" style="font-size:0.9rem; color:var(--gh-primary);"></p> 
-      <div class="gh-allergy-group">
-        <label class="gh-label">🚫 제외할 알러지</label>
-        <div id="allergy-list" class="gh-chips"></div>
-      </div>
-    </section>
-
-    <div class="gh-hero-section">
-      <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
-      <div class="gh-hero-sub">
-        <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
-      </div>
-    </div>
-
-    <nav class="gh-tabs">
-      <div class="gh-tab-list">
-        <button onclick="setCategory('all')" class="gh-tab-btn active">전체</button>
-        <button onclick="setCategory('snack')" class="gh-tab-btn">과자</button>
-        <button onclick="setCategory('icecream')" class="gh-tab-btn">아이스크림</button>
-        <button onclick="setCategory('tradition')" class="gh-tab-btn">전통</button>
-        <button onclick="setCategory('candy')" class="gh-tab-btn">사탕&amp;젤리</button>
-        <button onclick="setCategory('drink')" class="gh-tab-btn">음료</button>
-      </div>
+    <nav class="navbar">
+        <div class="logo" id="go-home">Lily's Page</div>
+        <ul class="nav-links">
+            <li><button id="btn-login-view">로그인</button></li>
+            <li><button id="btn-signup-view">회원가입</button></li>
+        </ul>
     </nav>
 
-    <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
-    <ul id="snack-list" class="gh-snack-list"></ul>
-  </main>
+    <main id="main-container">
+        <section id="list-section">
+            <h2>최신 게시글</h2>
+            <div id="item-list-container">
+                <p>데이터를 불러오는 중...</p>
+            </div>
+        </section>
 
-  <!-- 모달 -->
-  <div id="auth-modal" class="gh-modal">
-    <div class="gh-modal-box">
-      <div class="gh-modal-head">
-        <h2 id="modal-title">로그인</h2>
-        <span class="gh-modal-close" onclick="closeModal()">&times;</span>
-      </div>
-      <!-- 로그인 폼 (ID: login-name, login-pw) -->
-      <div id="login-form" class="gh-form">
-        <input type="text" id="login-name" class="gh-input" placeholder="성함">
-        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
-        <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-      </div>
-      <!-- 회원가입 폼 (ID: signup-name, signup-pw) - 이메일 필드 제거됨 -->
-      <div id="signup-form" class="gh-form" style="display:none;">
-        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
-        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
-      </div>
-    </div>
-  </div>
+        <section id="auth-section" class="hidden">
+            <h2 id="auth-title">로그인</h2>
+            <form id="auth-form">
+                <div class="input-group">
+                    <label for="user-id">아이디</label>
+                    <input type="text" id="user-id" placeholder="아이디를 입력하세요" required>
+                </div>
+                <div class="input-group">
+                    <label for="user-pw">비밀번호</label>
+                    <input type="password" id="user-pw" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <button type="submit" id="auth-btn">확인</button>
+                <button type="button" id="auth-close" class="btn-secondary">닫기</button>
+            </form>
+        </section>
+    </main>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
