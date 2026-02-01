@@ -1,4 +1,8 @@
-# .gitignore 파일 내용
-/node_modules
-/build
-.env
+# 1. Git 추적 목록에서 .env 파일을 제거합니다 (실제 파일은 로컬에 남습니다)
+git rm --cached .env
+
+# 2. .gitignore 파일에 .env가 제대로 추가되어 있는지 다시 확인합니다.
+# 3. 변경 사항을 커밋하고 푸시합니다.
+git add .gitignore
+git commit -m "Fix: Remove .env from tracking and ensure it's ignored"
+git push
