@@ -230,6 +230,11 @@ const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "�
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 
 function openModal(type) {
   document.getElementById('auth-modal').style.display = 'flex';
