@@ -274,11 +274,27 @@ function updateUI() {
     document.getElementById("user-menu").style.display = "flex";
     document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
     document.getElementById("user-section").style.display = "block";
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 오늘도 맛있는 간식을 골라보세요! (총 ${snackNames.length}종 구비)`;
+    
+    // 로그인 횟수에 따른 맞춤 메시지 설정
+    let welcomeText = "";
+    const count = currentUser.loginCount;
+    
+    if (count <= 1) {
+      welcomeText = "첫 이용 환영합니다!";
+    } else if (count === 2) {
+      welcomeText = "또 오셨네요! 반갑습니다!";
+    } else if (count === 3) {
+      welcomeText = "다시 만나서 반가워요!";
+    } else {
+      welcomeText = `간식 뽑기 사이트 단골 ${currentUser.name}님 반가워요!`;
+    }
+
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
     renderAllergyList();
   }
   renderSnacks();
 }
+
 
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
