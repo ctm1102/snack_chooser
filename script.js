@@ -235,38 +235,35 @@ const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-
-function openModal(type) {
-  document.getElementById('auth-modal').style.display = 'flex';
-  const isLogin = type === 'login';
-  document.getElementById('modal-title').innerText = isLogin ? '로그인' : '회원가입';
-  document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
-}
-function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
-
-function handleSignup() {
+async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
   if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
-  if (localStorage.getItem(`snackDB_${name}`)) return alert("이미 등록된 이름입니다.");
+  
+  // 중복 확인: Supabase 'users' 테이블에서 name 검색
+  const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
+  if (existing) return alert("이미 등록된 이름입니다.");
+  
   currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
-  saveUserData();
+  await saveUserData();
   alert("가입 성공! 환영합니다.");
   closeModal();
   updateUI();
 }
 
-function handleLogin() {
+async function handleLogin() {
   const name = document.getElementById("login-name").value.trim();
   const pw = document.getElementById("login-pw").value.trim();
-  const stored = localStorage.getItem(`snackDB_${name}`);
-  if (!stored) return alert("사용자 정보가 없습니다.");
-  const userData = JSON.parse(stored);
+  
+  // 사용자 정보 불러오기
+  const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
+  
+  if (!userData || error) return alert("사용자 정보가 없습니다.");
   if (userData.pw !== pw) return alert("비밀번호가 일치하지 않습니다.");
+  
   userData.loginCount++;
   currentUser = userData;
-  saveUserData();
+  await saveUserData();
   closeModal();
   updateUI();
 }
@@ -286,6 +283,7 @@ function updateUI() {
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
   container.innerHTML = "";
+  if (!currentUser) return;
   allergyTypes.forEach(type => {
     const isChecked = currentUser.allergies.includes(type);
     const label = document.createElement("label");
@@ -336,14 +334,25 @@ function addFavorite(name) {
   renderSnacks();
 }
 
-function saveUserData() { localStorage.setItem(`snackDB_${currentUser.name}`, JSON.stringify(currentUser)); localStorage.setItem("currentSnackSession", currentUser.name); }
-function logout() { localStorage.removeItem("currentSnackSession"); location.reload(); }
+// 데이터 저장: Supabase upsert (동일 name이 있으면 덮어쓰기)
+async function saveUserData() { 
+  if (!currentUser) return;
+  await _supabase.from('users').upsert(currentUser);
+  localStorage.setItem("currentSnackSession", currentUser.name); 
+}
+
+function logout() { 
+  localStorage.removeItem("currentSnackSession"); 
+  location.reload(); 
+}
+
 function setCategory(cat) { 
   currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   renderSnacks(); 
 }
+
 function toggleFavorites() {
   if (!currentUser && !showFavOnly) {
     if (confirm("로그인 후 즐겨찾기를 관리할 수 있습니다. 로그인하시겠습니까?")) openModal('login');
@@ -353,7 +362,12 @@ function toggleFavorites() {
   document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
   renderSnacks();
 }
-function toggleTheme() { document.body.classList.toggle("dark"); localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); }
+
+function toggleTheme() { 
+  document.body.classList.toggle("dark"); 
+  localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); 
+}
+
 function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item span");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
@@ -361,11 +375,19 @@ function pickRandom() {
   document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary)">${picked}</b>`;
 }
 
-window.onload = () => {
+window.onload = async () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
-    currentUser = JSON.parse(localStorage.getItem(`snackDB_${last}`));
-    if(currentUser) updateUI();
-  } else { renderSnacks(); }
+    // 세션이 있으면 DB에서 실시간 데이터 매칭
+    const { data } = await _supabase.from('users').select('*').eq('name', last).single();
+    if (data) {
+      currentUser = data;
+      updateUI();
+    } else {
+      renderSnacks();
+    }
+  } else { 
+    renderSnacks(); 
+  }
 };
