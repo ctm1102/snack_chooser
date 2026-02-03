@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <header class="gh-header">
     <div class="gh-nav-inner">
       <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
@@ -22,6 +23,7 @@
   </header>
 
   <main class="gh-main-container">
+    <!-- 설정 섹션: 버튼을 제거하고 자동화된 테마 변경만 남김 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -78,6 +80,7 @@
     </div>
   </div>
 
+  <!-- Supabase SDK 라이브러리 로드 -->
   <script src="https://cdn.jsdelivr.net"></script>
   <script src="script.js"></script>
 </body>
