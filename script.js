@@ -227,19 +227,15 @@ const snackNames = [
 ];
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
-/* --- 2. 초기 설정 영역 --- */
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 
-// GitHub Actions가 빌드 시 시크릿으로 교체할 부분
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
-
-// Supabase 초기화
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* --- 3. 인증 및 모달 함수 --- */
+/* --- 2. 인증 및 모달 --- */
 function openModal(type) {
   const modal = document.getElementById("auth-modal");
   document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
@@ -262,7 +258,7 @@ async function handleSignup() {
   
   currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
   await saveUserData();
-  alert("가입 성공! 맛있는 간식들을 골라보세요!.");
+  alert("가입 성공! 환영합니다.");
   closeModal();
   updateUI();
 }
@@ -283,7 +279,7 @@ async function handleLogin() {
   updateUI();
 }
 
-/* --- 4. UI 렌더링 함수 --- */
+/* --- 3. UI 렌더링 --- */
 function updateUI() {
   if (currentUser) {
     document.getElementById("auth-menu").style.display = "none";
@@ -291,8 +287,21 @@ function updateUI() {
     document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
     document.getElementById("user-section").style.display = "block";
     
-    let welcomeText = currentUser.loginCount === 1 ? "첫 이용 환영합니다!" : "반가워요!";
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText}`;
+    // 로그인 횟수에 따른 맞춤 메시지 설정
+    let welcomeText = "";
+    const count = currentUser.loginCount;
+    
+    if (count <= 1) {
+      welcomeText = "첫 이용 환영합니다!";
+    } else if (count === 2) {
+      welcomeText = "또 오셨네요! 반갑습니다!";
+    } else if (count === 3) {
+      welcomeText = "다시 만나서 반가워요!";
+    } else {
+      welcomeText = `간식 뽑기 사이트 단골 ${currentUser.name}님 반가워요!`;
+    }
+
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
     renderAllergyList();
   }
   renderSnacks();
@@ -300,6 +309,7 @@ function updateUI() {
 
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
+  if (!container) return;
   container.innerHTML = "";
   if (!currentUser) return;
   allergyTypes.forEach(type => {
@@ -341,20 +351,15 @@ function renderSnacks() {
   });
 }
 
-/* --- 5. 부가 기능 --- */
+/* --- 4. 기능 및 자동 백업 --- */
 function addFavorite(name) {
   if (!currentUser) {
-    // 확인(true)을 누르면 openModal('login') 실행
-    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
-      openModal('login');
-    }
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
     return;
   }
-  
   const idx = currentUser.favorites.indexOf(name);
   if (idx > -1) currentUser.favorites.splice(idx, 1);
   else currentUser.favorites.push(name);
-  
   saveUserData();
   renderSnacks();
 }
@@ -373,18 +378,20 @@ function logout() {
 function setCategory(cat, e) { 
   currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  if(e) e.target.classList.add('active');
+  if(e && e.target) e.target.classList.add('active');
   renderSnacks(); 
 }
 
 function toggleFavorites() {
-    if (!currentUser) {
-    // 확인(true)을 누르면 openModal('login') 실행
-    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
-      openModal('login');
-    }
+  if (!currentUser) {
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
     return;
   }
+  showFavOnly = !showFavOnly;
+  const btn = document.getElementById("fav-toggle-btn");
+  if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  renderSnacks();
+}
 
 function toggleTheme() { 
   document.body.classList.toggle("dark"); 
@@ -398,29 +405,16 @@ function pickRandom() {
   document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary, #007aff)">${picked}</b>`;
 }
 
-// 데이터 백업: 조용히 Supabase 서버에 저장
-async function exportData() {
-  if (!currentUser) return;
-  await saveUserData(); // 내부에서 _supabase.from('users').upsert(currentUser) 실행
-}
-
-// 데이터 복구: 확인창만 띄우고 즉시 최신화
+async function exportData() { await saveUserData(); }
 async function importData() {
   if (!currentUser) return;
-
   if (confirm("서버 데이터를 불러올까요?")) {
     const { data } = await _supabase.from('users').select('*').eq('name', currentUser.name).single();
-    if (data) {
-      currentUser = data;
-      updateUI();
-    }
+    if (data) { currentUser = data; updateUI(); }
   }
 }
-}
-  input.click();
-}
 
-/* --- 6. 초기 구동 --- */
+/* --- 5. 초기 구동 --- */
 window.onload = async () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   const last = localStorage.getItem("currentSnackSession");
@@ -429,15 +423,12 @@ window.onload = async () => {
     if (data) {
       currentUser = data;
       updateUI();
-    } else {
-      renderSnacks();
+      return;
     }
-  } else { 
-    renderSnacks(); 
   }
+  renderSnacks();
 };
 
-// 모달 바깥 클릭 시 닫기
 window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
 }
