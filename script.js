@@ -226,37 +226,45 @@ const snackNames = [
   
 ];
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
+
+/* --- 2. 초기 설정 영역 --- */
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 
-// 2. GitHub Actions가 이 부분을 실제 시크릿 값으로 교체합니다.
+// GitHub Actions가 빌드 시 시크릿으로 교체할 부분
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 
-// 3. Supabase 초기화 (변수명 중복 방지)
+// Supabase 초기화
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- 함수 시작 ---
+/* --- 3. 인증 및 모달 함수 --- */
+function openModal(type) {
+  const modal = document.getElementById("auth-modal");
+  document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
+  document.getElementById("signup-form").style.display = type === 'signup' ? 'block' : 'none';
+  document.getElementById("modal-title").innerText = type === 'login' ? '로그인' : '회원가입';
+  modal.style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("auth-modal").style.display = "none";
+}
 
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
   if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
   
-  try {
-    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
-    if (existing) return alert("이미 등록된 이름입니다.");
-    
-    currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
-    await saveUserData();
-    alert("가입 성공! 환영합니다.");
-    closeModal(); // HTML에 closeModal 함수가 정의되어 있어야 합니다.
-    updateUI();
-  } catch (e) {
-    console.error(e);
-    alert("가입 중 오류가 발생했습니다.");
-  }
+  const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
+  if (existing) return alert("이미 등록된 이름입니다.");
+  
+  currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
+  await saveUserData();
+  alert("가입 성공! 환영합니다.");
+  closeModal();
+  updateUI();
 }
 
 async function handleLogin() {
@@ -271,41 +279,29 @@ async function handleLogin() {
   userData.loginCount++;
   currentUser = userData;
   await saveUserData();
-  if (typeof closeModal === "function") closeModal();
+  closeModal();
   updateUI();
 }
 
+/* --- 4. UI 렌더링 함수 --- */
 function updateUI() {
-  if (!currentUser) return;
-
-  const authMenu = document.getElementById("auth-menu");
-  const userMenu = document.getElementById("user-menu");
-  if (authMenu) authMenu.style.display = "none";
-  if (userMenu) userMenu.style.display = "flex";
-
-  const headerName = document.getElementById("header-user-name");
-  if (headerName) headerName.innerText = `👤 ${currentUser.name}님`;
-
-  const userSection = document.getElementById("user-section");
-  if (userSection) userSection.style.display = "block";
+  if (currentUser) {
+    document.getElementById("auth-menu").style.display = "none";
+    document.getElementById("user-menu").style.display = "flex";
+    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+    document.getElementById("user-section").style.display = "block";
     
-  let welcomeText = "";
-  const count = currentUser.loginCount;
-  if (count <= 1) welcomeText = "첫 이용 환영합니다!";
-  else if (count === 2) welcomeText = "또 오셨네요! 반갑습니다!";
-  else welcomeText = `${currentUser.name}님 반가워요!`;
-
-  const welcomeMsg = document.getElementById("welcome-msg");
-  if (welcomeMsg) welcomeMsg.innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
-  
-  renderAllergyList();
+    let welcomeText = currentUser.loginCount === 1 ? "첫 이용 환영합니다!" : "반가워요!";
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText}`;
+    renderAllergyList();
+  }
   renderSnacks();
 }
 
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
-  if (!container || !currentUser) return;
   container.innerHTML = "";
+  if (!currentUser) return;
   allergyTypes.forEach(type => {
     const isChecked = currentUser.allergies.includes(type);
     const label = document.createElement("label");
@@ -325,7 +321,7 @@ function updateAllergy(el) {
 
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
-  if (!listEl) return;
+  if(!listEl) return;
   listEl.innerHTML = "";
   const filtered = snackNames.filter(item => {
     if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
@@ -345,11 +341,9 @@ function renderSnacks() {
   });
 }
 
+/* --- 5. 부가 기능 --- */
 function addFavorite(name) {
-  if (!currentUser) {
-    if (confirm("즐겨찾기는 로그인이 필요합니다. 로그인하시겠습니까?")) openModal('login');
-    return;
-  }
+  if (!currentUser) return alert("로그인이 필요합니다.");
   const idx = currentUser.favorites.indexOf(name);
   if (idx > -1) currentUser.favorites.splice(idx, 1);
   else currentUser.favorites.push(name);
@@ -371,18 +365,14 @@ function logout() {
 function setCategory(cat, e) { 
   currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  if (e && e.target) e.target.classList.add('active');
+  if(e) e.target.classList.add('active');
   renderSnacks(); 
 }
 
 function toggleFavorites() {
-  if (!currentUser && !showFavOnly) {
-    if (confirm("로그인 후 이용 가능합니다. 로그인하시겠습니까?")) openModal('login');
-    return;
-  }
+  if (!currentUser) return alert("로그인이 필요합니다.");
   showFavOnly = !showFavOnly;
-  const btn = document.getElementById("fav-toggle-btn");
-  if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
   renderSnacks();
 }
 
@@ -395,10 +385,38 @@ function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item span");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  const resultEl = document.getElementById("result");
-  if (resultEl) resultEl.innerHTML = `🎯 추천 결과: <b style="color:#007aff">${picked}</b>`;
+  document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary, #007aff)">${picked}</b>`;
 }
 
+// 데이터 백업/복구 (localStorage 활용)
+function exportData() {
+  if(!currentUser) return;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentUser));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", currentUser.name + "_backup.json");
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.readAsText(file,'UTF-8');
+    reader.onload = readerEvent => {
+      const content = readerEvent.target.result;
+      currentUser = JSON.parse(content);
+      saveUserData();
+      updateUI();
+    }
+  }
+  input.click();
+}
+
+/* --- 6. 초기 구동 --- */
 window.onload = async () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   const last = localStorage.getItem("currentSnackSession");
@@ -414,3 +432,8 @@ window.onload = async () => {
     renderSnacks(); 
   }
 };
+
+// 모달 바깥 클릭 시 닫기
+window.onclick = function(event) {
+  if (event.target == document.getElementById("auth-modal")) closeModal();
+}
