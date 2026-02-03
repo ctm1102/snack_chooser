@@ -67,7 +67,7 @@ body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-b
   justify-content: space-between; 
   align-items: center; 
   margin-bottom: 20px; /* 아래쪽 간격 확보 */
-  padding-top: 25px;    /* 글자 위치를 아래로 낮춤 */
+  padding-top: 40px;    /* 글자 위치를 아래로 낮춤 */
 }
 
 .gh-modal-head h2 { 
