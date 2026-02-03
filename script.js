@@ -230,35 +230,39 @@ let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 
-// 이 부분을 제가 드린 워크플로의 문구와 일치시킵니다.
+// 2. GitHub Actions가 이 부분을 실제 시크릿 값으로 교체합니다.
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 
-// 주의: 변수명이 supabase이므로 중복을 피하기 위해 라이브러리 객체를 호출할 때 주의하세요.
-// HTML에서 <script src="..."></script>로 불러왔다면 보통 전역 supabase 객체가 생깁니다.
+// 3. Supabase 초기화 (변수명 중복 방지)
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- 함수 시작 ---
 
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
   if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
   
-  // 중복 확인: Supabase 'users' 테이블에서 name 검색
-  const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
-  if (existing) return alert("이미 등록된 이름입니다.");
-  
-  currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
-  await saveUserData();
-  alert("가입 성공! 환영합니다.");
-  closeModal();
-  updateUI();
+  try {
+    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
+    if (existing) return alert("이미 등록된 이름입니다.");
+    
+    currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
+    await saveUserData();
+    alert("가입 성공! 환영합니다.");
+    closeModal(); // HTML에 closeModal 함수가 정의되어 있어야 합니다.
+    updateUI();
+  } catch (e) {
+    console.error(e);
+    alert("가입 중 오류가 발생했습니다.");
+  }
 }
 
 async function handleLogin() {
   const name = document.getElementById("login-name").value.trim();
   const pw = document.getElementById("login-pw").value.trim();
   
-  // 사용자 정보 불러오기
   const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
   
   if (!userData || error) return alert("사용자 정보가 없습니다.");
@@ -267,42 +271,41 @@ async function handleLogin() {
   userData.loginCount++;
   currentUser = userData;
   await saveUserData();
-  closeModal();
+  if (typeof closeModal === "function") closeModal();
   updateUI();
 }
 
 function updateUI() {
-  if (currentUser) {
-    document.getElementById("auth-menu").style.display = "none";
-    document.getElementById("user-menu").style.display = "flex";
-    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-    document.getElementById("user-section").style.display = "block";
-    
-    // 로그인 횟수에 따른 맞춤 메시지 설정
-    let welcomeText = "";
-    const count = currentUser.loginCount;
-    
-    if (count <= 1) {
-      welcomeText = "첫 이용 환영합니다!";
-    } else if (count === 2) {
-      welcomeText = "또 오셨네요! 반갑습니다!";
-    } else if (count === 3) {
-      welcomeText = "다시 만나서 반가워요!";
-    } else {
-      welcomeText = `간식 뽑기 사이트 단골 ${currentUser.name}님 반가워요!`;
-    }
+  if (!currentUser) return;
 
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
-    renderAllergyList();
-  }
+  const authMenu = document.getElementById("auth-menu");
+  const userMenu = document.getElementById("user-menu");
+  if (authMenu) authMenu.style.display = "none";
+  if (userMenu) userMenu.style.display = "flex";
+
+  const headerName = document.getElementById("header-user-name");
+  if (headerName) headerName.innerText = `👤 ${currentUser.name}님`;
+
+  const userSection = document.getElementById("user-section");
+  if (userSection) userSection.style.display = "block";
+    
+  let welcomeText = "";
+  const count = currentUser.loginCount;
+  if (count <= 1) welcomeText = "첫 이용 환영합니다!";
+  else if (count === 2) welcomeText = "또 오셨네요! 반갑습니다!";
+  else welcomeText = `${currentUser.name}님 반가워요!`;
+
+  const welcomeMsg = document.getElementById("welcome-msg");
+  if (welcomeMsg) welcomeMsg.innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
+  
+  renderAllergyList();
   renderSnacks();
 }
 
-
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
+  if (!container || !currentUser) return;
   container.innerHTML = "";
-  if (!currentUser) return;
   allergyTypes.forEach(type => {
     const isChecked = currentUser.allergies.includes(type);
     const label = document.createElement("label");
@@ -322,6 +325,7 @@ function updateAllergy(el) {
 
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
+  if (!listEl) return;
   listEl.innerHTML = "";
   const filtered = snackNames.filter(item => {
     if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
@@ -343,7 +347,7 @@ function renderSnacks() {
 
 function addFavorite(name) {
   if (!currentUser) {
-    if (confirm("즐겨찾기는 로그인이 필요합니다. 로그인 화면으로 갈까요?")) openModal('login');
+    if (confirm("즐겨찾기는 로그인이 필요합니다. 로그인하시겠습니까?")) openModal('login');
     return;
   }
   const idx = currentUser.favorites.indexOf(name);
@@ -353,7 +357,6 @@ function addFavorite(name) {
   renderSnacks();
 }
 
-// 데이터 저장: Supabase upsert (동일 name이 있으면 덮어쓰기)
 async function saveUserData() { 
   if (!currentUser) return;
   await _supabase.from('users').upsert(currentUser);
@@ -365,20 +368,21 @@ function logout() {
   location.reload(); 
 }
 
-function setCategory(cat) { 
+function setCategory(cat, e) { 
   currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
   renderSnacks(); 
 }
 
 function toggleFavorites() {
   if (!currentUser && !showFavOnly) {
-    if (confirm("로그인 후 즐겨찾기를 관리할 수 있습니다. 로그인하시겠습니까?")) openModal('login');
+    if (confirm("로그인 후 이용 가능합니다. 로그인하시겠습니까?")) openModal('login');
     return;
   }
   showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  const btn = document.getElementById("fav-toggle-btn");
+  if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
   renderSnacks();
 }
 
@@ -391,14 +395,14 @@ function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item span");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary)">${picked}</b>`;
+  const resultEl = document.getElementById("result");
+  if (resultEl) resultEl.innerHTML = `🎯 추천 결과: <b style="color:#007aff">${picked}</b>`;
 }
 
 window.onload = async () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
-    // 세션이 있으면 DB에서 실시간 데이터 매칭
     const { data } = await _supabase.from('users').select('*').eq('name', last).single();
     if (data) {
       currentUser = data;
