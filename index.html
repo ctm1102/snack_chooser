@@ -23,16 +23,15 @@
   </header>
 
   <main class="gh-main-container">
+    <!-- 설정 섹션: 버튼을 제거하고 자동화된 테마 변경만 남김 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
       <div class="gh-allergy-group">
-        <label class="gh-label">🚫 제외할 알러지</label>
+        <label class="gh-label">🚫 제외할 알러지 (자동 저장됨)</label>
         <div id="allergy-list" class="gh-chips"></div>
       </div>
       <div class="gh-card-actions">
-        <button onclick="exportData()" class="gh-btn-text">📤 데이터 백업</button>
-        <button onclick="importData()" class="gh-btn-text">📥 데이터 복구</button>
         <button onclick="toggleTheme()" class="gh-btn-text">🎨 테마 변경</button>
       </div>
     </section>
@@ -81,6 +80,7 @@
     </div>
   </div>
 
+  <!-- Supabase SDK 라이브러리 로드 -->
   <script src="https://cdn.jsdelivr.net"></script>
   <script src="script.js"></script>
 </body>
