@@ -235,7 +235,7 @@ const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* --- 2. 보안: SHA-256 해싱 --- */
+/* --- 2. 보안: 비밀번호 해싱 (SHA-256) --- */
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -243,83 +243,74 @@ async function hashPassword(password) {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-/* --- 3. 초기 구동 (즉시 리스트 출력) --- */
-window.onload = async () => {
+/* --- 3. 초기 구동 (즉시 목록 출력 보장) --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  renderSnacks(); // [중요] 페이지 로드 즉시 목록 출력
+  
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   
-  // 리스트 즉시 출력
-  renderSnacks();
-
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
-    const { data } = await _supabase.from('users').select('*').eq('name', last).single();
+    const { data } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
     if (data) {
       currentUser = data;
       updateUI();
     }
   }
-};
+});
 
-/* --- 4. 인증 및 모달 --- */
-function openModal(type) {
+/* --- 4. 인증 및 모달 (전역 함수 등록) --- */
+window.openModal = function(type) {
   const modal = document.getElementById("auth-modal");
   document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
   document.getElementById("signup-form").style.display = type === 'signup' ? 'block' : 'none';
-  const title = document.getElementById("modal-title");
-  title.innerText = type === 'login' ? '로그인' : '회원가입';
+  document.getElementById("modal-title").innerText = type === 'login' ? '로그인' : '회원가입';
   modal.style.display = "flex";
-}
+};
 
-function closeModal() {
+window.closeModal = function() {
   document.getElementById("auth-modal").style.display = "none";
-}
+};
 
-async function handleSignup() {
+window.handleSignup = async function() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
-  if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
+  if (!name || !pw) return alert("입력해주세요.");
   
-  const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
-  if (existing) return alert("이미 등록된 이름입니다.");
-  
-  const hashedPw = await hashPassword(pw);
-  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
-  await saveUserData();
-  alert("가입 성공!");
-  closeModal();
-  updateUI();
-}
+  try {
+    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
+    if (existing) return alert("이미 등록된 이름입니다.");
+    
+    const hashedPw = await hashPassword(pw);
+    currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
+    await saveUserData();
+    alert("가입 성공!");
+    closeModal();
+    updateUI();
+  } catch (e) { alert("오류 발생"); }
+};
 
-async function handleLogin() {
+window.handleLogin = async function() {
   const name = document.getElementById("login-name").value.trim();
   const pw = document.getElementById("login-pw").value.trim();
-  
-  const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
-  if (!userData || error) return alert("정보가 없습니다.");
-  
-  const hashedPw = await hashPassword(pw);
-  if (userData.pw !== hashedPw) return alert("비밀번호 불일치.");
-  
-  userData.loginCount++;
-  currentUser = userData;
-  await saveUserData();
-  closeModal();
-  updateUI();
-}
+  if (!name || !pw) return alert("정보를 입력하세요.");
 
-/* --- 5. UI 및 렌더링 --- */
-function updateUI() {
-  if (currentUser) {
-    document.getElementById("auth-menu").style.display = "none";
-    document.getElementById("user-menu").style.display = "flex";
-    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-    document.getElementById("user-section").style.display = "block";
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, 반갑습니다!`;
-    renderAllergyList();
-  }
-  renderSnacks();
-}
+  try {
+    const { data: userData } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
+    if (!userData) return alert("사용자가 없습니다.");
+    
+    const hashedPw = await hashPassword(pw);
+    if (userData.pw !== hashedPw) return alert("비밀번호 불일치.");
+    
+    userData.loginCount++;
+    currentUser = userData;
+    await saveUserData();
+    closeModal();
+    updateUI();
+  } catch (e) { alert("오류 발생"); }
+};
 
+/* --- 5. 렌더링 및 주요 기능 --- */
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
   if(!listEl) return;
@@ -342,37 +333,13 @@ function renderSnacks() {
   });
 }
 
-function renderAllergyList() {
-  const container = document.getElementById("allergy-list");
-  if (!container || !currentUser) return;
-  container.innerHTML = "";
-  allergyTypes.forEach(type => {
-    const isChecked = currentUser.allergies.includes(type);
-    const label = document.createElement("label");
-    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
-    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
-    container.appendChild(label);
-  });
-}
-
-function updateAllergy(el) {
-  if (el.checked) currentUser.allergies.push(el.value);
-  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
-  saveUserData();
-  renderSnacks();
+function updateUI() {
+  if (!currentUser) return;
+  document.getElementById("auth-menu").style.display = "none";
+  document.getElementById("user-menu").style.display = "flex";
+  document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+  document.getElementById("user-section").style.display = "block";
   renderAllergyList();
-}
-
-/* --- 6. 기능 함수 --- */
-function addFavorite(name) {
-  if (!currentUser) {
-    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
-    return;
-  }
-  const idx = currentUser.favorites.indexOf(name);
-  if (idx > -1) currentUser.favorites.splice(idx, 1);
-  else currentUser.favorites.push(name);
-  saveUserData();
   renderSnacks();
 }
 
@@ -382,40 +349,36 @@ async function saveUserData() {
   localStorage.setItem("currentSnackSession", currentUser.name); 
 }
 
-function logout() { 
-  localStorage.removeItem("currentSnackSession"); 
-  location.reload(); 
-}
-
-function setCategory(cat, e) { 
-  currentCategory = cat; 
-  document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-  if(e && e.target) e.target.classList.add('active');
-  renderSnacks(); 
-}
-
-function toggleFavorites() {
+window.addFavorite = function(name) {
   if (!currentUser) {
-    if (confirm("로그인이 필요합니다. 로그인할까요?")) openModal('login');
+    if (confirm("로그인하시겠습니까?")) openModal('login');
     return;
   }
-  showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
+  const idx = currentUser.favorites.indexOf(name);
+  if (idx > -1) currentUser.favorites.splice(idx, 1);
+  else currentUser.favorites.push(name);
+  saveUserData();
   renderSnacks();
-}
+};
 
-function pickRandom() {
+window.setCategory = function(cat, e) {
+  currentCategory = cat;
+  document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
+  if(e && e.target) e.target.classList.add('active');
+  renderSnacks();
+};
+
+window.pickRandom = function() {
   const items = document.querySelectorAll(".gh-snack-item span");
   if (!items.length) return alert("간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
-}
+  document.getElementById("result").innerHTML = `✨ 추천: <b style="color:#FF6B00;">[ ${picked} ]</b>`;
+};
 
-function toggleTheme() { 
-  document.body.classList.toggle("dark"); 
-  localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); 
-}
+window.logout = function() { localStorage.removeItem("currentSnackSession"); location.reload(); };
+window.toggleTheme = function() { document.body.classList.toggle("dark"); localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); };
+window.toggleFavorites = function() { if (!currentUser) return openModal('login'); showFavOnly = !showFavOnly; renderSnacks(); };
 
 window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
-}
+};
