@@ -227,6 +227,14 @@ const snackNames = [
 ];
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
+/* --- 보안: SHA-256 해싱 함수 --- */
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
@@ -256,7 +264,10 @@ async function handleSignup() {
   const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
   if (existing) return alert("이미 등록된 이름입니다.");
   
-  currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
+  // 비밀번호 해싱 후 저장
+  const hashedPw = await hashPassword(pw);
+  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
+  
   await saveUserData();
   alert("가입 성공! 환영합니다.");
   closeModal();
@@ -270,7 +281,10 @@ async function handleLogin() {
   const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
   
   if (!userData || error) return alert("사용자 정보가 없습니다.");
-  if (userData.pw !== pw) return alert("비밀번호가 일치하지 않습니다.");
+  
+  // 입력한 비번을 해싱하여 DB값과 비교
+  const hashedPw = await hashPassword(pw);
+  if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
   
   userData.loginCount++;
   currentUser = userData;
@@ -280,6 +294,7 @@ async function handleLogin() {
 }
 
 /* --- 3. UI 렌더링 --- */
+
 function updateUI() {
   if (currentUser) {
     document.getElementById("auth-menu").style.display = "none";
@@ -306,6 +321,7 @@ function updateUI() {
   }
   renderSnacks();
 }
+
 
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
@@ -402,7 +418,9 @@ function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item span");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary, #007aff)">${picked}</b>`;
+  const resultEl = document.getElementById("result");
+  // 오늘의 간식: 강조 디자인 적용
+  resultEl.innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
 }
 
 async function exportData() { await saveUserData(); }
@@ -417,16 +435,18 @@ async function importData() {
 /* --- 5. 초기 구동 --- */
 window.onload = async () => {
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
+  
+  // 리스트 즉시 출력 (중요)
+  renderSnacks();
+
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
     const { data } = await _supabase.from('users').select('*').eq('name', last).single();
     if (data) {
       currentUser = data;
       updateUI();
-      return;
     }
   }
-  renderSnacks();
 };
 
 window.onclick = function(event) {
