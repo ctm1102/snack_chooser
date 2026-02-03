@@ -227,6 +227,14 @@ const snackNames = [
 ];
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
+/* --- 보안: SHA-256 해싱 함수 --- */
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
@@ -235,82 +243,108 @@ const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* --- 2. 보안: 비밀번호 해싱 (SHA-256) --- */
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/* --- 3. 초기 구동 (즉시 목록 출력 보장) --- */
-document.addEventListener("DOMContentLoaded", async () => {
-  renderSnacks(); // [중요] 페이지 로드 즉시 목록 출력
-  
-  if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
-  
-  const last = localStorage.getItem("currentSnackSession");
-  if (last) {
-    const { data } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
-    if (data) {
-      currentUser = data;
-      updateUI();
-    }
-  }
-});
-
-/* --- 4. 인증 및 모달 (전역 함수 등록) --- */
-window.openModal = function(type) {
+/* --- 2. 인증 및 모달 --- */
+function openModal(type) {
   const modal = document.getElementById("auth-modal");
   document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
   document.getElementById("signup-form").style.display = type === 'signup' ? 'block' : 'none';
   document.getElementById("modal-title").innerText = type === 'login' ? '로그인' : '회원가입';
   modal.style.display = "flex";
-};
+}
 
-window.closeModal = function() {
+function closeModal() {
   document.getElementById("auth-modal").style.display = "none";
-};
+}
 
-window.handleSignup = async function() {
+async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
-  if (!name || !pw) return alert("입력해주세요.");
+  if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
   
-  try {
-    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
-    if (existing) return alert("이미 등록된 이름입니다.");
-    
-    const hashedPw = await hashPassword(pw);
-    currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
-    await saveUserData();
-    alert("가입 성공!");
-    closeModal();
-    updateUI();
-  } catch (e) { alert("오류 발생"); }
-};
+  const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
+  if (existing) return alert("이미 등록된 이름입니다.");
+  
+  // 비밀번호 해싱 후 저장
+  const hashedPw = await hashPassword(pw);
+  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
+  
+  await saveUserData();
+  alert("가입 성공! 환영합니다.");
+  closeModal();
+  updateUI();
+}
 
-window.handleLogin = async function() {
+async function handleLogin() {
   const name = document.getElementById("login-name").value.trim();
   const pw = document.getElementById("login-pw").value.trim();
-  if (!name || !pw) return alert("정보를 입력하세요.");
+  
+  const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
+  
+  if (!userData || error) return alert("사용자 정보가 없습니다.");
+  
+  // 입력한 비번을 해싱하여 DB값과 비교
+  const hashedPw = await hashPassword(pw);
+  if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
+  
+  userData.loginCount++;
+  currentUser = userData;
+  await saveUserData();
+  closeModal();
+  updateUI();
+}
 
-  try {
-    const { data: userData } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
-    if (!userData) return alert("사용자가 없습니다.");
-    
-    const hashedPw = await hashPassword(pw);
-    if (userData.pw !== hashedPw) return alert("비밀번호 불일치.");
-    
-    userData.loginCount++;
-    currentUser = userData;
-    await saveUserData();
-    closeModal();
-    updateUI();
-  } catch (e) { alert("오류 발생"); }
-};
+/* --- 3. UI 렌더링 --- */
 
-/* --- 5. 렌더링 및 주요 기능 --- */
+function updateUI() {
+  if (currentUser) {
+    document.getElementById("auth-menu").style.display = "none";
+    document.getElementById("user-menu").style.display = "flex";
+    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+    document.getElementById("user-section").style.display = "block";
+    
+    // 로그인 횟수에 따른 맞춤 메시지 설정
+    let welcomeText = "";
+    const count = currentUser.loginCount;
+    
+    if (count <= 1) {
+      welcomeText = "첫 이용 환영합니다!";
+    } else if (count === 2) {
+      welcomeText = "또 오셨네요! 반갑습니다!";
+    } else if (count === 3) {
+      welcomeText = "다시 만나서 반가워요!";
+    } else {
+      welcomeText = `간식 뽑기 사이트 단골 ${currentUser.name}님 반가워요!`;
+    }
+
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
+    renderAllergyList();
+  }
+  renderSnacks();
+}
+
+
+function renderAllergyList() {
+  const container = document.getElementById("allergy-list");
+  if (!container) return;
+  container.innerHTML = "";
+  if (!currentUser) return;
+  allergyTypes.forEach(type => {
+    const isChecked = currentUser.allergies.includes(type);
+    const label = document.createElement("label");
+    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
+    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
+    container.appendChild(label);
+  });
+}
+
+function updateAllergy(el) {
+  if (el.checked) currentUser.allergies.push(el.value);
+  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+  saveUserData();
+  renderSnacks();
+  renderAllergyList();
+}
+
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
   if(!listEl) return;
@@ -333,13 +367,16 @@ function renderSnacks() {
   });
 }
 
-function updateUI() {
-  if (!currentUser) return;
-  document.getElementById("auth-menu").style.display = "none";
-  document.getElementById("user-menu").style.display = "flex";
-  document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-  document.getElementById("user-section").style.display = "block";
-  renderAllergyList();
+/* --- 4. 기능 및 자동 백업 --- */
+function addFavorite(name) {
+  if (!currentUser) {
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
+    return;
+  }
+  const idx = currentUser.favorites.indexOf(name);
+  if (idx > -1) currentUser.favorites.splice(idx, 1);
+  else currentUser.favorites.push(name);
+  saveUserData();
   renderSnacks();
 }
 
@@ -349,36 +386,69 @@ async function saveUserData() {
   localStorage.setItem("currentSnackSession", currentUser.name); 
 }
 
-window.addFavorite = function(name) {
-  if (!currentUser) {
-    if (confirm("로그인하시겠습니까?")) openModal('login');
-    return;
-  }
-  const idx = currentUser.favorites.indexOf(name);
-  if (idx > -1) currentUser.favorites.splice(idx, 1);
-  else currentUser.favorites.push(name);
-  saveUserData();
-  renderSnacks();
-};
+function logout() { 
+  localStorage.removeItem("currentSnackSession"); 
+  location.reload(); 
+}
 
-window.setCategory = function(cat, e) {
-  currentCategory = cat;
+function setCategory(cat, e) { 
+  currentCategory = cat; 
   document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
   if(e && e.target) e.target.classList.add('active');
+  renderSnacks(); 
+}
+
+function toggleFavorites() {
+  if (!currentUser) {
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
+    return;
+  }
+  showFavOnly = !showFavOnly;
+  const btn = document.getElementById("fav-toggle-btn");
+  if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
   renderSnacks();
-};
+}
 
-window.pickRandom = function() {
+function toggleTheme() { 
+  document.body.classList.toggle("dark"); 
+  localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); 
+}
+
+function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item span");
-  if (!items.length) return alert("간식이 없습니다.");
+  if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  document.getElementById("result").innerHTML = `✨ 추천: <b style="color:#FF6B00;">[ ${picked} ]</b>`;
-};
+  const resultEl = document.getElementById("result");
+  // 오늘의 간식: 강조 디자인 적용
+  resultEl.innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
+}
 
-window.logout = function() { localStorage.removeItem("currentSnackSession"); location.reload(); };
-window.toggleTheme = function() { document.body.classList.toggle("dark"); localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); };
-window.toggleFavorites = function() { if (!currentUser) return openModal('login'); showFavOnly = !showFavOnly; renderSnacks(); };
+async function exportData() { await saveUserData(); }
+async function importData() {
+  if (!currentUser) return;
+  if (confirm("서버 데이터를 불러올까요?")) {
+    const { data } = await _supabase.from('users').select('*').eq('name', currentUser.name).single();
+    if (data) { currentUser = data; updateUI(); }
+  }
+}
+
+/* --- 5. 초기 구동 --- */
+window.onload = async () => {
+  if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
+  
+  // 리스트 즉시 출력 (중요)
+  renderSnacks();
+
+  const last = localStorage.getItem("currentSnackSession");
+  if (last) {
+    const { data } = await _supabase.from('users').select('*').eq('name', last).single();
+    if (data) {
+      currentUser = data;
+      updateUI();
+    }
+  }
+};
 
 window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
-};
+}
