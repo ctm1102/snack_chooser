@@ -225,15 +225,18 @@ const snackNames = [
   { name: "죠스바 제로", cat: "icecream", allergies: [] }
   
 ];
-
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// 이 부분을 제가 드린 워크플로의 문구와 일치시킵니다.
+const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
+
+// 주의: 변수명이 supabase이므로 중복을 피하기 위해 라이브러리 객체를 호출할 때 주의하세요.
+// HTML에서 <script src="..."></script>로 불러왔다면 보통 전역 supabase 객체가 생깁니다.
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
