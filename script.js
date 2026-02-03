@@ -262,7 +262,7 @@ async function handleSignup() {
   
   currentUser = { name, pw, loginCount: 1, favorites: [], allergies: [] };
   await saveUserData();
-  alert("가입 성공! 환영합니다.");
+  alert("가입 성공! 맛있는 간식들을 골라보세요!.");
   closeModal();
   updateUI();
 }
@@ -343,10 +343,18 @@ function renderSnacks() {
 
 /* --- 5. 부가 기능 --- */
 function addFavorite(name) {
-  if (!currentUser) return alert("로그인이 필요합니다.");
+  if (!currentUser) {
+    // 확인(true)을 누르면 openModal('login') 실행
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+      openModal('login');
+    }
+    return;
+  }
+  
   const idx = currentUser.favorites.indexOf(name);
   if (idx > -1) currentUser.favorites.splice(idx, 1);
   else currentUser.favorites.push(name);
+  
   saveUserData();
   renderSnacks();
 }
@@ -370,11 +378,13 @@ function setCategory(cat, e) {
 }
 
 function toggleFavorites() {
-  if (!currentUser) return alert("로그인이 필요합니다.");
-  showFavOnly = !showFavOnly;
-  document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
-  renderSnacks();
-}
+    if (!currentUser) {
+    // 확인(true)을 누르면 openModal('login') 실행
+    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+      openModal('login');
+    }
+    return;
+  }
 
 function toggleTheme() { 
   document.body.classList.toggle("dark"); 
@@ -388,31 +398,25 @@ function pickRandom() {
   document.getElementById("result").innerHTML = `🎯 추천 결과: <b style="color:var(--gh-primary, #007aff)">${picked}</b>`;
 }
 
-// 데이터 백업/복구 (localStorage 활용)
-function exportData() {
-  if(!currentUser) return;
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentUser));
-  const downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", currentUser.name + "_backup.json");
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
+// 데이터 백업: 조용히 Supabase 서버에 저장
+async function exportData() {
+  if (!currentUser) return;
+  await saveUserData(); // 내부에서 _supabase.from('users').upsert(currentUser) 실행
 }
 
-function importData() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.onchange = e => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsText(file,'UTF-8');
-    reader.onload = readerEvent => {
-      const content = readerEvent.target.result;
-      currentUser = JSON.parse(content);
-      saveUserData();
+// 데이터 복구: 확인창만 띄우고 즉시 최신화
+async function importData() {
+  if (!currentUser) return;
+
+  if (confirm("서버 데이터를 불러올까요?")) {
+    const { data } = await _supabase.from('users').select('*').eq('name', currentUser.name).single();
+    if (data) {
+      currentUser = data;
       updateUI();
     }
   }
+}
+}
   input.click();
 }
 
