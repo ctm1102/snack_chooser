@@ -45,8 +45,8 @@ body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-b
 .gh-tab-btn { background: none; border: none; padding: 12px 2px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
 .gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
-/* Result Card (강조) */
-.gh-result-card { padding: 40px; text-align: center; background: #FFFBF5; border: 2px solid #FF9F43; border-radius: 16px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: #FF6B00; }
+/* Result Card */
+.gh-result-card { padding: 48px; text-align: center; background: var(--gh-card-bg); border: 2px dashed var(--gh-primary); border-radius: 16px; font-size: 1.4rem; font-weight: bold; margin-bottom: 32px; }
 
 /* Snack Items */
 .gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
