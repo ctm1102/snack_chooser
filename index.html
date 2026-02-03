@@ -31,6 +31,7 @@
         <div id="allergy-list" class="gh-chips"></div>
       </div>
       <div class="gh-card-actions">
+        <!-- 백업/복구는 localStorage 기반으로 구현됨 -->
         <button onclick="exportData()" class="gh-btn-text">📤 데이터 백업</button>
         <button onclick="importData()" class="gh-btn-text">📥 데이터 복구</button>
         <button onclick="toggleTheme()" class="gh-btn-text">🎨 테마 변경</button>
@@ -46,12 +47,13 @@
 
     <nav class="gh-tabs">
       <div class="gh-tab-list">
-        <button onclick="setCategory('all')" class="gh-tab-btn active">전체</button>
-        <button onclick="setCategory('snack')" class="gh-tab-btn">과자</button>
-        <button onclick="setCategory('icecream')" class="gh-tab-btn">아이스크림</button>
-        <button onclick="setCategory('tradition')" class="gh-tab-btn">전통</button>
-        <button onclick="setCategory('candy')" class="gh-tab-btn">사탕&젤리</button>
-        <button onclick="setCategory('drink')" class="gh-tab-btn">음료</button>
+        <!-- event 객체를 인자로 넘기도록 수정 -->
+        <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
+        <button onclick="setCategory('snack', event)" class="gh-tab-btn">과자</button>
+        <button onclick="setCategory('icecream', event)" class="gh-tab-btn">아이스크림</button>
+        <button onclick="setCategory('tradition', event)" class="gh-tab-btn">전통</button>
+        <button onclick="setCategory('candy', event)" class="gh-tab-btn">사탕&젤리</button>
+        <button onclick="setCategory('drink', event)" class="gh-tab-btn">음료</button>
       </div>
     </nav>
 
@@ -59,6 +61,7 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
+  <!-- 모달 구조 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -69,18 +72,20 @@
         <input type="text" id="login-name" class="gh-input" placeholder="성함">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')">회원가입</span></p>
+        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" style="cursor:pointer; color:blue;">회원가입</span></p>
       </div>
       <div id="signup-form" class="gh-form" style="display:none;">
         <input type="text" id="signup-name" class="gh-input" placeholder="성함">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
         <p class="gh-pw-warning">* 주의: 비밀번호는 찾을 수 없으니 꼭 기억하세요!</p>
         <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
-        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')">로그인</span></p>
+        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')" style="cursor:pointer; color:blue;">로그인</span></p>
       </div>
     </div>
   </div>
 
+  <!-- CDN을 script.js보다 반드시 먼저 로드 -->
+  <script src="https://cdn.jsdelivr.net"></script>
   <script src="script.js"></script>
 </body>
 </html>
