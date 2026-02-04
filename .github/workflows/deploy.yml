@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # 본인의 메인 브랜치명이 master라면 master로 수정하세요.
+    branches: ["main"] # 본인의 브랜치명이 master라면 master로 수정하세요.
 
 permissions:
   contents: read
@@ -19,11 +19,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # script.js 내의 Placeholder를 GitHub Secrets에 등록된 실제 값으로 치환합니다.
+      # script.js 내의 Placeholder를 실제 값으로 치환합니다.
+      # 문자열이 정확히 일치해야 하므로 script.js에도 'SET_URL', 'SET_KEY'라고 적어야 합니다.
       - name: Inject Supabase Secrets
         run: |
-          sed -i "s|YOUR_SUPABASE_URL_PLACEHOLDER|${{ secrets.SUPABASE_URL }}|g" script.js
-          sed -i "s|YOUR_SUPABASE_ANON_KEY_PLACEHOLDER|${{ secrets.SUPABASE_ANON_KEY }}|g" script.js
+          sed -i "s|SET_URL|${{ secrets.SUPABASE_URL }}|g" script.js
+          sed -i "s|SET_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" script.js
+          
+          # 치환 결과가 파일에 반영되었는지 로그에서 확인 (실제 값은 ***로 가려짐)
+          echo "검증: script.js의 설정 정보를 확인합니다."
+          grep "SUPABASE_" script.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -31,9 +36,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # index.html이 레포지토리 루트에 있다면 '.'를 유지합니다.
-          path: '.'
+          path: '.' # index.html이 있는 루트 폴더
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      
