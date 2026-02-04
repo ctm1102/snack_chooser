@@ -433,7 +433,7 @@ async function submitRating() {
 
     document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
     modal.style.display = "flex";
-}
+
 async function submitRating() {
   if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
   const selectedStar = document.querySelector('input[name="rating"]:checked');
