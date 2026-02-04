@@ -217,14 +217,19 @@ const snackNames = [
   { name: "죠스바 제로", cat: "icecream", allergies: [] }
 ];
 
-const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
-
-/* --- 1. 초기화 (오류 해결 핵심) --- */
-const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
+// 1. YAML 파일의 sed 명령어가 찾을 수 있게 정확한 이름을 적어주세요.
+const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER'; 
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 
-// 변수 중복 방지를 위해 이름을 _supabase로 고정
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// 2. 변수 이름을 _supabase로 해서 라이브러리와의 충돌을 피합니다.
+// window.supabase는 HTML에서 로드된 라이브러리 객체입니다.
+const _supabase = window.supabase 
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
+    : null;
+
+if (!_supabase) {
+    console.error("Supabase 라이브러리 로드 실패! HTML의 스크립트 순서를 확인하세요.");
+}
 
 let currentCategory = "all";
 let showFavOnly = false;
