@@ -94,6 +94,37 @@ body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-b
 /* 닫기 버튼도 글자 위치에 맞춰 정렬 */
 .gh-modal-close { 
   font-size: 24px; 
+  /* 상세 모달 내 섹션 */
+.detail-section { margin-bottom: 20px; }
+.gh-score-list { font-size: 0.9rem; color: #57606a; line-height: 1.6; }
+
+/* 별점 스타일 (오른쪽에서 왼쪽으로 채워지는 방식) */
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+.star-rating input { display: none; }
+.star-rating label {
+  font-size: 2rem;
+  color: #d0d7de;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #e3b341;
+}
+
+/* 간식 리스트 아이템 클릭 가능하게 */
+.gh-snack-item {
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #d0d7de;
+  transition: background 0.2s;
+}
+.gh-snack-item:hover { background: #f6f8fa; }
   cursor: pointer;
   line-height: 1;
 }
