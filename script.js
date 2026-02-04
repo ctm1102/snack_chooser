@@ -1,3 +1,4 @@
+/* --- [0. 간식 데이터] --- */
 const snackNames = [
   { name: "포카칩 어니언", cat: "snack", allergies: [] },
   { name: "포카칩 오리지널", cat: "snack", allergies: [] },
@@ -198,35 +199,39 @@ const snackNames = [
   { name: "봉봉", cat: "drink", allergies: [] },
   { name: "쌕쌕 오렌지", cat: "drink", allergies: [] },
   { name: "갈아만든배", cat: "drink", allergies: [] },
-    // 1. 제로 음료 (drink)
   { name: "코카콜라 제로", cat: "drink", allergies: [] },
   { name: "펩시 제로 슈거 (라임)", cat: "drink", allergies: [] },
   { name: "칠성사이다 제로", cat: "drink", allergies: [] },
   { name: "웰치스 제로 (포도)", cat: "drink", allergies: [] },
-  { name: "보리차 (하늘보리)", cat: "drink", allergies: [] },
-  { name: "옥수수수염차", cat: "drink", allergies: [] },
   { name: "나랑드사이다", cat: "drink", allergies: [] },
-
-  // 2. 제로 젤리 & 사탕 (candy)
   { name: "롯데 제로 후르츠 젤리", cat: "candy", allergies: [] },
   { name: "롯데 제로 밀크 사탕", cat: "candy", allergies: ["우유"] },
   { name: "하스 무설탕 캔디", cat: "candy", allergies: [] },
   { name: "이클립스 민트", cat: "candy", allergies: [] },
-
-  // 3. 제로 과자 & 기타 (snack / tradition)
   { name: "롯데 제로 초콜릿칩 쿠키", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "롯데 제로 카카오 케이크", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "무설탕 현미 뻥튀기", cat: "tradition", allergies: [] },
   { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] },
-  // 4. 제로 아이스크림 (icecream)
   { name: "라라스윗 파인트 (초코)", cat: "icecream", allergies: ["우유", "계란"] },
   { name: "스크류바 제로", cat: "icecream", allergies: [] },
   { name: "죠스바 제로", cat: "icecream", allergies: [] }
-  
 ];
-    
+
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
-/* --- 1. 보안: SHA-256 해싱 함수 --- */
+
+/* --- 1. 초기화 (오류 해결 핵심) --- */
+const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
+
+// 변수 중복 방지를 위해 이름을 _supabase로 고정
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentCategory = "all";
+let showFavOnly = false;
+let currentUser = null;
+let activeSnackName = null;
+
+/* --- 2. 보안 함수 --- */
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -234,16 +239,7 @@ async function hashPassword(password) {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-let currentCategory = "all";
-let showFavOnly = false;
-let currentUser = null;
-let activeSnackName = null; // 현재 팝업에 떠있는 간식 이름
-
-const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* --- 2. 인증 및 모달 제어 --- */
+/* --- 3. 인증 및 모달 제어 --- */
 function openModal(type) {
   const modal = document.getElementById("auth-modal");
   document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
@@ -256,13 +252,11 @@ function closeModal() {
   document.getElementById("auth-modal").style.display = "none";
 }
 
-// 간식 상세 모달 닫기
 function closeSnackModal() {
   document.getElementById("snack-detail-modal").style.display = "none";
 }
 
-/* --- 3. UI 렌더링 및 리스트 출력 --- */
-
+/* --- 4. UI 렌더링 --- */
 function updateUI() {
   if (currentUser) {
     document.getElementById("auth-menu").style.display = "none";
@@ -270,11 +264,9 @@ function updateUI() {
     document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
     document.getElementById("user-section").style.display = "block";
     
-    let welcomeText = "";
-    const count = currentUser.loginCount;
-    if (count <= 1) welcomeText = "첫 이용 환영합니다!";
-    else if (count === 2) welcomeText = "또 오셨네요! 반갑습니다!";
-    else welcomeText = `간식 뽑기 단골 ${currentUser.name}님 반가워요!`;
+    let welcomeText = (currentUser.loginCount <= 1) ? "첫 이용 환영합니다!" : 
+                     (currentUser.loginCount === 2) ? "또 오셨네요! 반갑습니다!" : 
+                     `간식 뽑기 단골 ${currentUser.name}님 반가워요!`;
 
     document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText}`;
     renderAllergyList();
@@ -282,18 +274,14 @@ function updateUI() {
   renderSnacks();
 }
 
-// 간식 리스트 렌더링 (접속 시 즉시 실행됨)
 function renderSnacks() {
   const listEl = document.getElementById("snack-list");
   if (!listEl) return;
   listEl.innerHTML = "";
 
   const filtered = snackNames.filter(item => {
-    // 알러지 필터링
     if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
-    // 즐겨찾기 필터링
     if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
-    // 카테고리 필터링
     return currentCategory === "all" || item.cat === currentCategory;
   });
 
@@ -301,8 +289,6 @@ function renderSnacks() {
     const isFav = currentUser && currentUser.favorites.includes(item.name);
     const li = document.createElement("li");
     li.className = "gh-snack-item";
-    
-    // 구조 수정: 이름 클릭 시 상세 팝업 openSnackModal 호출
     li.innerHTML = `
       <span class="snack-name-clickable" onclick="openSnackModal('${item.name}')" style="font-weight:700; cursor:pointer;">${item.name}</span>
       <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
@@ -311,19 +297,16 @@ function renderSnacks() {
   });
 }
 
-/* --- 4. 간식 상세 정보 및 별점 기능 --- */
-
+/* --- 5. 간식 상세 및 평점 --- */
 async function openSnackModal(snackName) {
   activeSnackName = snackName;
   const snack = snackNames.find(s => s.name === snackName);
   const modal = document.getElementById("snack-detail-modal");
 
-  // 1. 이름 및 알러지 표시
   document.getElementById("detail-snack-name").innerText = snackName;
   const allergyDiv = document.getElementById("detail-allergies");
   allergyDiv.innerHTML = snack.allergies.map(a => `<span class="gh-chip active">${a}</span>`).join('') || "없음";
 
-  // 2. 유저별 점수 로드 (Supabase)
   const scoreListDiv = document.getElementById("detail-user-scores");
   scoreListDiv.innerHTML = "점수를 불러오는 중...";
 
@@ -333,42 +316,29 @@ async function openSnackModal(snackName) {
   if (allUsers) {
     allUsers.forEach(user => {
       if (user.ratings && user.ratings[snackName]) {
-        const starCount = user.ratings[snackName];
-        scoreHtml += `<div class="user-score-row"><strong>${user.name}</strong>: ${"⭐".repeat(starCount)} (${starCount}점)</div>`;
+        scoreHtml += `<div class="user-score-row"><strong>${user.name}</strong>: ${"⭐".repeat(user.ratings[snackName])} (${user.ratings[snackName]}점)</div>`;
       }
     });
   }
   scoreListDiv.innerHTML = scoreHtml || "아직 평점이 없습니다.";
-
-  // 3. 내 별점 라디오 버튼 초기화
   document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
-
   modal.style.display = "flex";
 }
 
 async function submitRating() {
-  if (!currentUser) {
-    alert("로그인이 필요합니다.");
-    openModal('login');
-    return;
-  }
-  
+  if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
   const selectedStar = document.querySelector('input[name="rating"]:checked');
   if (!selectedStar) return alert("별점을 선택해주세요!");
 
-  const score = parseInt(selectedStar.value);
-
-  // 현재 유저 객체에 평점 데이터 업데이트
   if (!currentUser.ratings) currentUser.ratings = {};
-  currentUser.ratings[activeSnackName] = score;
+  currentUser.ratings[activeSnackName] = parseInt(selectedStar.value);
 
-  await saveUserData(); // Supabase에 upsert
-  alert(`${activeSnackName} 평점이 저장되었습니다.`);
-  openSnackModal(activeSnackName); // 팝업 새로고침
+  await saveUserData();
+  alert("평점이 저장되었습니다.");
+  openSnackModal(activeSnackName);
 }
 
-/* --- 5. 기존 기능 함수들 (로그인, 회원가입, 저장 등) --- */
-
+/* --- 6. 계정 기능 --- */
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
@@ -379,9 +349,7 @@ async function handleSignup() {
   
   const hashedPw = await hashPassword(pw);
   currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [], ratings: {} };
-  
   await saveUserData();
-  alert("가입 성공! 환영합니다.");
   closeModal();
   updateUI();
 }
@@ -410,10 +378,7 @@ async function saveUserData() {
 }
 
 function addFavorite(name) {
-  if (!currentUser) {
-    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
-    return;
-  }
+  if (!currentUser) { openModal('login'); return; }
   const idx = currentUser.favorites.indexOf(name);
   if (idx > -1) currentUser.favorites.splice(idx, 1);
   else currentUser.favorites.push(name);
@@ -421,10 +386,7 @@ function addFavorite(name) {
   renderSnacks();
 }
 
-function logout() { 
-  localStorage.removeItem("currentSnackSession"); 
-  location.reload(); 
-}
+function logout() { localStorage.removeItem("currentSnackSession"); location.reload(); }
 
 function setCategory(cat, e) { 
   currentCategory = cat; 
@@ -434,10 +396,7 @@ function setCategory(cat, e) {
 }
 
 function toggleFavorites() {
-  if (!currentUser) {
-    if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
-    return;
-  }
+  if (!currentUser) { openModal('login'); return; }
   showFavOnly = !showFavOnly;
   const btn = document.getElementById("fav-toggle-btn");
   if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
@@ -453,15 +412,13 @@ function pickRandom() {
   const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
-  const resultEl = document.getElementById("result");
-  resultEl.innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
+  document.getElementById("result").innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
 }
 
 function renderAllergyList() {
   const container = document.getElementById("allergy-list");
-  if (!container) return;
+  if (!container || !currentUser) return;
   container.innerHTML = "";
-  if (!currentUser) return;
   allergyTypes.forEach(type => {
     const isChecked = currentUser.allergies.includes(type);
     const label = document.createElement("label");
@@ -479,28 +436,19 @@ function updateAllergy(el) {
   renderAllergyList();
 }
 
-/* --- 6. 초기 구동 --- */
+/* --- 7. 초기 구동 --- */
 window.onload = async () => {
-  // 테마 설정
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
-  
-  // [중요] 리스트 즉시 출력
   renderSnacks();
 
-  // 세션 복구
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
     const { data } = await _supabase.from('users').select('*').eq('name', last).single();
-    if (data) {
-      currentUser = data;
-      updateUI();
-    }
+    if (data) { currentUser = data; updateUI(); }
   }
 }
 
-// 배경 클릭 시 모달 닫기
 window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
   if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
 }
-
