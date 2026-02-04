@@ -406,31 +406,43 @@ async function submitRating() {
 
     // 2. 쿠팡 스타일 레이아웃 생성
     scoreListDiv.innerHTML = `
-        <div class="review-summary">
-            <div class="average-score">
-                <h1>${avg}</h1>
-                <p>${"★".repeat(Math.round(avg))}${"☆".repeat(5 - Math.round(avg))}</p>
-                <small>${count}건 리뷰</small>
+        <div class="review-stats-container">
+            <div style="text-align:center; margin-bottom:15px;">
+                <h2 style="font-size:32px; margin:0; color:#111;">${avg}</h2>
+                <div style="color:#ff8a3d; font-size:20px;">${"★".repeat(Math.round(avg))}${"☆".repeat(5 - Math.round(avg))}</div>
+                <small style="color:#888;">${count}건의 리뷰</small>
             </div>
             <div class="score-bars">
                 ${[5, 4, 3, 2, 1].map(num => {
-                    const percent = count > 0 ? (scores[num] / count) * 100 : 0;
+                    const percent = count > 0 ? Math.round((scoreCounts[num] / count) * 100) : 0;
+                    const labels = ["", "나쁨", "별로", "보통", "좋음", "최고"];
                     return `
-                        <div class="bar-row">
-                            <span>${num}점</span>
-                            <div class="bar-bg"><div class="bar-fill" style="width: ${percent}%"></div></div>
-                            <span>${scores[num]}</span>
+                        <div class="stat-row" style="display:flex; align-items:center; gap:10px; margin:5px 0;">
+                            <span style="width:30px; font-size:12px; color:#666;">${labels[num]}</span>
+                            <div style="flex-grow:1; height:8px; background:#eee; border-radius:4px; overflow:hidden;">
+                                <div style="width:${percent}%; height:100%; background:#ff8a3d;"></div>
+                            </div>
+                            <span style="width:30px; font-size:12px; color:#888; text-align:right;">${percent}%</span>
                         </div>
                     `;
                 }).join('')}
             </div>
         </div>
-        <div class="individual-reviews">
-            <label class="gh-label">💬 최근 리뷰</label>
-            ${userReviewsHtml || "<p>아직 리뷰가 없습니다.</p>"}
+
+        <div class="review-input-area" style="margin-top:20px; padding-top:15px; border-top:1px solid #eee;">
+            <label class="gh-label">💬 후기 남기기</label>
+            <textarea id="review-comment" class="gh-input" 
+                style="width:100%; height:70px; margin-top:10px; padding:10px; border-radius:8px; border:1px solid #ddd; resize:none;" 
+                placeholder="간식에 대한 솔직한 평을 남겨주세요!"></textarea>
+        </div>
+
+        <div class="individual-reviews" style="margin-top:25px;">
+            <label class="gh-label">최근 리뷰 (${count})</label>
+            <div style="margin-top:10px; max-height:200px; overflow-y:auto;">
+                ${userReviewsHtml || "<p style='color:#999; text-align:center; padding:20px;'>아직 작성된 후기가 없습니다.</p>"}
+            </div>
         </div>
     `;
-
     document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
     modal.style.display = "flex";
 
