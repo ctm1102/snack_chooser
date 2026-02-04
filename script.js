@@ -217,7 +217,8 @@ const snackNames = [
   { name: "롯데 제로 초콜릿칩 쿠키", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "롯데 제로 카카오 케이크", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "무설탕 현미 뻥튀기", cat: "tradition", allergies: [] },
-  { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] },
+  { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] }
+  ];
 /* --- 1. 보안: SHA-256 해싱 함수 --- */
 async function hashPassword(password) {
   const encoder = new TextEncoder();
