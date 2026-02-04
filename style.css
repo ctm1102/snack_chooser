@@ -98,33 +98,59 @@ body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-b
 .detail-section { margin-bottom: 20px; }
 .gh-score-list { font-size: 0.9rem; color: #57606a; line-height: 1.6; }
 
-/* 별점 스타일 (오른쪽에서 왼쪽으로 채워지는 방식) */
-.star-rating {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
-}
-.star-rating input { display: none; }
-.star-rating label {
-  font-size: 2rem;
-  color: #d0d7de;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-  color: #e3b341;
+/* 쿠팡 스타일 리뷰 요약 섹션 */
+.review-summary {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-/* 간식 리스트 아이템 클릭 가능하게 */
-.gh-snack-item {
-  cursor: pointer;
-  padding: 10px;
-  border-bottom: 1px solid #d0d7de;
-  transition: background 0.2s;
+.average-score {
+    text-align: center;
+    padding-right: 30px;
+    border-right: 1px solid #eee;
 }
-.gh-snack-item:hover { background: #f6f8fa; }
-  cursor: pointer;
-  line-height: 1;
+
+.average-score h1 {
+    font-size: 3rem;
+    color: #111;
+    margin: 0;
+}
+
+.average-score p {
+    color: #ffca08;
+    font-size: 1.2rem;
+    margin: 5px 0;
+}
+
+/* 별점 막대 그래프 부분 */
+.score-bars {
+    flex-grow: 1;
+    padding-left: 30px;
+}
+
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.bar-bg {
+    flex-grow: 1;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #ffca08;
+    width: 0%; /* JS에서 동적으로 조절 */
 }
