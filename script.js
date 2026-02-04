@@ -304,32 +304,71 @@ function renderSnacks() {
 
 /* --- 5. 간식 상세 및 평점 --- */
 async function openSnackModal(snackName) {
-  activeSnackName = snackName;
-  const snack = snackNames.find(s => s.name === snackName);
-  const modal = document.getElementById("snack-detail-modal");
+    activeSnackName = snackName;
+    const snack = snackNames.find(s => s.name === snackName);
+    const modal = document.getElementById("snack-detail-modal");
 
-  document.getElementById("detail-snack-name").innerText = snackName;
-  const allergyDiv = document.getElementById("detail-allergies");
-  allergyDiv.innerHTML = snack.allergies.map(a => `<span class="gh-chip active">${a}</span>`).join('') || "없음";
+    document.getElementById("detail-snack-name").innerText = snackName;
+    
+    // 알러지 칩 표시
+    const allergyDiv = document.getElementById("detail-allergies");
+    allergyDiv.innerHTML = snack.allergies.map(a => `<span class="gh-chip active">${a}</span>`).join('') || "없음";
 
-  const scoreListDiv = document.getElementById("detail-user-scores");
-  scoreListDiv.innerHTML = "점수를 불러오는 중...";
+    const scoreListDiv = document.getElementById("detail-user-scores");
+    scoreListDiv.innerHTML = "데이터 로딩 중...";
 
-  const { data: allUsers } = await _supabase.from('users').select('name, ratings');
-  
-  let scoreHtml = "";
-  if (allUsers) {
-    allUsers.forEach(user => {
-      if (user.ratings && user.ratings[snackName]) {
-        scoreHtml += `<div class="user-score-row"><strong>${user.name}</strong>: ${"⭐".repeat(user.ratings[snackName])} (${user.ratings[snackName]}점)</div>`;
-      }
-    });
-  }
-  scoreListDiv.innerHTML = scoreHtml || "아직 평점이 없습니다.";
-  document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
-  modal.style.display = "flex";
+    // 1. 모든 유저 데이터 가져오기
+    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+    
+    let scores = [0, 0, 0, 0, 0, 0]; // 0~5점 인덱스
+    let totalScore = 0;
+    let count = 0;
+    let userReviewsHtml = "";
+
+    if (allUsers) {
+        allUsers.forEach(user => {
+            const s = user.ratings ? user.ratings[snackName] : null;
+            if (s) {
+                scores[s]++;
+                totalScore += s;
+                count++;
+                userReviewsHtml += `<div class="user-score-row"><strong>${user.name}</strong>: ${"⭐".repeat(s)}</div>`;
+            }
+        });
+    }
+
+    const avg = count > 0 ? (totalScore / count).toFixed(1) : 0;
+
+    // 2. 쿠팡 스타일 레이아웃 생성
+    scoreListDiv.innerHTML = `
+        <div class="review-summary">
+            <div class="average-score">
+                <h1>${avg}</h1>
+                <p>${"★".repeat(Math.round(avg))}${"☆".repeat(5 - Math.round(avg))}</p>
+                <small>${count}건 리뷰</small>
+            </div>
+            <div class="score-bars">
+                ${[5, 4, 3, 2, 1].map(num => {
+                    const percent = count > 0 ? (scores[num] / count) * 100 : 0;
+                    return `
+                        <div class="bar-row">
+                            <span>${num}점</span>
+                            <div class="bar-bg"><div class="bar-fill" style="width: ${percent}%"></div></div>
+                            <span>${scores[num]}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        <div class="individual-reviews">
+            <label class="gh-label">💬 최근 리뷰</label>
+            ${userReviewsHtml || "<p>아직 리뷰가 없습니다.</p>"}
+        </div>
+    `;
+
+    document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
+    modal.style.display = "flex";
 }
-
 async function submitRating() {
   if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
   const selectedStar = document.querySelector('input[name="rating"]:checked');
