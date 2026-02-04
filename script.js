@@ -217,8 +217,15 @@ const snackNames = [
   { name: "롯데 제로 초콜릿칩 쿠키", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "롯데 제로 카카오 케이크", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "무설탕 현미 뻥튀기", cat: "tradition", allergies: [] },
-  { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] }
-  ];
+  { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] },
+  // 4. 제로 아이스크림 (icecream)
+  { name: "라라스윗 파인트 (초코)", cat: "icecream", allergies: ["우유", "계란"] },
+  { name: "스크류바 제로", cat: "icecream", allergies: [] },
+  { name: "죠스바 제로", cat: "icecream", allergies: [] }
+  
+];
+    
+const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 /* --- 1. 보안: SHA-256 해싱 함수 --- */
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -496,10 +503,4 @@ window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
   if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
 }
-  // 4. 제로 아이스크림 (icecream)
-  { name: "라라스윗 파인트 (초코)", cat: "icecream", allergies: ["우유", "계란"] },
-  { name: "스크류바 제로", cat: "icecream", allergies: [] },
-  { name: "죠스바 제로", cat: "icecream", allergies: [] }
-  
-];
-const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
+
