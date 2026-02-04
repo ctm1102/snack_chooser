@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # 본인의 브랜치명이 master라면 master로 수정하세요.
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -19,15 +19,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # script.js 내의 Placeholder를 실제 값으로 치환합니다.
-      # 문자열이 정확히 일치해야 하므로 script.js에도 'SET_URL', 'SET_KEY'라고 적어야 합니다.
       - name: Inject Supabase Secrets
         run: |
+          # 1. 파일이 존재하는지 확인 (경로 오류 방지)
+          if [ ! -f "script.js" ]; then
+            echo "Error: script.js 파일을 찾을 수 없습니다!"
+            exit 1
+          fi
+
+          # 2. 치환 실행 (secrets 이름이 정확해야 함)
+          # GitHub Settings -> Secrets에 저장한 이름이 SUPABASE_URL, SUPABASE_ANON_KEY여야 합니다.
           sed -i "s|SET_URL|${{ secrets.SUPABASE_URL }}|g" script.js
           sed -i "s|SET_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" script.js
           
-          # 치환 결과가 파일에 반영되었는지 로그에서 확인 (실제 값은 ***로 가려짐)
-          echo "검증: script.js의 설정 정보를 확인합니다."
+          # 3. 결과 확인 (로그에 SET_URL이 여전히 있으면 치환 실패임)
+          echo "=== 치환 결과 검증 (값은 ***로 표시됨) ==="
           grep "SUPABASE_" script.js
 
       - name: Setup Pages
@@ -36,9 +42,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # index.html이 있는 루트 폴더
+          # 현재 경로(.)를 업로드. 치환된 script.js가 여기에 포함되어야 함.
+          path: '.' 
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      
