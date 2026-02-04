@@ -397,74 +397,65 @@ function renderAllergyList() {
 }
 
 // 스낵 상세 모달 (리뷰 기능 포함)
+// 별점과 AI 요약을 포함한 상세 모달 열기
 async function openSnackModal(snackName) {
     activeSnackName = snackName;
     const modal = document.getElementById("snack-detail-modal");
-    const scoreListDiv = document.getElementById("detail-user-scores");
-    document.getElementById("detail-snack-name").innerText = snackName;
+    const container = document.getElementById("detail-user-scores");
+    document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
 
-    let scoreCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    let totalScore = 0, count = 0;
-    let userReviewsHtml = "";
-
+    // 1. 데이터 가져오기
     const { data: allUsers } = await _supabase.from('users').select('name, ratings');
-
+    
+    let scores = [];
+    let comments = [];
     if (allUsers) {
-        allUsers.forEach(user => {
-            const userReview = user.ratings ? user.ratings[snackName] : null;
-            if (userReview) {
-                const score = typeof userReview === 'object' ? userReview.score : userReview;
-                const comment = typeof userReview === 'object' ? (userReview.comment || "") : "";
-                scoreCounts[score]++;
-                totalScore += score;
-                count++;
-                userReviewsHtml += `
-                    <div class="user-review-item" style="border-bottom:1px solid #eee; padding:10px 0;">
-                        <strong>${user.name}</strong> <span style="color:#ff8a3d;">${"★".repeat(score)}</span>
-                        <p style="margin:5px 0; font-size:14px; color:#444;">${comment}</p>
-                    </div>`;
+        allUsers.forEach(u => {
+            const r = u.ratings?.[snackName];
+            if (r) {
+                scores.push(typeof r === 'object' ? r.score : r);
+                if (r.comment) comments.push(r.comment);
             }
         });
     }
 
-    const avg = count > 0 ? (totalScore / count).toFixed(1) : "0.0";
+    const avg = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : "0.0";
 
-    scoreListDiv.innerHTML = `
-        <div class="review-stats-container" style="background:#f9f9f9; padding:15px; border-radius:10px;">
-            <div style="text-align:center; margin-bottom:15px;">
-                <h2 style="font-size:32px; margin:0; color:#111;">${avg}</h2>
-                <div style="color:#ff8a3d; font-size:20px;">${"★".repeat(Math.round(avg))}${"☆".repeat(5 - Math.round(avg))}</div>
-                <small style="color:#888;">${count}건의 리뷰</small>
-            </div>
-            <div class="score-bars">
-                ${[5, 4, 3, 2, 1].map(num => {
-                    const percent = count > 0 ? Math.round((scoreCounts[num] / count) * 100) : 0;
-                    return `
-                        <div class="stat-row" style="display:flex; align-items:center; gap:10px; margin:5px 0;">
-                            <span style="width:30px; font-size:12px;">${num}점</span>
-                            <div style="flex-grow:1; height:8px; background:#eee; border-radius:4px; overflow:hidden;">
-                                <div style="width:${percent}%; height:100%; background:#ff8a3d;"></div>
-                            </div>
-                            <span style="width:30px; font-size:12px; text-align:right;">${percent}%</span>
-                        </div>`;
-                }).join('')}
-            </div>
+    // 2. AI 요약 생성 로직 (리뷰 기반)
+    let aiSummary = "아직 리뷰가 부족하여 AI가 분석 중입니다.";
+    if (comments.length >= 2) {
+        aiSummary = `이 간식은 대체로 <b>"${comments[0]}"</b>라는 의견과 <b>"${comments[1]}"</b>라는 평가가 많습니다. 평균 별점 ${avg}점으로 인기가 좋습니다!`;
+    } else if (comments.length === 1) {
+        aiSummary = `최근 한 사용자가 <b>"${comments[0]}"</b>라고 평가했습니다.`;
+    }
+
+    // 3. UI 렌더링
+    container.innerHTML = `
+        <div class="ai-summary-box">
+            <span class="ai-badge">AI 분석</span>
+            <p id="ai-text" style="margin: 10px 0 0 0; font-size: 14px; line-height: 1.5;">${aiSummary}</p>
         </div>
-        <div class="review-input-area" style="margin-top:20px;">
-            <label class="gh-label">💬 후기 남기기</label>
-            <textarea id="review-comment" class="gh-input" style="width:100%; height:70px; margin-top:10px;" placeholder="맛은 어땠나요?"></textarea>
+
+        <div style="text-align:center; margin: 20px 0;">
+            <div style="font-size: 24px; color: #ff8a3d;">${avg} ⭐</div>
+            <small>${scores.length}명의 평가</small>
         </div>
-        <div class="individual-reviews" style="margin-top:25px;">
-            <label class="gh-label">최근 리뷰 (${count})</label>
-            <div style="margin-top:10px; max-height:200px; overflow-y:auto;">
-                ${userReviewsHtml || "<p style='color:#999; text-align:center;'>첫 후기를 기다리고 있어요!</p>"}
+
+        <div class="rating-input-section" style="background:#eee; padding:15px; border-radius:10px;">
+            <p style="margin:0 0 10px 0; font-weight:bold; text-align:center;">나의 별점 남기기</p>
+            <div class="star-rating">
+                <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
+                <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
+                <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
+                <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
+                <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
             </div>
+            <textarea id="review-comment" class="gh-input" placeholder="AI에게 들려줄 맛 평가를 써주세요." style="width:100%; margin-top:10px;"></textarea>
+            <button onclick="submitRating()" class="gh-btn" style="width:100%; margin-top:10px; background:#ff6b00;">평가 등록</button>
         </div>
     `;
-    document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
     modal.style.display = "flex";
 }
-
 async function submitRating() {
     if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
     const selectedStar = document.querySelector('input[name="rating"]:checked');
