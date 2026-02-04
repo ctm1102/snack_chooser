@@ -310,83 +310,80 @@ async function handleSignup() {
     updateUI();
 }
 
-/* --- [5. 상세 모달 & 리뷰 (핵심 수정 부분)] --- */
-/* --- [4. 회원 시스템 - 로그인/회원가입 폼 복원] --- */
-function openModal(type) {
-    const modal = document.getElementById("auth-modal");
-    const loginForm = document.getElementById("login-form");
-    const signupForm = document.getElementById("signup-form");
-    const modalTitle = document.getElementById("modal-title");
+/* --- [오류 해결: 상세 모달 열기 함수] --- */
+async function openSnackModal(snackName) {
+    activeSnackName = snackName; // 현재 선택된 간식 이름을 전역 변수에 저장
+    const modal = document.getElementById("snack-detail-modal");
+    
+    // 1. 제목 업데이트
+    const titleEl = document.getElementById("detail-snack-name");
+    if (titleEl) titleEl.innerText = `🍪 ${snackName}`;
 
-    if (type === 'login') {
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
-        modalTitle.innerText = '로그인';
-    } else {
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'block';
-        modalTitle.innerText = '회원가입';
+    // 2. 초기화 (별점 및 텍스트)
+    const starInput = document.querySelector('input[name="rating"]:checked');
+    if (starInput) starInput.checked = false;
+    const commentEl = document.getElementById("review-comment");
+    if (commentEl) commentEl.value = "";
+
+    // 3. Supabase에서 데이터 가져와서 통계 계산 (기존 코드 연동)
+    if (_supabase) {
+        const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+        
+        let scores = [0, 0, 0, 0, 0, 0]; // 0~5점 개수
+        let reviews = [];
+        let totalScore = 0;
+        let totalCount = 0;
+
+        if (allUsers) {
+            allUsers.forEach(u => {
+                const r = u.ratings?.[snackName];
+                if (r) {
+                    const s = r.score || 0;
+                    scores[s]++;
+                    totalScore += s;
+                    totalCount++;
+                    if (r.comment) reviews.push({ name: u.name, score: s, comment: r.comment });
+                }
+            });
+        }
+
+        // 4. UI 반영 (평균 점수 및 막대 그래프)
+        const avg = totalCount > 0 ? (totalScore / totalCount).toFixed(1) : "0.0";
+        const avgNum = document.getElementById("avg-num");
+        const totalRev = document.getElementById("total-rev-count");
+        if (avgNum) avgNum.innerText = avg;
+        if (totalRev) totalRev.innerText = totalCount;
+
+        const barContainer = document.getElementById("stat-bars-container");
+        if (barContainer) {
+            barContainer.innerHTML = [5, 4, 3, 2, 1].map(i => {
+                const pct = totalCount > 0 ? (scores[i] / totalCount * 100) : 0;
+                return `
+                    <div class="stat-row">
+                        <span class="stat-label">${i}점</span>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" style="width:${pct}%"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // 5. 유저 리뷰 목록 렌더링
+        const reviewListEl = document.getElementById("detail-user-scores");
+        if (reviewListEl) {
+            reviewListEl.innerHTML = reviews.length > 0 ? reviews.map(r => `
+                <div class="user-review-item">
+                    <b>${r.name}</b> <span style="color:var(--gh-star)">★${r.score}</span><br>
+                    <span style="color:#666">${r.comment}</span>
+                </div>
+            `).join('') : "<p style='color:#999; text-align:center; padding:20px;'>아직 리뷰가 없습니다.</p>";
+        }
     }
+
+    // 6. 모달 표시
     modal.style.display = "flex";
 }
 
-/* --- [5. 기능 함수 - 알림 로직 수정] --- */
-
-// 즐겨찾기 알림 수정
-function addFavorite(name) {
-    if (!currentUser) {
-        if (confirm("로그인을 하셔야 사용하실 수 있는 기능입니다. 로그인하시겠습니까?")) {
-            openModal('login');
-        }
-        return;
-    }
-    const idx = currentUser.favorites.indexOf(name);
-    if (idx > -1) currentUser.favorites.splice(idx, 1);
-    else currentUser.favorites.push(name);
-    saveUserData();
-    renderSnacks();
-}
-
-// 리뷰 등록 알림 수정
-async function submitRating() {
-    if (!currentUser) {
-        if (confirm("로그인을 하셔야 사용하실 수 있는 기능입니다. 로그인하시겠습니까?")) {
-            // 상세 모달을 닫고 로그인 모달을 엽니다.
-            closeSnackModal();
-            openModal('login');
-        }
-        return;
-    }
-
-    const selectedStar = document.querySelector('input[name="rating"]:checked');
-    const comment = document.getElementById("review-comment").value.trim();
-    
-    if (!selectedStar) return alert("별점을 선택해주세요!");
-    
-    if (!currentUser.ratings) currentUser.ratings = {};
-    currentUser.ratings[activeSnackName] = { 
-        score: parseInt(selectedStar.value), 
-        comment: comment 
-    };
-    
-    await saveUserData();
-    alert("리뷰가 등록되었습니다!");
-    openSnackModal(activeSnackName); // 데이터 갱신을 위해 다시 열기
-}
-
-// 즐겨찾기 목록 보기 알림 수정
-function toggleFavorites() {
-    if (!currentUser) {
-        if (confirm("로그인을 하셔야 사용하실 수 있는 기능입니다. 로그인하시겠습니까?")) {
-            openModal('login');
-        }
-        return;
-    }
-    showFavOnly = !showFavOnly;
-    const btn = document.getElementById("fav-toggle-btn");
-    if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
-    renderSnacks();
-}
 async function submitRating() {
     if (!currentUser) return alert("로그인 필요");
     const star = document.querySelector('input[name="rating"]:checked');
