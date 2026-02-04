@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
 
@@ -23,7 +24,6 @@
   </header>
 
   <main class="gh-main-container">
-    <!-- 설정 섹션: 버튼을 제거하고 자동화된 테마 변경만 남김 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -81,39 +81,39 @@
   </div>
 
   <div id="snack-detail-modal" class="gh-modal">
-  <div class="gh-modal-box">
-    <div class="gh-modal-head">
-      <h2 id="detail-snack-name">간식 이름</h2>
-      <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
-    </div>
-    <div class="gh-modal-body">
-      <div class="detail-section">
-        <label class="gh-label">🚫 알러지 유발 성분</label>
-        <div id="detail-allergies" class="gh-chips"></div>
+    <div class="gh-modal-box">
+      <div class="gh-modal-head">
+        <h2 id="detail-snack-name">간식 이름</h2>
+        <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
       </div>
-
-      <div class="detail-section">
-        <label class="gh-label">👥 유저별 점수</label>
-        <div id="detail-user-scores" class="gh-score-list"></div>
-      </div>
-
-      <div class="detail-section rating-zone">
-        <label class="gh-label">⭐ 내 점수 매기기</label>
-        <div class="star-rating">
-          <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
-          <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
-          <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
-          <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
-          <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
+      <div class="gh-modal-body">
+        <div class="detail-section">
+          <label class="gh-label">🚫 알러지 유발 성분</label>
+          <div id="detail-allergies" class="gh-chips"></div>
         </div>
-        <button class="gh-btn-submit" onclick="submitRating()" style="margin-top:10px;">평점 저장</button>
+
+        <div class="detail-section">
+          <label class="gh-label">👥 유저별 점수</label>
+          <div id="detail-user-scores" class="gh-score-list"></div>
+        </div>
+
+        <div class="detail-section rating-zone">
+          <label class="gh-label">⭐ 내 점수 매기기</label>
+          <div class="star-rating">
+            <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
+            <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
+            <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
+            <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
+            <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
+          </div>
+          <button class="gh-btn-submit" onclick="submitRating()" style="margin-top:10px;">평점 저장</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-  <!-- Supabase SDK 라이브러리 로드 -->
-  <script src="https://cdn.jsdelivr.net"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <script src="script.js"></script>
 </body>
 </html>
