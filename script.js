@@ -309,32 +309,35 @@ function renderSnacks() {
 async function openSnackModal(snackName) {
     activeSnackName = snackName;
     const modal = document.getElementById("snack-detail-modal");
+    // 에러 방지: scoreListDiv 정의
+    const scoreListDiv = document.getElementById("detail-user-scores");
+    
     document.getElementById("detail-snack-name").innerText = snackName;
 
-    // 통계 초기화
+    // 통계 및 리뷰 데이터 초기화
     let scoreCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let totalScore = 0, count = 0;
-    let reviewsHtml = "";
+    let userReviewsHtml = "";
 
     // Supabase에서 모든 유저의 리뷰 데이터 가져오기
-    const { data: users } = await _supabase.from('users').select('name, ratings');
+    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
 
-    if (users) {
-        users.forEach(user => {
+    if (allUsers) {
+        allUsers.forEach(user => {
             const userReview = user.ratings ? user.ratings[snackName] : null;
             if (userReview) {
-                // userReview가 숫자(구버전)일수도, 객체(신버전 {score, comment})일수도 있음 처리
+                // 데이터 형식이 숫자일 수도, 객체 {score, comment}일 수도 있음 처리
                 const score = typeof userReview === 'object' ? userReview.score : userReview;
-                const comment = userReview.comment || "";
+                const comment = typeof userReview === 'object' ? (userReview.comment || "") : "";
                 
                 scoreCounts[score]++;
                 totalScore += score;
                 count++;
                 
-                reviewsHtml += `
+                userReviewsHtml += `
                     <div class="user-review-item" style="border-bottom:1px solid #eee; padding:10px 0;">
                         <strong>${user.name}</strong> <span style="color:#ff8a3d;">${"★".repeat(score)}</span>
-                        <p style="margin:5px 0; font-size:14px;">${comment}</p>
+                        <p style="margin:5px 0; font-size:14px; color:#444;">${comment}</p>
                     </div>`;
             }
         });
@@ -342,71 +345,9 @@ async function openSnackModal(snackName) {
 
     const avg = count > 0 ? (totalScore / count).toFixed(1) : "0.0";
 
-    // 쿠팡 스타일 통계 HTML 주입
-    document.getElementById("detail-user-scores").innerHTML = `
-        <div class="review-stats-container">
-            <div style="text-align:center; margin-bottom:15px;">
-                <h2 style="font-size:32px; margin:0;">${avg}</h2>
-                <div style="color:#ff8a3d;">${"★".repeat(Math.round(avg))}</div>
-                <small>${count}명 참여</small>
-            </div>
-            ${[5, 4, 3, 2, 1].map(num => {
-                const percent = count > 0 ? Math.round((scoreCounts[num] / count) * 100) : 0;
-                const labels = ["", "나쁨", "별로", "보통", "좋음", "최고"];
-                return `
-                    <div class="stat-row">
-                        <span class="stat-label">${labels[num]}</span>
-                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${percent}%"></div></div>
-                        <span class="stat-percent">${percent}%</span>
-                    </div>`;
-            }).join('')}
-        </div>
-        <div class="review-input-area">
-            <textarea id="review-comment" class="review-textarea" placeholder="맛은 어땠나요? 후기를 남겨주세요!"></textarea>
-        </div>
-        <div class="review-list" style="margin-top:20px;">
-            <label class="gh-label">전체 리뷰 (${count})</label>
-            ${reviewsHtml || "<p>첫 리뷰를 작성해보세요!</p>"}
-        </div>
-    `;
-
-    modal.style.display = "flex";
-}
-
-// 2. 리뷰 제출 (별점 + 텍스트)
-async function submitRating() {
-    if (!currentUser) return alert("로그인이 필요합니다.");
-    
-    const selectedStar = document.querySelector('input[name="rating"]:checked');
-    const comment = document.getElementById("review-comment").value;
-
-    if (!selectedStar) return alert("별점을 선택해주세요!");
-
-    const score = parseInt(selectedStar.value);
-    
-    // 현재 유저의 기존 ratings 가져오기
-    const { data } = await _supabase.from('users').select('ratings').eq('name', currentUser.name).single();
-    let newRatings = data.ratings || {};
-    
-    // 객체 형태로 저장 (쿠팡 스타일을 위해)
-    newRatings[activeSnackName] = { score, comment, date: new Date().toISOString() };
-
-    const { error } = await _supabase
-        .from('users')
-        .update({ ratings: newRatings })
-        .eq('name', currentUser.name);
-
-    if (!error) {
-        alert("리뷰가 등록되었습니다!");
-        openSnackModal(activeSnackName); // 새로고침
-    } else {
-        alert("저장 실패: " + error.message);
-    }
-}
-
-    // 2. 쿠팡 스타일 레이아웃 생성
+    // 쿠팡 스타일 레이아웃 생성
     scoreListDiv.innerHTML = `
-        <div class="review-stats-container">
+        <div class="review-stats-container" style="background:#f9f9f9; padding:15px; border-radius:10px;">
             <div style="text-align:center; margin-bottom:15px;">
                 <h2 style="font-size:32px; margin:0; color:#111;">${avg}</h2>
                 <div style="color:#ff8a3d; font-size:20px;">${"★".repeat(Math.round(avg))}${"☆".repeat(5 - Math.round(avg))}</div>
@@ -433,7 +374,7 @@ async function submitRating() {
             <label class="gh-label">💬 후기 남기기</label>
             <textarea id="review-comment" class="gh-input" 
                 style="width:100%; height:70px; margin-top:10px; padding:10px; border-radius:8px; border:1px solid #ddd; resize:none;" 
-                placeholder="간식에 대한 솔직한 평을 남겨주세요!"></textarea>
+                placeholder="맛은 어땠나요? 후기를 남겨주세요!"></textarea>
         </div>
 
         <div class="individual-reviews" style="margin-top:25px;">
@@ -443,22 +384,35 @@ async function submitRating() {
             </div>
         </div>
     `;
+
+    // 별점 초기화 및 모달 표시
     document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
     modal.style.display = "flex";
-
-async function submitRating() {
-  if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
-  const selectedStar = document.querySelector('input[name="rating"]:checked');
-  if (!selectedStar) return alert("별점을 선택해주세요!");
-
-  if (!currentUser.ratings) currentUser.ratings = {};
-  currentUser.ratings[activeSnackName] = parseInt(selectedStar.value);
-
-  await saveUserData();
-  alert("평점이 저장되었습니다.");
-  openSnackModal(activeSnackName);
 }
 
+// 2. 리뷰 제출 (별점 + 텍스트 통합 저장)
+async function submitRating() {
+    if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
+    
+    const selectedStar = document.querySelector('input[name="rating"]:checked');
+    const comment = document.getElementById("review-comment").value.trim();
+
+    if (!selectedStar) return alert("별점을 선택해주세요!");
+
+    const score = parseInt(selectedStar.value);
+
+    // 유저 객체의 ratings 업데이트 (객체 형태 {score, comment}로 저장)
+    if (!currentUser.ratings) currentUser.ratings = {};
+    currentUser.ratings[activeSnackName] = {
+        score: score,
+        comment: comment,
+        date: new Date().toISOString()
+    };
+
+    await saveUserData();
+    alert("리뷰가 등록되었습니다!");
+    openSnackModal(activeSnackName); // 화면 새로고침
+}
 /* --- 6. 계정 기능 --- */
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
