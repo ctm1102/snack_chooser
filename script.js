@@ -218,16 +218,7 @@ const snackNames = [
   { name: "롯데 제로 카카오 케이크", cat: "snack", allergies: ["밀가루", "우유", "계란"] },
   { name: "무설탕 현미 뻥튀기", cat: "tradition", allergies: [] },
   { name: "구운 감태 부각 (무당)", cat: "tradition", allergies: [] },
-
-  // 4. 제로 아이스크림 (icecream)
-  { name: "라라스윗 파인트 (초코)", cat: "icecream", allergies: ["우유", "계란"] },
-  { name: "스크류바 제로", cat: "icecream", allergies: [] },
-  { name: "죠스바 제로", cat: "icecream", allergies: [] }
-  
-];
-const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
-
-/* --- 보안: SHA-256 해싱 함수 --- */
+/* --- 1. 보안: SHA-256 해싱 함수 --- */
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -238,12 +229,13 @@ async function hashPassword(password) {
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
+let activeSnackName = null; // 현재 팝업에 떠있는 간식 이름
 
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* --- 2. 인증 및 모달 --- */
+/* --- 2. 인증 및 모달 제어 --- */
 function openModal(type) {
   const modal = document.getElementById("auth-modal");
   document.getElementById("login-form").style.display = type === 'login' ? 'block' : 'none';
@@ -256,6 +248,119 @@ function closeModal() {
   document.getElementById("auth-modal").style.display = "none";
 }
 
+// 간식 상세 모달 닫기
+function closeSnackModal() {
+  document.getElementById("snack-detail-modal").style.display = "none";
+}
+
+/* --- 3. UI 렌더링 및 리스트 출력 --- */
+
+function updateUI() {
+  if (currentUser) {
+    document.getElementById("auth-menu").style.display = "none";
+    document.getElementById("user-menu").style.display = "flex";
+    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
+    document.getElementById("user-section").style.display = "block";
+    
+    let welcomeText = "";
+    const count = currentUser.loginCount;
+    if (count <= 1) welcomeText = "첫 이용 환영합니다!";
+    else if (count === 2) welcomeText = "또 오셨네요! 반갑습니다!";
+    else welcomeText = `간식 뽑기 단골 ${currentUser.name}님 반가워요!`;
+
+    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText}`;
+    renderAllergyList();
+  }
+  renderSnacks();
+}
+
+// 간식 리스트 렌더링 (접속 시 즉시 실행됨)
+function renderSnacks() {
+  const listEl = document.getElementById("snack-list");
+  if (!listEl) return;
+  listEl.innerHTML = "";
+
+  const filtered = snackNames.filter(item => {
+    // 알러지 필터링
+    if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
+    // 즐겨찾기 필터링
+    if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
+    // 카테고리 필터링
+    return currentCategory === "all" || item.cat === currentCategory;
+  });
+
+  filtered.forEach(item => {
+    const isFav = currentUser && currentUser.favorites.includes(item.name);
+    const li = document.createElement("li");
+    li.className = "gh-snack-item";
+    
+    // 구조 수정: 이름 클릭 시 상세 팝업 openSnackModal 호출
+    li.innerHTML = `
+      <span class="snack-name-clickable" onclick="openSnackModal('${item.name}')" style="font-weight:700; cursor:pointer;">${item.name}</span>
+      <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
+    `;
+    listEl.appendChild(li);
+  });
+}
+
+/* --- 4. 간식 상세 정보 및 별점 기능 --- */
+
+async function openSnackModal(snackName) {
+  activeSnackName = snackName;
+  const snack = snackNames.find(s => s.name === snackName);
+  const modal = document.getElementById("snack-detail-modal");
+
+  // 1. 이름 및 알러지 표시
+  document.getElementById("detail-snack-name").innerText = snackName;
+  const allergyDiv = document.getElementById("detail-allergies");
+  allergyDiv.innerHTML = snack.allergies.map(a => `<span class="gh-chip active">${a}</span>`).join('') || "없음";
+
+  // 2. 유저별 점수 로드 (Supabase)
+  const scoreListDiv = document.getElementById("detail-user-scores");
+  scoreListDiv.innerHTML = "점수를 불러오는 중...";
+
+  const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+  
+  let scoreHtml = "";
+  if (allUsers) {
+    allUsers.forEach(user => {
+      if (user.ratings && user.ratings[snackName]) {
+        const starCount = user.ratings[snackName];
+        scoreHtml += `<div class="user-score-row"><strong>${user.name}</strong>: ${"⭐".repeat(starCount)} (${starCount}점)</div>`;
+      }
+    });
+  }
+  scoreListDiv.innerHTML = scoreHtml || "아직 평점이 없습니다.";
+
+  // 3. 내 별점 라디오 버튼 초기화
+  document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
+
+  modal.style.display = "flex";
+}
+
+async function submitRating() {
+  if (!currentUser) {
+    alert("로그인이 필요합니다.");
+    openModal('login');
+    return;
+  }
+  
+  const selectedStar = document.querySelector('input[name="rating"]:checked');
+  if (!selectedStar) return alert("별점을 선택해주세요!");
+
+  const score = parseInt(selectedStar.value);
+
+  // 현재 유저 객체에 평점 데이터 업데이트
+  if (!currentUser.ratings) currentUser.ratings = {};
+  currentUser.ratings[activeSnackName] = score;
+
+  await saveUserData(); // Supabase에 upsert
+  alert(`${activeSnackName} 평점이 저장되었습니다.`);
+  openSnackModal(activeSnackName); // 팝업 새로고침
+}
+
+/* --- 5. 기존 기능 함수들 (로그인, 회원가입, 저장 등) --- */
+
 async function handleSignup() {
   const name = document.getElementById("signup-name").value.trim();
   const pw = document.getElementById("signup-pw").value.trim();
@@ -264,9 +369,8 @@ async function handleSignup() {
   const { data: existing } = await _supabase.from('users').select('name').eq('name', name).single();
   if (existing) return alert("이미 등록된 이름입니다.");
   
-  // 비밀번호 해싱 후 저장
   const hashedPw = await hashPassword(pw);
-  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [] };
+  currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [], ratings: {} };
   
   await saveUserData();
   alert("가입 성공! 환영합니다.");
@@ -279,10 +383,8 @@ async function handleLogin() {
   const pw = document.getElementById("login-pw").value.trim();
   
   const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).single();
-  
   if (!userData || error) return alert("사용자 정보가 없습니다.");
   
-  // 입력한 비번을 해싱하여 DB값과 비교
   const hashedPw = await hashPassword(pw);
   if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
   
@@ -293,81 +395,12 @@ async function handleLogin() {
   updateUI();
 }
 
-/* --- 3. UI 렌더링 --- */
-
-function updateUI() {
-  if (currentUser) {
-    document.getElementById("auth-menu").style.display = "none";
-    document.getElementById("user-menu").style.display = "flex";
-    document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-    document.getElementById("user-section").style.display = "block";
-    
-    // 로그인 횟수에 따른 맞춤 메시지 설정
-    let welcomeText = "";
-    const count = currentUser.loginCount;
-    
-    if (count <= 1) {
-      welcomeText = "첫 이용 환영합니다!";
-    } else if (count === 2) {
-      welcomeText = "또 오셨네요! 반갑습니다!";
-    } else if (count === 3) {
-      welcomeText = "다시 만나서 반가워요!";
-    } else {
-      welcomeText = `간식 뽑기 사이트 단골 ${currentUser.name}님 반가워요!`;
-    }
-
-    document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText} (총 ${snackNames.length}종 구비)`;
-    renderAllergyList();
-  }
-  renderSnacks();
-}
-
-
-function renderAllergyList() {
-  const container = document.getElementById("allergy-list");
-  if (!container) return;
-  container.innerHTML = "";
+async function saveUserData() { 
   if (!currentUser) return;
-  allergyTypes.forEach(type => {
-    const isChecked = currentUser.allergies.includes(type);
-    const label = document.createElement("label");
-    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
-    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
-    container.appendChild(label);
-  });
+  await _supabase.from('users').upsert(currentUser);
+  localStorage.setItem("currentSnackSession", currentUser.name); 
 }
 
-function updateAllergy(el) {
-  if (el.checked) currentUser.allergies.push(el.value);
-  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
-  saveUserData();
-  renderSnacks();
-  renderAllergyList();
-}
-
-function renderSnacks() {
-  const listEl = document.getElementById("snack-list");
-  if(!listEl) return;
-  listEl.innerHTML = "";
-  const filtered = snackNames.filter(item => {
-    if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
-    if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
-    return currentCategory === "all" || item.cat === currentCategory;
-  });
-
-  filtered.forEach(item => {
-    const isFav = currentUser && currentUser.favorites.includes(item.name);
-    const li = document.createElement("li");
-    li.className = "gh-snack-item";
-    li.innerHTML = `
-      <span style="font-weight:700;">${item.name}</span>
-      <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
-    `;
-    listEl.appendChild(li);
-  });
-}
-
-/* --- 4. 기능 및 자동 백업 --- */
 function addFavorite(name) {
   if (!currentUser) {
     if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) openModal('login');
@@ -378,12 +411,6 @@ function addFavorite(name) {
   else currentUser.favorites.push(name);
   saveUserData();
   renderSnacks();
-}
-
-async function saveUserData() { 
-  if (!currentUser) return;
-  await _supabase.from('users').upsert(currentUser);
-  localStorage.setItem("currentSnackSession", currentUser.name); 
 }
 
 function logout() { 
@@ -415,30 +442,44 @@ function toggleTheme() {
 }
 
 function pickRandom() {
-  const items = document.querySelectorAll(".gh-snack-item span");
+  const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
   if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
   const picked = items[Math.floor(Math.random() * items.length)].innerText;
   const resultEl = document.getElementById("result");
-  // 오늘의 간식: 강조 디자인 적용
   resultEl.innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
 }
 
-async function exportData() { await saveUserData(); }
-async function importData() {
+function renderAllergyList() {
+  const container = document.getElementById("allergy-list");
+  if (!container) return;
+  container.innerHTML = "";
   if (!currentUser) return;
-  if (confirm("서버 데이터를 불러올까요?")) {
-    const { data } = await _supabase.from('users').select('*').eq('name', currentUser.name).single();
-    if (data) { currentUser = data; updateUI(); }
-  }
+  allergyTypes.forEach(type => {
+    const isChecked = currentUser.allergies.includes(type);
+    const label = document.createElement("label");
+    label.className = `gh-chip ${isChecked ? 'active' : ''}`;
+    label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
+    container.appendChild(label);
+  });
 }
 
-/* --- 5. 초기 구동 --- */
+function updateAllergy(el) {
+  if (el.checked) currentUser.allergies.push(el.value);
+  else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+  saveUserData();
+  renderSnacks();
+  renderAllergyList();
+}
+
+/* --- 6. 초기 구동 --- */
 window.onload = async () => {
+  // 테마 설정
   if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
   
-  // 리스트 즉시 출력 (중요)
+  // [중요] 리스트 즉시 출력
   renderSnacks();
 
+  // 세션 복구
   const last = localStorage.getItem("currentSnackSession");
   if (last) {
     const { data } = await _supabase.from('users').select('*').eq('name', last).single();
@@ -449,6 +490,15 @@ window.onload = async () => {
   }
 };
 
+// 배경 클릭 시 모달 닫기
 window.onclick = function(event) {
   if (event.target == document.getElementById("auth-modal")) closeModal();
+  if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
 }
+  // 4. 제로 아이스크림 (icecream)
+  { name: "라라스윗 파인트 (초코)", cat: "icecream", allergies: ["우유", "계란"] },
+  { name: "스크류바 제로", cat: "icecream", allergies: [] },
+  { name: "죠스바 제로", cat: "icecream", allergies: [] }
+  
+];
+const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
