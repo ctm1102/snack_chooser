@@ -496,7 +496,7 @@ window.onload = async () => {
       updateUI();
     }
   }
-};
+}
 
 // 배경 클릭 시 모달 닫기
 window.onclick = function(event) {
