@@ -220,6 +220,7 @@ const snackNames = [
 // 1. YAML 파일의 sed 명령어가 찾을 수 있게 정확한 이름을 적어주세요.
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER'; 
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
+const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
 // 2. 변수 이름을 _supabase로 해서 라이브러리와의 충돌을 피합니다.
 // window.supabase는 HTML에서 로드된 라이브러리 객체입니다.
