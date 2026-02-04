@@ -241,7 +241,7 @@ let activeSnackName = null; // 현재 팝업에 떠있는 간식 이름
 
 const SUPABASE_URL = 'YOUR_SUPABASE_URL_PLACEHOLDER';
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_PLACEHOLDER';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* --- 2. 인증 및 모달 제어 --- */
 function openModal(type) {
