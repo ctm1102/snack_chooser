@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍪</text></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 x=%225%22 font-size=%2280%22>🍪</text></svg>">
-  
   <title>Snack Chooser</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,8 +11,7 @@
 
   <header class="gh-header">
     <div class="gh-nav-inner">
-      <div class="gh-logo" onclick="location.reload()">🍪Snack Chooser</div>
-      
+      <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
       <div id="auth-menu" class="gh-auth-zone">
         <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
         <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
@@ -27,6 +24,7 @@
   </header>
 
   <main class="gh-main-container">
+    <!-- 기존 유저 섹션 유지 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -46,6 +44,7 @@
       </div>
     </div>
 
+    <!-- 카테고리 탭 유지 -->
     <nav class="gh-tabs">
       <div class="gh-tab-list">
         <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
@@ -61,6 +60,7 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
+  <!-- 로그인/회원가입 모달 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -83,6 +83,7 @@
     </div>
   </div>
 
+  <!-- 상세보기 모달 (쿠팡 스타일 통합) -->
   <div id="snack-detail-modal" class="gh-modal">
     <div class="gh-modal-box full-sheet">
       <div class="gh-modal-head">
@@ -90,15 +91,24 @@
         <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
       </div>
       <div class="gh-modal-body">
+        <!-- 1. 쿠팡 스타일 통계 카드 -->
         <div id="coupang-stats-card" class="coupon-stats-card">
            <div class="stats-left">
              <span id="avg-num">0.0</span>
              <div class="stars-display">★★★★★</div>
              <div class="total-count">리뷰 <span id="total-rev-count">0</span>건</div>
            </div>
-           <div class="stats-right" id="stat-bars-container"></div>
+           <div class="stats-right" id="stat-bars-container">
+             <!-- JS에서 바 생성 -->
+           </div>
         </div>
 
+        <div class="detail-section">
+          <label class="gh-label">🚫 알러지 유발 성분</label>
+          <div id="detail-allergies" class="gh-chips"></div>
+        </div>
+
+        <!-- 2. 리뷰 작성 영역 (별점 + 텍스트) -->
         <div class="detail-section rating-zone">
           <label class="gh-label">⭐ 내 상품평 남기기</label>
           <div class="star-rating">
@@ -121,7 +131,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net"></script>
   <script src="script.js"></script>
 </body>
 </html>
