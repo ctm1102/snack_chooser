@@ -310,77 +310,60 @@ async function handleSignup() {
     updateUI();
 }
 
-/* --- [오류 해결: 상세 모달 열기 함수] --- */
+/* --- [5. 상세 모달 & 리뷰 (핵심 수정 부분)] --- */
 async function openSnackModal(snackName) {
-    activeSnackName = snackName; // 현재 선택된 간식 이름을 전역 변수에 저장
+    activeSnackName = snackName;
     const modal = document.getElementById("snack-detail-modal");
     
-    // 1. 제목 업데이트
+    // 에러 방지: 요소 존재 확인 후 텍스트 삽입
     const titleEl = document.getElementById("detail-snack-name");
     if (titleEl) titleEl.innerText = `🍪 ${snackName}`;
 
-    // 2. 초기화 (별점 및 텍스트)
-    const starInput = document.querySelector('input[name="rating"]:checked');
-    if (starInput) starInput.checked = false;
-    const commentEl = document.getElementById("review-comment");
-    if (commentEl) commentEl.value = "";
+    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+    
+    let scores = [0,0,0,0,0,0];
+    let reviews = [];
+    let totalScore = 0;
+    let totalCount = 0;
 
-    // 3. Supabase에서 데이터 가져와서 통계 계산 (기존 코드 연동)
-    if (_supabase) {
-        const { data: allUsers } = await _supabase.from('users').select('name, ratings');
-        
-        let scores = [0, 0, 0, 0, 0, 0]; // 0~5점 개수
-        let reviews = [];
-        let totalScore = 0;
-        let totalCount = 0;
-
-        if (allUsers) {
-            allUsers.forEach(u => {
-                const r = u.ratings?.[snackName];
-                if (r) {
-                    const s = r.score || 0;
-                    scores[s]++;
-                    totalScore += s;
-                    totalCount++;
-                    if (r.comment) reviews.push({ name: u.name, score: s, comment: r.comment });
-                }
-            });
-        }
-
-        // 4. UI 반영 (평균 점수 및 막대 그래프)
-        const avg = totalCount > 0 ? (totalScore / totalCount).toFixed(1) : "0.0";
-        const avgNum = document.getElementById("avg-num");
-        const totalRev = document.getElementById("total-rev-count");
-        if (avgNum) avgNum.innerText = avg;
-        if (totalRev) totalRev.innerText = totalCount;
-
-        const barContainer = document.getElementById("stat-bars-container");
-        if (barContainer) {
-            barContainer.innerHTML = [5, 4, 3, 2, 1].map(i => {
-                const pct = totalCount > 0 ? (scores[i] / totalCount * 100) : 0;
-                return `
-                    <div class="stat-row">
-                        <span class="stat-label">${i}점</span>
-                        <div class="stat-bar-bg">
-                            <div class="stat-bar-fill" style="width:${pct}%"></div>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        // 5. 유저 리뷰 목록 렌더링
-        const reviewListEl = document.getElementById("detail-user-scores");
-        if (reviewListEl) {
-            reviewListEl.innerHTML = reviews.length > 0 ? reviews.map(r => `
-                <div class="user-review-item">
-                    <b>${r.name}</b> <span style="color:var(--gh-star)">★${r.score}</span><br>
-                    <span style="color:#666">${r.comment}</span>
-                </div>
-            `).join('') : "<p style='color:#999; text-align:center; padding:20px;'>아직 리뷰가 없습니다.</p>";
-        }
+    if (allUsers) {
+        allUsers.forEach(u => {
+            const r = u.ratings?.[snackName];
+            if (r) {
+                const s = r.score || 0;
+                scores[s]++;
+                totalScore += s;
+                totalCount++;
+                if (r.comment) reviews.push({ name: u.name, score: s, comment: r.comment });
+            }
+        });
     }
 
-    // 6. 모달 표시
+    const avg = totalCount > 0 ? (totalScore / totalCount).toFixed(1) : "0.0";
+    
+    // UI 업데이트
+    const avgNum = document.getElementById("avg-num");
+    const totalRev = document.getElementById("total-rev-count");
+    if (avgNum) avgNum.innerText = avg;
+    if (totalRev) totalRev.innerText = totalCount;
+
+    // 막대 그래프 렌더링
+    const barContainer = document.getElementById("stat-bars-container");
+    if (barContainer) {
+        barContainer.innerHTML = [5,4,3,2,1].map(i => {
+            const pct = totalCount > 0 ? (scores[i]/totalCount*100) : 0;
+            return `<div class="stat-row"><span class="stat-label">${i}점</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${pct}%"></div></div></div>`;
+        }).join('');
+    }
+
+    // 리뷰 목록 렌더링
+    const reviewEl = document.getElementById("detail-user-scores");
+    if (reviewEl) {
+        reviewEl.innerHTML = reviews.length > 0 ? reviews.map(r => `
+            <div class="user-review-item"><b>${r.name}</b> (${r.score}점): ${r.comment}</div>
+        `).join('') : "<p style='color:#999; text-align:center;'>첫 리뷰를 남겨보세요!</p>";
+    }
+
     modal.style.display = "flex";
 }
 
