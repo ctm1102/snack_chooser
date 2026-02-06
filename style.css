@@ -1,91 +1,34 @@
 :root {
-  --gh-bg: #FFF8EE;
-  --gh-card-bg: #FFFFFF;
-  --gh-text: #5A3E2B;
-  --gh-primary: #E67E22;
-  --gh-border: #E1D4C1;
-  --gh-star: #F1C40F; /* 별점 색상 변수 추가 */
+  --gh-bg: #FFF8EE; --gh-card-bg: #FFFFFF; --gh-text: #5A3E2B;
+  --gh-primary: #E67E22; --gh-border: #E1D4C1; --gh-star: #F1C40F;
 }
-
 body.dark {
-  --gh-bg: #2B1E16;
-  --gh-card-bg: #3A2A20;
-  --gh-text: #F5E9DC;
-  --gh-border: #4A3528;
-  --gh-star: #FFD700;
+  --gh-bg: #2B1E16; --gh-card-bg: #3A2A20; --gh-text: #F5E9DC; --gh-border: #4A3528;
 }
+body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
 
-/* --- [별점 입력 라디오 버튼 핵심 수정] --- */
-.star-rating {
-    display: flex;
-    flex-direction: row-reverse; /* 별을 오른쪽에서 왼쪽 순서로 배치 (중요) */
-    justify-content: center;
-    gap: 5px;
-    margin: 10px 0;
-}
+/* Layout & Cards */
+.gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+.gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+.gh-main-container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+.gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
 
+/* Buttons & Inputs */
+.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+.gh-btn-submit { width: 100%; padding: 12px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.gh-input { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid var(--gh-border); border-radius: 8px; box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text); }
+
+/* Snack List */
+.gh-snack-list { padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.gh-snack-item { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 10px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+
+/* Star Rating */
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; margin: 10px 0; }
 .star-rating input { display: none; }
+.star-rating label { font-size: 30px; color: #ddd; cursor: pointer; }
+.star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--gh-star); }
 
-.star-rating label { 
-    font-size: 32px; 
-    color: #ddd; 
-    cursor: pointer; 
-    transition: color 0.2s;
-}
-
-/* 체크된 별과 그 앞의 별들을 모두 색칠 */
-.star-rating input:checked ~ label { 
-    color: var(--gh-star) !important; 
-}
-
-/* 마우스 호버 시 색상 변화 */
-.star-rating label:hover,
-.star-rating label:hover ~ label { 
-    color: var(--gh-star) !important; 
-}
-
-/* --- [모달 내 스크롤 및 레이아웃 최적화] --- */
-.gh-modal-box {
-    background: var(--gh-card-bg);
-    width: 90%;
-    max-width: 360px; /* 기존 340px에서 약간 확장 */
-    padding: 20px;
-    border-radius: 16px;
-    position: relative;
-    box-sizing: border-box;
-    height: auto;
-    max-height: 90vh; /* 최대 높이 확보 */
-    overflow-y: auto; /* 내용이 많으면 내부 스크롤 생성 */
-    display: flex;
-    flex-direction: column;
-}
-
-/* AI 분석 박스 스타일 보강 */
-.ai-summary-box {
-    background: rgba(230, 126, 34, 0.1); /* gh-primary 기반 배경 */
-    border-left: 4px solid var(--gh-primary);
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
-
-.ai-badge {
-    background: var(--gh-primary);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
-    display: inline-block;
-    margin-bottom: 5px;
-}
-
-/* --- [반응형 대응] --- */
-@media (max-height: 600px) {
-    .gh-modal-box {
-        padding: 10px 15px;
-    }
-    .star-rating label {
-        font-size: 24px;
-    }
-}
+/* Modal */
+.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+.gh-modal-box { background: var(--gh-card-bg); width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; max-height: 90vh; overflow-y: auto; }
+.review-textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid var(--gh-border); border-radius: 8px; background: var(--gh-bg); color: var(--gh-text); resize: none; }
