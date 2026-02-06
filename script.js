@@ -219,74 +219,188 @@ const snackNames = [
 
 
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
-/* --- 데이터: 실제 이미지 URL을 넣으면 디자인이 완성됩니다 --- */
 let currentUser = null;
 let activeSnackName = null;
+let currentCategory = "all";
+let showFavOnly = false;
 
-/* --- 목록 렌더링 --- */
-function renderSnacks() {
-    const gridEl = document.getElementById("snack-grid");
-    if (!gridEl) return;
-    gridEl.innerHTML = "";
+// Supabase 설정 (URL과 KEY를 본인의 것으로 교체하세요)
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_KEY';
+const _supabase = (window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-    snackNames.forEach(item => {
-        const isFav = currentUser?.favorites.includes(item.name);
-        const card = document.createElement("div");
-        card.className = "gh-snack-card";
-        card.innerHTML = `
-            <img src="${item.img}" class="snack-card-img" onclick="openSnackModal('${item.name}')">
-            <div class="snack-card-info">
-                <span class="snack-card-name">${item.name}</span>
-                <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">
-                    ${isFav ? '🧡' : '🤍'}
-                </button>
-            </div>
-        `;
-        gridEl.appendChild(card);
-    });
-}
-
-/* --- 상세 모달 열기 (전체 화면급 사진) --- */
-function openSnackModal(name) {
-    activeSnackName = name;
-    const snack = snackNames.find(s => s.name === name);
-    const modal = document.getElementById("snack-detail-modal");
-
-    // HTML 구조에 맞춰 이미지와 이름 삽입
-    document.getElementById("detail-snack-img").src = snack.img;
-    document.getElementById("detail-snack-name").innerText = name;
-    
-    modal.style.display = "block"; // 전체 화면 모달 오픈
-    document.body.style.overflow = "hidden"; // 스크롤 방지
-}
-
-function closeSnackModal() {
-    document.getElementById("snack-detail-modal").style.display = "none";
-    document.body.style.overflow = "auto";
-}
-
-/* --- 로그인 유도 알림 --- */
-function confirmLogin() {
+/* --- [2. 핵심 로직: 로그인 유도 및 권한 체크] --- */
+function checkAuth() {
     if (!currentUser) {
-        if (confirm("로그인을 하셔야 사용하실 수 있는 기능입니다.\n로그인 페이지로 이동할까요?")) {
-            closeSnackModal();
-            openModal('login');
+        if (confirm("로그인을 하셔야 사용하실 수 있는 기능입니다.\n로그인하시겠습니까?")) {
+            closeSnackModal(); // 열려있는 모달이 있다면 닫기
+            openModal('login'); // 로그인 모달 열기
         }
         return false;
     }
     return true;
 }
 
+/* --- [3. UI 렌더링 함수] --- */
+
+// 간식 목록 출력
+function renderSnacks() {
+    const listEl = document.getElementById("snack-list");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+
+    const filtered = snackNames.filter(item => {
+        // 알러지 필터링
+        if (currentUser && currentUser.allergies?.some(a => item.allergies.includes(a))) return false;
+        // 즐겨찾기 필터링
+        if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
+        // 카테고리 필터링
+        return currentCategory === "all" || item.cat === currentCategory;
+    });
+
+    filtered.forEach(item => {
+        const isFav = currentUser && currentUser.favorites.includes(item.name);
+        const li = document.createElement("li");
+        li.className = "gh-snack-item";
+        li.innerHTML = `
+            <span onclick="openSnackModal('${item.name}')" style="flex:1;">${item.name}</span>
+            <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')" 
+                    style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:${isFav ? '#F1C40F' : '#ddd'}">
+                ${isFav ? '★' : '☆'}
+            </button>
+        `;
+        listEl.appendChild(li);
+    });
+}
+
+// 알러지 칩 출력
+function renderAllergyChips() {
+    const container = document.getElementById("allergy-list");
+    if (!container) return;
+    container.innerHTML = "";
+
+    allergyTypes.forEach(type => {
+        const isSelected = currentUser?.allergies?.includes(type);
+        const chip = document.createElement("div");
+        chip.className = `gh-chip ${isSelected ? 'active' : ''}`;
+        chip.innerText = type;
+        chip.onclick = () => {
+            if (!currentUser) return;
+            const idx = currentUser.allergies.indexOf(type);
+            if (idx > -1) currentUser.allergies.splice(idx, 1);
+            else currentUser.allergies.push(type);
+            
+            saveUserData();
+            renderAllergyChips();
+            renderSnacks();
+        };
+        container.appendChild(chip);
+    });
+}
+
+/* --- [4. 상세 모달 및 리뷰 기능] --- */
+
+async function openSnackModal(snackName) {
+    activeSnackName = snackName;
+    document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
+    
+    // 초기화
+    document.getElementById("review-comment").value = "";
+    const checkedStar = document.querySelector('input[name="rating"]:checked');
+    if (checkedStar) checkedStar.checked = false;
+
+    // Supabase 데이터 로드 (에러 방지용 null 체크)
+    const { data: allUsers } = _supabase ? await _supabase.from('users').select('name, ratings') : { data: [] };
+    
+    updateStatsUI(allUsers, snackName);
+    document.getElementById("snack-detail-modal").style.display = "flex";
+}
+
+function updateStatsUI(allUsers, snackName) {
+    let scores = [0, 0, 0, 0, 0, 0];
+    let totalScore = 0;
+    let totalCount = 0;
+    let reviewsHTML = "";
+
+    allUsers?.forEach(u => {
+        const r = u.ratings?.[snackName];
+        if (r) {
+            scores[r.score]++;
+            totalScore += r.score;
+            totalCount++;
+            if (r.comment) {
+                reviewsHTML += `<div class="user-review-item"><b>${u.name}</b> <span style="color:#F1C40F">★${r.score}</span><br>${r.comment}</div>`;
+            }
+        }
+    });
+
+    const avg = totalCount > 0 ? (totalScore / totalCount).toFixed(1) : "0.0";
+    document.getElementById("avg-num").innerText = avg;
+    document.getElementById("detail-user-scores").innerHTML = reviewsHTML || "<p style='color:#999; text-align:center;'>첫 리뷰를 남겨보세요!</p>";
+    
+    // 막대 그래프 업데이트
+    const barContainer = document.getElementById("stat-bars-container");
+    if (barContainer) {
+        barContainer.innerHTML = [5, 4, 3, 2, 1].map(i => {
+            const pct = totalCount > 0 ? (scores[i] / totalCount * 100) : 0;
+            return `<div style="display:flex; align-items:center; gap:5px; font-size:12px;">
+                <span>${i}점</span>
+                <div style="flex:1; height:8px; background:#eee; border-radius:4px; overflow:hidden;">
+                    <div style="width:${pct}%; height:100%; background:#FF8A3D;"></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+}
+
+/* --- [5. 주요 액션 함수] --- */
+
 function addFavorite(name) {
-    if (!confirmLogin()) return;
-    // 즐겨찾기 로직...
+    if (!checkAuth()) return;
+    const idx = currentUser.favorites.indexOf(name);
+    if (idx > -1) currentUser.favorites.splice(idx, 1);
+    else currentUser.favorites.push(name);
+    saveUserData();
+    renderSnacks();
 }
 
-function submitRating() {
-    if (!confirmLogin()) return;
-    // 리뷰 등록 로직...
-    alert("리뷰가 소중하게 등록되었습니다! 🍪");
+async function submitRating() {
+    if (!checkAuth()) return;
+    const star = document.querySelector('input[name="rating"]:checked');
+    if (!star) return alert("별점을 선택해주세요!");
+    
+    const comment = document.getElementById("review-comment").value.trim();
+    currentUser.ratings = currentUser.ratings || {};
+    currentUser.ratings[activeSnackName] = { score: parseInt(star.value), comment: comment };
+    
+    await saveUserData();
+    alert("리뷰가 등록되었습니다!");
+    openSnackModal(activeSnackName);
 }
 
-// 초기 실행
-window.onload = renderSnacks;
+// 카테고리 설정
+function setCategory(cat, e) {
+    currentCategory = cat;
+    document.querySelectorAll('.gh-tab-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    renderSnacks();
+}
+
+// 즐겨찾기 토글
+function toggleFavorites() {
+    if (!checkAuth()) return;
+    showFavOnly = !showFavOnly;
+    document.getElementById("fav-toggle-btn").innerText = showFavOnly ? "모든 간식 보기" : "⭐ 즐겨찾기 목록만 보기";
+    renderSnacks();
+}
+
+/* --- [6. 초기화 및 유틸리티] --- */
+
+function closeSnackModal() {
+    document.getElementById("snack-detail-modal").style.display = "none";
+}
+
+// 페이지 로드 시 실행
+window.onload = () => {
+    renderSnacks();
+};
