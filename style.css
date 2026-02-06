@@ -1,118 +1,65 @@
 :root {
-  --gh-bg: #F5F5F7; /* 세련된 그레이 화이트 */
+  --gh-bg: #FFF8EE;
   --gh-card-bg: #FFFFFF;
-  --gh-text: #222222;
-  --gh-primary: #FF8A3D; /* 오렌지 포인트 */
-  --gh-border: #EEEEEE;
-  --gh-star: #FFBB00;
+  --gh-text: #5A3E2B;
+  --gh-primary: #E67E22;
+  --gh-border: #E1D4C1;
+  --gh-star: #F1C40F;
 }
 
-body { 
-  margin: 0; 
-  font-family: 'Pretendard', -apple-system, sans-serif; 
-  background: var(--gh-bg); 
-  color: var(--gh-text); 
-  word-break: keep-all;
+body.dark {
+  --gh-bg: #2B1E16;
+  --gh-card-bg: #3A2A20;
+  --gh-text: #F5E9DC;
+  --gh-border: #4A3528;
 }
 
-/* --- Header --- */
-.gh-header { 
-  background: #fff; 
-  height: 60px; 
-  display: flex; 
-  justify-content: center; 
-  position: sticky; 
-  top: 0; 
-  z-index: 1000; 
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
+
+/* --- Navbar (🍪 로고 고정) --- */
+.gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+.gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+.gh-logo { display: flex; align-items: center; gap: 8px; font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
+
+/* --- Main --- */
+.gh-main-container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+.gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+
+/* --- 리스트형 간식 목록 (복원) --- */
+.gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.gh-snack-item { 
+  list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); 
+  border-radius: 10px; padding: 12px 18px; display: flex; justify-content: space-between; 
+  align-items: center; font-size: 14px; cursor: pointer;
 }
-.gh-nav-inner { width: 100%; max-width: 600px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-
-/* 로고: 🍪 모양 고정 */
-.gh-logo { 
-  font-size: 1.2rem; 
-  font-weight: 800; 
-  color: var(--gh-text); 
-  cursor: pointer; 
-  display: flex; 
-  align-items: center; 
-}
-.logo-emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif; margin-right: 6px; }
-
-/* --- Snack Grid (고급스러운 카드) --- */
-.gh-main-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-.gh-snack-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.gh-snack-card {
-  background: #fff;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-  transition: transform 0.2s;
-}
-.gh-snack-card:active { transform: scale(0.96); }
-
-.snack-card-img {
-  width: 100%;
-  aspect-ratio: 1 / 0.8;
-  object-fit: cover;
-}
-
-.snack-card-info { padding: 12px; position: relative; }
-.snack-card-name { font-weight: 700; font-size: 15px; display: block; margin-bottom: 4px; }
-.gh-fav-star { position: absolute; top: -15px; right: 10px; background: #fff; border-radius: 50%; width: 30px; height: 30px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-
-/* --- Full Screen Modal (사진 강조) --- */
-.gh-modal { 
-  display: none; 
-  position: fixed; 
-  top: 0; left: 0; 
-  width: 100%; height: 100%; 
-  background: #fff; /* 전체 화면 화이트 */
-  z-index: 2000; 
-  overflow-y: auto;
-}
-
-.snack-hero-container {
-  width: 100%;
-  height: 60vh; /* 화면의 60%를 사진으로 채움 */
-  position: relative;
-}
-.snack-hero-img { width: 100%; height: 100%; object-fit: cover; }
-
-.modal-back-btn {
-  position: absolute;
-  top: 20px; left: 20px;
-  width: 40px; height: 40px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 20px; border: none;
-}
-
-.modal-content-body {
-  padding: 30px 24px;
-  background: #fff;
-  border-radius: 30px 30px 0 0;
-  margin-top: -30px;
-  position: relative;
-}
+.gh-fav-star { background: none; border: none; font-size: 20px; cursor: pointer; color: #ddd; }
+.gh-fav-star.on { color: var(--gh-star); }
 
 /* --- 등록하기 버튼 (강조) --- */
 .gh-btn-submit {
-  width: 100%;
-  padding: 18px;
-  background: #222; /* 블랙 버튼으로 세련되게 */
-  color: #fff;
-  border: none;
-  border-radius: 16px;
-  font-size: 17px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #E67E22, #D35400);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+/* --- 입력창 (복원) --- */
+.gh-input {
+    width: 100%; padding: 14px; margin-bottom: 12px;
+    border: 1px solid var(--gh-border); border-radius: 8px;
+    box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text);
+}
+
+/* --- 상세 모달 내 사진 (전체 화면급) --- */
+.snack-hero-img {
+    width: calc(100% + 40px);
+    height: 250px;
+    margin: -20px -20px 20px -20px;
+    object-fit: cover;
 }
