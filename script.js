@@ -298,7 +298,7 @@ async function handleSignup() {
     const pw = document.getElementById("signup-pw").value.trim();
     if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
     
-    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
+    const { data: existing } = _supabase ? await _supabase.from('users').select('name').eq('name', name).maybeSingle() : { data: null };
     if (existing) return alert("이미 등록된 이름입니다.");
     
     const hashedPw = await hashPassword(pw);
