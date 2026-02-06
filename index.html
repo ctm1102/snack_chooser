@@ -11,7 +11,7 @@
 
   <header class="gh-header">
     <div class="gh-nav-inner">
-      <div class="gh-logo" onclick="location.reload()"><span class="logo-emoji">🍪</span> Snack Chooser</div>
+      <div class="gh-logo" onclick="location.reload()">🍪 Snack Chooser</div>
       <div id="auth-menu" class="gh-auth-zone">
         <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
         <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
@@ -50,25 +50,6 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <div id="auth-modal" class="gh-modal">
-    <div class="gh-modal-box">
-      <div class="gh-modal-head">
-        <h2 id="modal-title">로그인</h2>
-        <span class="gh-modal-close" onclick="closeModal()">&times;</span>
-      </div>
-      <div id="login-form" class="gh-form">
-        <input type="text" id="login-name" class="gh-input" placeholder="성함">
-        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
-        <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-      </div>
-      <div id="signup-form" class="gh-form" style="display:none;">
-        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
-        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
-      </div>
-    </div>
-  </div>
-
   <div id="snack-detail-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -76,10 +57,6 @@
         <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
       </div>
       <div class="gh-modal-body">
-        <div class="snack-hero-container">
-          <img id="detail-snack-img" src="" alt="간식 사진">
-        </div>
-
         <div class="coupon-stats-card">
           <div class="stats-left">
             <span id="avg-num">0.0</span>
@@ -88,7 +65,7 @@
           <div class="stats-right" id="stat-bars-container"></div>
         </div>
 
-        <div class="detail-section rating-zone">
+        <div class="detail-section">
           <label class="gh-label">⭐ 내 상품평 남기기</label>
           <div class="star-rating">
             <input type="radio" id="rate5" name="rating" value="5"><label for="rate5">★</label>
