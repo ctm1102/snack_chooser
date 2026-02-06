@@ -405,7 +405,7 @@ async function openSnackModal(snackName) {
     document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
 
     // 1. 데이터 가져오기
-    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+   const { data: allUsers } = _supabase ? await _supabase.from('users').select('name, ratings') : { data: [] };
     
     let scores = [];
     let comments = [];
