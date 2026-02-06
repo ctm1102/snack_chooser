@@ -9,49 +9,42 @@
 
 body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
 
-/* --- Header & Logo --- */
+/* --- Navbar --- */
 .gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
 .gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
-.gh-logo { font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.gh-logo { font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
 
-/* --- Snack List (원래 리스트형 복구) --- */
+/* --- Snack List (텍스트 중심 리스트) --- */
 .gh-main-container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
 .gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .gh-snack-item { 
   list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); 
-  border-radius: 10px; padding: 12px 18px; display: flex; justify-content: space-between; 
-  align-items: center; cursor: pointer;
+  border-radius: 10px; padding: 14px 20px; display: flex; justify-content: space-between; 
+  align-items: center; cursor: pointer; transition: 0.2s;
 }
+.gh-snack-item:hover { border-color: var(--gh-primary); }
 
-/* --- 사진 강조 (상세 모달) --- */
-.snack-hero-container {
-  width: calc(100% + 40px);
-  margin: -20px -20px 20px -20px;
-  height: 250px;
-}
-.snack-hero-container img { width: 100%; height: 100%; object-fit: cover; }
-
-/* --- 등록하기 버튼 (강렬하게) --- */
+/* --- 등록하기 버튼 --- */
 .gh-btn-submit {
   width: 100%; padding: 15px;
   background: linear-gradient(135deg, #FF8A3D, #E67E22);
   color: white; border: none; border-radius: 10px;
   font-size: 16px; font-weight: 800; cursor: pointer;
-  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3); margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.2); margin-top: 10px;
 }
 
 /* --- Allergy Chips --- */
 .gh-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.gh-chip { padding: 8px 14px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 13px; cursor: pointer; background: var(--gh-bg); transition: 0.2s; }
+.gh-chip { padding: 8px 14px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 13px; cursor: pointer; background: var(--gh-bg); }
 .gh-chip.active { background: #E74C3C; color: white; border-color: #E74C3C; }
 
-/* --- 기타 UI (기존 유지) --- */
+/* --- Modal --- */
 .gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; padding: 20px; box-sizing: border-box; }
-.gh-modal-box { background: var(--gh-card-bg); width: 100%; max-width: 400px; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.gh-modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-.gh-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--gh-border); border-radius: 8px; box-sizing: border-box; }
-.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; font-size: 30px; }
+.gh-modal-box { background: var(--gh-card-bg); width: 100%; max-width: 400px; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.gh-modal-head { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gh-border); }
+.gh-modal-body { padding: 20px; overflow-y: auto; }
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; font-size: 30px; margin: 10px 0; }
 .star-rating input { display: none; }
 .star-rating label { color: #ddd; cursor: pointer; }
 .star-rating :checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--gh-star); }
-.review-textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid var(--gh-border); border-radius: 8px; resize: none; box-sizing: border-box; }
+.review-textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid var(--gh-border); border-radius: 8px; resize: none; box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text); }
