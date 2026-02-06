@@ -252,7 +252,8 @@ function closeModal() { document.getElementById("auth-modal").style.display = "n
 function closeSnackModal() { document.getElementById("snack-detail-modal").style.display = "none"; }
 
 /* --- [3. UI 업데이트 및 렌더링] --- */
-function updateUI() {
+/* --- [4. 회원 시스템] --- */
+async function updateUI() {
     if (currentUser) {
         document.getElementById("auth-menu").style.display = "none";
         document.getElementById("user-menu").style.display = "flex";
@@ -275,7 +276,9 @@ function renderSnacks() {
     listEl.innerHTML = "";
 
     const filtered = snackNames.filter(item => {
+        // 알러지 필터링 (currentUser가 있을 때만 작동)
         if (currentUser && currentUser.allergies.some(a => item.allergies.includes(a))) return false;
+        // 즐겨찾기 필터링
         if (showFavOnly) return currentUser && currentUser.favorites.includes(item.name);
         return currentCategory === "all" || item.cat === currentCategory;
     });
@@ -292,45 +295,78 @@ function renderSnacks() {
     });
 }
 
-/* --- [4. 회원 시스템] --- */
 async function handleSignup() {
     const name = document.getElementById("signup-name").value.trim();
     const pw = document.getElementById("signup-pw").value.trim();
     if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
     
-    const { data: existing } = _supabase ? await _supabase.from('users').select('name').eq('name', name).maybeSingle() : { data: null };
+    // Supabase 중복 체크
+    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
     if (existing) return alert("이미 등록된 이름입니다.");
     
     const hashedPw = await hashPassword(pw);
-    currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [], ratings: {} };
-    await saveUserData();
-    closeModal();
-    updateUI();
+    
+    // 유저 객체 생성
+    currentUser = { 
+        name, 
+        pw: hashedPw, 
+        loginCount: 1, 
+        favorites: [], 
+        allergies: [], 
+        ratings: {} 
+    };
+
+    // Supabase에 직접 저장
+    const { error } = await _supabase.from('users').insert([currentUser]);
+    
+    if (error) {
+        alert("가입 실패: " + error.message);
+    } else {
+        closeModal();
+        updateUI();
+    }
 }
 
 async function handleLogin() {
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
+    
+    // Supabase에서 유저 정보 조회
     const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
     
     if (!userData || error) return alert("사용자 정보가 없습니다.");
+    
     const hashedPw = await hashPassword(pw);
     if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
     
+    // 로그인 카운트 증가 및 데이터 업데이트
     userData.loginCount++;
     currentUser = userData;
-    await saveUserData();
+    
+    await saveUserData(); // DB 동기화
     closeModal();
     updateUI();
 }
 
 async function saveUserData() { 
     if (!currentUser || !_supabase) return;
-    await _supabase.from('users').upsert(currentUser);
-    localStorage.setItem("currentSnackSession", currentUser.name); 
+    
+    // name을 기준으로 기존 데이터 덮어쓰기 (upsert)
+    const { error } = await _supabase
+        .from('users')
+        .upsert(currentUser, { onConflict: 'name' });
+        
+    if (error) {
+        console.error("데이터 저장 에러:", error.message);
+    } else {
+        localStorage.setItem("currentSnackSession", currentUser.name); 
+    }
 }
 
-function logout() { localStorage.removeItem("currentSnackSession"); location.reload(); }
+function logout() { 
+    localStorage.removeItem("currentSnackSession"); 
+    location.reload(); 
+}
 
 /* --- [5. 기능 함수] --- */
 function addFavorite(name) {
@@ -343,42 +379,22 @@ function addFavorite(name) {
     const idx = currentUser.favorites.indexOf(name);
     if (idx > -1) currentUser.favorites.splice(idx, 1);
     else currentUser.favorites.push(name);
-    saveUserData();
+    
+    saveUserData(); // DB에 즉시 반영
     renderSnacks();
-}
-
-function setCategory(cat, e) { 
-    currentCategory = cat; 
-    document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-    if(e && e.target) e.target.classList.add('active');
-    renderSnacks(); 
-}
-
-function toggleFavorites() {
-    if (!currentUser) {
-        if (confirm("즐겨찾기 목록을 보려면 로그인이 필요합니다.\n로그인하시겠습니까?")) {
-            openModal('login');
-        }
-        return;
-    }
-    showFavOnly = !showFavOnly;
-    const btn = document.getElementById("fav-toggle-btn");
-    if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
-    renderSnacks();
-}
-
-function pickRandom() {
-    const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
-    if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
-    const picked = items[Math.floor(Math.random() * items.length)].innerText;
-    document.getElementById("result").innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
 }
 
 function updateAllergy(el) {
     if (!currentUser) return;
-    if (el.checked) currentUser.allergies.push(el.value);
-    else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
-    saveUserData();
+    if (el.checked) {
+        if (!currentUser.allergies.includes(el.value)) {
+            currentUser.allergies.push(el.value);
+        }
+    } else {
+        currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+    }
+    
+    saveUserData(); // DB에 즉시 반영
     renderSnacks();
     renderAllergyList();
 }
@@ -387,6 +403,8 @@ function renderAllergyList() {
     const container = document.getElementById("allergy-list");
     if (!container || !currentUser) return;
     container.innerHTML = "";
+    
+    // global 변수인 allergyTypes 사용 가정
     allergyTypes.forEach(type => {
         const isChecked = currentUser.allergies.includes(type);
         const label = document.createElement("label");
@@ -396,21 +414,30 @@ function renderAllergyList() {
     });
 }
 
-// 스낵 상세 모달 (리뷰 기능 포함)
+/* --- [5. 기능 함수 (리뷰/별점 포함)] --- */
+
 // 별점과 AI 요약을 포함한 상세 모달 열기
 async function openSnackModal(snackName) {
     activeSnackName = snackName;
     const modal = document.getElementById("snack-detail-modal");
     const container = document.getElementById("detail-user-scores");
+    if (!modal || !container) return;
+
     document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
 
-    // 1. 데이터 가져오기
-   const { data: allUsers } = _supabase ? await _supabase.from('users').select('name, ratings') : { data: [] };
+    // 1. Supabase에서 모든 유저의 리뷰 데이터 가져오기
+    const { data: allUsers, error } = _supabase 
+        ? await _supabase.from('users').select('name, ratings') 
+        : { data: [], error: null };
     
+    if (error) console.error("리뷰 로드 실패:", error.message);
+
     let scores = [];
     let comments = [];
+
     if (allUsers) {
         allUsers.forEach(u => {
+            // ratings 컬럼(jsonb) 내에서 해당 스낵 이름으로 저장된 데이터 추출
             const r = u.ratings?.[snackName];
             if (r) {
                 scores.push(typeof r === 'object' ? r.score : r);
@@ -419,9 +446,11 @@ async function openSnackModal(snackName) {
         });
     }
 
-    const avg = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : "0.0";
+    const avg = scores.length > 0 
+        ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) 
+        : "0.0";
 
-    // 2. AI 요약 생성 로직 (리뷰 기반)
+    // 2. AI 요약 생성 로직
     let aiSummary = "아직 리뷰가 부족하여 AI가 분석 중입니다.";
     if (comments.length >= 2) {
         aiSummary = `이 간식은 대체로 <b>"${comments[0]}"</b>라는 의견과 <b>"${comments[1]}"</b>라는 평가가 많습니다. 평균 별점 ${avg}점으로 인기가 좋습니다!`;
@@ -441,7 +470,7 @@ async function openSnackModal(snackName) {
             <small>${scores.length}명의 평가</small>
         </div>
 
-        <div class="rating-input-section" style="background:#eee; padding:15px; border-radius:10px;">
+        <div class="rating-input-section" style="background:var(--bg-card); padding:15px; border-radius:10px;">
             <p style="margin:0 0 10px 0; font-weight:bold; text-align:center;">나의 별점 남기기</p>
             <div class="star-rating">
                 <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
@@ -456,16 +485,32 @@ async function openSnackModal(snackName) {
     `;
     modal.style.display = "flex";
 }
+
 async function submitRating() {
-    if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
+    if (!currentUser) { 
+        alert("로그인이 필요합니다."); 
+        openModal('login'); 
+        return; 
+    }
     const selectedStar = document.querySelector('input[name="rating"]:checked');
     const comment = document.getElementById("review-comment").value.trim();
+    
     if (!selectedStar) return alert("별점을 선택해주세요!");
+
+    // currentUser 객체 구조 유지하며 업데이트
     if (!currentUser.ratings) currentUser.ratings = {};
-    currentUser.ratings[activeSnackName] = { score: parseInt(selectedStar.value), comment: comment, date: new Date().toISOString() };
+    
+    currentUser.ratings[activeSnackName] = { 
+        score: parseInt(selectedStar.value), 
+        comment: comment, 
+        date: new Date().toISOString() 
+    };
+
+    // DB에 저장 (이전에 만든 saveUserData 활용)
     await saveUserData();
+    
     alert("리뷰가 등록되었습니다!");
-    openSnackModal(activeSnackName);
+    openSnackModal(activeSnackName); // 모달 내용 갱신
 }
 
 function toggleTheme() { 
@@ -475,17 +520,36 @@ function toggleTheme() {
 
 /* --- [6. 초기 실행 및 이벤트] --- */
 window.onload = async () => {
+    // 1. 테마 로드
     if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
+    
+    // 2. 초기 간식 목록 렌더링
     renderSnacks();
 
-    const last = localStorage.getItem("currentSnackSession");
-    if (last && _supabase) {
-        const { data } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
-        if (data) { currentUser = data; updateUI(); }
+    // 3. Supabase 세션 자동 복구 (자동 로그인)
+    const lastSession = localStorage.getItem("currentSnackSession");
+    if (lastSession && _supabase) {
+        const { data, error } = await _supabase
+            .from('users')
+            .select('*')
+            .eq('name', lastSession)
+            .maybeSingle();
+            
+        if (data && !error) { 
+            currentUser = data; 
+            updateUI(); 
+        } else {
+            // 정보가 없거나 에러 시 세션 삭제
+            localStorage.removeItem("currentSnackSession");
+        }
     }
 }
 
+// 모달 바깥 클릭 시 닫기
 window.onclick = function(event) {
-    if (event.target == document.getElementById("auth-modal")) closeModal();
-    if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
+    const authModal = document.getElementById("auth-modal");
+    const detailModal = document.getElementById("snack-detail-modal");
+    
+    if (event.target == authModal) closeModal();
+    if (event.target == detailModal) closeSnackModal();
 }
