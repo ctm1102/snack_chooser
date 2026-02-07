@@ -21,12 +21,100 @@
         <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
         <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
       </div>
+      
       <div id="user-menu" class="gh-auth-zone" style="display: none;">
         <span id="header-user-name" class="gh-user-name"></span>
         <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
       </div>
     </div>
   </header>
+
+  <main class="gh-main-container">
+    <section id="user-section" class="gh-card" style="display:none;">
+      <h3 class="gh-card-title">My Preferences</h3>
+      <p id="welcome-msg" class="gh-welcome-txt"></p>
+      <div class="gh-allergy-group">
+        <label class="gh-label">🚫 제외할 알러지 (자동 저장됨)</label>
+        <div id="allergy-list" class="gh-chips"></div>
+      </div>
+      <div class="gh-card-actions">
+        <button onclick="toggleTheme()" class="gh-btn-text">🎨 테마 변경</button>
+      </div>
+    </section>
+
+    <div class="gh-hero-section">
+      <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
+      <div class="gh-hero-sub">
+        <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
+      </div>
+    </div>
+
+    <nav class="gh-tabs">
+      <div class="gh-tab-list">
+        <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
+        <button onclick="setCategory('snack', event)" class="gh-tab-btn">과자</button>
+        <button onclick="setCategory('icecream', event)" class="gh-tab-btn">아이스크림</button>
+        <button onclick="setCategory('tradition', event)" class="gh-tab-btn">전통</button>
+        <button onclick="setCategory('candy', event)" class="gh-tab-btn">사탕&젤리</button>
+        <button onclick="setCategory('drink', event)" class="gh-tab-btn">음료</button>
+      </div>
+    </nav>
+
+    <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
+    <ul id="snack-list" class="gh-snack-list"></ul>
+  </main>
+
+  <div id="auth-modal" class="gh-modal">
+    <div class="gh-modal-box">
+      <div class="gh-modal-head">
+        <h2 id="modal-title">로그인</h2>
+        <span class="gh-modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div id="login-form" class="gh-form">
+        <input type="text" id="login-name" class="gh-input" placeholder="성함">
+        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
+        <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
+        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" style="color:var(--gh-primary); cursor:pointer;">회원가입</span></p>
+      </div>
+      <div id="signup-form" class="gh-form" style="display:none;">
+        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
+        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
+        <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="snack-detail-modal" class="gh-modal">
+    <div class="gh-modal-box full-sheet">
+      <div class="gh-modal-head">
+        <h2 id="detail-snack-name" class="emoji-font">간식 이름</h2>
+        <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
+      </div>
+      <div class="gh-modal-body">
+        <div id="coupang-stats-card" class="coupon-stats-card">
+           <div class="stats-left">
+             <span id="avg-num">0.0</span>
+             <div class="stars-display">★★★★★</div>
+             <div class="total-count">리뷰 <span id="total-rev-count">0</span>건</div>
+           </div>
+           <div class="stats-right" id="stat-bars-container"></div>
+        </div>
+        <div class="detail-section rating-zone">
+          <label class="gh-label">⭐ 내 상품평 남기기</label>
+          <div class="star-rating">
+            <input type="radio" id="rate5" name="rating" value="5" /><label for="rate5">★</label>
+            <input type="radio" id="rate4" name="rating" value="4" /><label for="rate4">★</label>
+            <input type="radio" id="rate3" name="rating" value="3" /><label for="rate3">★</label>
+            <input type="radio" id="rate2" name="rating" value="2" /><label for="rate2">★</label>
+            <input type="radio" id="rate1" name="rating" value="1" /><label for="rate1">★</label>
+          </div>
+          <textarea id="review-comment" class="review-textarea" placeholder="솔직한 후기를 남겨주세요."></textarea>
+          <button class="gh-btn-submit" onclick="submitRating()">등록하기</button>
+        </div>
+        <div id="detail-user-scores" class="gh-score-list"></div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
