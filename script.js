@@ -224,11 +224,12 @@ let currentUser = null;
 let activeSnackName = null;
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
-// Supabase 설정
-const SUPABASE_URL = 'SET_URL'; 
-const SUPABASE_KEY = 'SET_KEY';
+// [중요] 반드시 본인의 Supabase 프로젝트 주소와 키로 바꿔주세요!
+const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co'; 
+const SUPABASE_KEY = 'YOUR_ANON_KEY';
 
-const _supabase = (window.supabase) 
+// Supabase 초기화 (에러 방지 로직 포함)
+const _supabase = (typeof window.supabase !== 'undefined') 
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
     : null;
 
@@ -238,6 +239,15 @@ async function hashPassword(password) {
     const data = encoder.encode(password);
     const hash = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Supabase 연결 상태를 체크하는 헬퍼 함수
+function isDbReady() {
+    if (!_supabase) {
+        alert("Supabase 설정이 올바르지 않습니다. URL과 KEY를 확인해주세요.");
+        return false;
+    }
+    return true;
 }
 
 function openModal(type) {
@@ -257,13 +267,15 @@ function updateUI() {
         document.getElementById("auth-menu").style.display = "none";
         document.getElementById("user-menu").style.display = "flex";
         document.getElementById("header-user-name").innerText = `👤 ${currentUser.name}님`;
-        document.getElementById("user-section").style.display = "block";
+        const userSection = document.getElementById("user-section");
+        if (userSection) userSection.style.display = "block";
         
         let welcomeText = (currentUser.loginCount <= 1) ? "첫 이용 환영합니다!" : 
                          (currentUser.loginCount === 2) ? "또 오셨네요! 반갑습니다!" : 
                          `간식 뽑기 단골 ${currentUser.name}님 반가워요!`;
 
-        document.getElementById("welcome-msg").innerText = `${currentUser.name}님, ${welcomeText}`;
+        const welcomeMsg = document.getElementById("welcome-msg");
+        if (welcomeMsg) welcomeMsg.innerText = `${currentUser.name}님, ${welcomeText}`;
         renderAllergyList();
     }
     renderSnacks();
@@ -285,7 +297,7 @@ function renderSnacks() {
         const li = document.createElement("li");
         li.className = "gh-snack-item";
         li.innerHTML = `
-            <span class="snack-name-clickable" onclick="openSnackModal('${item.name}')" style="font-weight:700; cursor:pointer;">${item.name}</span>
+            <span class="snack-name-clickable" onclick="openSnackModal('${item.name}')" style="font-weight:700; cursor:pointer; flex:1;">${item.name}</span>
             <button class="gh-fav-star ${isFav ? 'on' : ''}" onclick="addFavorite('${item.name}')">${isFav ? '⭐' : '☆'}</button>
         `;
         listEl.appendChild(li);
@@ -294,23 +306,30 @@ function renderSnacks() {
 
 /* --- [4. 회원 시스템] --- */
 async function handleSignup() {
+    if (!isDbReady()) return; // 연결 체크
+
     const name = document.getElementById("signup-name").value.trim();
     const pw = document.getElementById("signup-pw").value.trim();
     if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
     
-    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
+    // maybeSingle() 사용 시 에러 체크
+    const { data: existing, error: checkError } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
     if (existing) return alert("이미 등록된 이름입니다.");
     
     const hashedPw = await hashPassword(pw);
     currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [], ratings: {} };
+    
     await saveUserData();
     closeModal();
     updateUI();
 }
 
 async function handleLogin() {
+    if (!isDbReady()) return;
+
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
+    
     const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
     
     if (!userData || error) return alert("사용자 정보가 없습니다.");
@@ -325,9 +344,15 @@ async function handleLogin() {
 }
 
 async function saveUserData() { 
-    if (!currentUser || !_supabase) return;
-    await _supabase.from('users').upsert(currentUser);
-    localStorage.setItem("currentSnackSession", currentUser.name); 
+    if (!currentUser || !isDbReady()) return;
+    
+    // DB 저장
+    const { error } = await _supabase.from('users').upsert(currentUser);
+    if (error) {
+        console.error("데이터 저장 실패:", error);
+    } else {
+        localStorage.setItem("currentSnackSession", currentUser.name); 
+    }
 }
 
 function logout() { localStorage.removeItem("currentSnackSession"); location.reload(); }
@@ -368,16 +393,19 @@ function toggleFavorites() {
 }
 
 function pickRandom() {
-    const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
-    if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
-    const picked = items[Math.floor(Math.random() * items.length)].innerText;
+    const listItems = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
+    if (!listItems.length) return alert("조건에 맞는 간식이 없습니다.");
+    const picked = listItems[Math.floor(Math.random() * listItems.length)].innerText;
     document.getElementById("result").innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
 }
 
 function updateAllergy(el) {
     if (!currentUser) return;
-    if (el.checked) currentUser.allergies.push(el.value);
-    else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+    if (el.checked) {
+        if (!currentUser.allergies.includes(el.value)) currentUser.allergies.push(el.value);
+    } else {
+        currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
+    }
     saveUserData();
     renderSnacks();
     renderAllergyList();
@@ -396,16 +424,17 @@ function renderAllergyList() {
     });
 }
 
-// 스낵 상세 모달 (리뷰 기능 포함)
-// 별점과 AI 요약을 포함한 상세 모달 열기
+// 스낵 상세 모달
 async function openSnackModal(snackName) {
+    if (!isDbReady()) return; // DB 연결 체크
+    
     activeSnackName = snackName;
     const modal = document.getElementById("snack-detail-modal");
     const container = document.getElementById("detail-user-scores");
     document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
 
     // 1. 데이터 가져오기
-    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+    const { data: allUsers, error } = await _supabase.from('users').select('name, ratings');
     
     let scores = [];
     let comments = [];
@@ -413,7 +442,8 @@ async function openSnackModal(snackName) {
         allUsers.forEach(u => {
             const r = u.ratings?.[snackName];
             if (r) {
-                scores.push(typeof r === 'object' ? r.score : r);
+                const s = typeof r === 'object' ? r.score : r;
+                scores.push(parseInt(s));
                 if (r.comment) comments.push(r.comment);
             }
         });
@@ -421,7 +451,7 @@ async function openSnackModal(snackName) {
 
     const avg = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : "0.0";
 
-    // 2. AI 요약 생성 로직 (리뷰 기반)
+    // 2. AI 요약 생성 로직
     let aiSummary = "아직 리뷰가 부족하여 AI가 분석 중입니다.";
     if (comments.length >= 2) {
         aiSummary = `이 간식은 대체로 <b>"${comments[0]}"</b>라는 의견과 <b>"${comments[1]}"</b>라는 평가가 많습니다. 평균 별점 ${avg}점으로 인기가 좋습니다!`;
@@ -431,9 +461,9 @@ async function openSnackModal(snackName) {
 
     // 3. UI 렌더링
     container.innerHTML = `
-        <div class="ai-summary-box">
-            <span class="ai-badge">AI 분석</span>
-            <p id="ai-text" style="margin: 10px 0 0 0; font-size: 14px; line-height: 1.5;">${aiSummary}</p>
+        <div class="ai-summary-box" style="background:#f0f7ff; padding:15px; border-radius:10px; margin-bottom:15px;">
+            <span style="background:#007bff; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px;">AI 분석</span>
+            <p style="margin: 10px 0 0 0; font-size: 14px; line-height: 1.5;">${aiSummary}</p>
         </div>
 
         <div style="text-align:center; margin: 20px 0;">
@@ -441,28 +471,36 @@ async function openSnackModal(snackName) {
             <small>${scores.length}명의 평가</small>
         </div>
 
-        <div class="rating-input-section" style="background:#eee; padding:15px; border-radius:10px;">
+        <div class="rating-input-section" style="background:#f9f9f9; padding:15px; border-radius:10px;">
             <p style="margin:0 0 10px 0; font-weight:bold; text-align:center;">나의 별점 남기기</p>
-            <div class="star-rating">
-                <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
-                <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
-                <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
-                <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
-                <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
+            <div class="star-rating" style="display:flex; flex-direction:row-reverse; justify-content:center; gap:5px; font-size:25px;">
+                <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars" style="cursor:pointer;">★</label>
+                <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars" style="cursor:pointer;">★</label>
+                <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars" style="cursor:pointer;">★</label>
+                <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars" style="cursor:pointer;">★</label>
+                <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star" style="cursor:pointer;">★</label>
             </div>
-            <textarea id="review-comment" class="gh-input" placeholder="AI에게 들려줄 맛 평가를 써주세요." style="width:100%; margin-top:10px;"></textarea>
-            <button onclick="submitRating()" class="gh-btn" style="width:100%; margin-top:10px; background:#ff6b00;">평가 등록</button>
+            <textarea id="review-comment" class="gh-input" placeholder="AI에게 들려줄 맛 평가를 써주세요." style="width:100%; margin-top:10px; padding:10px; box-sizing:border-box;"></textarea>
+            <button onclick="submitRating()" class="gh-btn" style="width:100%; margin-top:10px; background:#ff6b00; color:#fff; border:none; padding:10px; border-radius:5px; cursor:pointer;">평가 등록</button>
         </div>
     `;
     modal.style.display = "flex";
 }
+
 async function submitRating() {
     if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
     const selectedStar = document.querySelector('input[name="rating"]:checked');
     const comment = document.getElementById("review-comment").value.trim();
+    
     if (!selectedStar) return alert("별점을 선택해주세요!");
     if (!currentUser.ratings) currentUser.ratings = {};
-    currentUser.ratings[activeSnackName] = { score: parseInt(selectedStar.value), comment: comment, date: new Date().toISOString() };
+    
+    currentUser.ratings[activeSnackName] = { 
+        score: parseInt(selectedStar.value), 
+        comment: comment, 
+        date: new Date().toISOString() 
+    };
+    
     await saveUserData();
     alert("리뷰가 등록되었습니다!");
     openSnackModal(activeSnackName);
@@ -479,13 +517,19 @@ window.onload = async () => {
     renderSnacks();
 
     const last = localStorage.getItem("currentSnackSession");
-    if (last && _supabase) {
-        const { data } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
-        if (data) { currentUser = data; updateUI(); }
+    if (last && isDbReady()) {
+        const { data, error } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
+        if (data && !error) { 
+            currentUser = data; 
+            updateUI(); 
+        }
     }
 }
 
+// 외부 클릭 시 모달 닫기
 window.onclick = function(event) {
-    if (event.target == document.getElementById("auth-modal")) closeModal();
-    if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
+    const authModal = document.getElementById("auth-modal");
+    const detailModal = document.getElementById("snack-detail-modal");
+    if (event.target == authModal) closeModal();
+    if (event.target == detailModal) closeSnackModal();
 }
