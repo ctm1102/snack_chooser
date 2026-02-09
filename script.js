@@ -1,81 +1,59 @@
-// script.js
+// script.js - Supabase integration with environment variables
 
-const { createClient } = require('@supabase/supabase-js');
-
-// Initialize Supabase client with environment variables
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Function to fetch data from Supabase
-async function fetchData() {
+async function handleSignup(email, password) {
     try {
-        const { data, error } = await supabase
-            .from('your_table_name')
-            .select('*');
-
+        const { user, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-
-        if (data.length === 0) {
-            console.log('No data found');
-        } else {
-            console.log('Data fetched:', data);
-        }
+        console.log('Signup successful:', user);
     } catch (error) {
-        console.error('Error fetching data:', error.message);
+        console.error('Error during signup:', error.message);
+        alert('Signup failed: ' + error.message);
     }
 }
 
-// Function to insert data into Supabase
-async function insertData(newData) {
+async function handleLogin(email, password) {
     try {
-        const { data, error } = await supabase
-            .from('your_table_name')
-            .insert([newData]);
-
+        const { user, error } = await supabase.auth.signIn({ email, password });
         if (error) throw error;
-
-        console.log('Data inserted:', data);
+        console.log('Login successful:', user);
     } catch (error) {
-        console.error('Error inserting data:', error.message);
+        console.error('Error during login:', error.message);
+        alert('Login failed: ' + error.message);
     }
 }
 
-// Function to update data in Supabase
-async function updateData(id, updatedData) {
+async function saveUserData(data) {
     try {
-        const { data, error } = await supabase
-            .from('your_table_name')
-            .update(updatedData)
-            .eq('id', id);
-
+        const { error } = await supabase.from('users').insert([data]);
         if (error) throw error;
-
-        console.log('Data updated:', data);
+        console.log('User data saved successfully.');
     } catch (error) {
-        console.error('Error updating data:', error.message);
+        console.error('Error saving user data:', error.message);
+        alert('Failed to save user data: ' + error.message);
     }
 }
 
-// Function to delete data from Supabase
-async function deleteData(id) {
+function openSnackModal(snacks) {
     try {
-        const { data, error } = await supabase
-            .from('your_table_name')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
-
-        console.log('Data deleted:', data);
+        // Code to open modal and display snacks
+        console.log('Snack modal opened with snacks:', snacks);
     } catch (error) {
-        console.error('Error deleting data:', error.message);
+        console.error('Error opening snack modal:', error.message);
+        alert('Failed to open snack modal: ' + error.message);
     }
 }
 
-// User feedback messages and function calls can be added as needed
-// Example usage:
-// fetchData();
-// insertData({ name: 'John Doe' });
-// updateData(1, { name: 'Jane Doe' });
-// deleteData(1);
+async function submitRating(snackId, rating) {
+    try {
+        const { error } = await supabase.from('ratings').insert([{ snack_id: snackId, rating }]);
+        if (error) throw error;
+        console.log('Rating submitted successfully for snack:', snackId);
+    } catch (error) {
+        console.error('Error submitting rating:', error.message);
+        alert('Failed to submit rating: ' + error.message);
+    }
+}
