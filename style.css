@@ -9,9 +9,10 @@
   --gh-danger: #E74C3C;      /* 알러지 경고색 */
 }
 
-/* 긱블 말랑말랑 폰트 강제 적용 */
+/* 긱블 말랑이체(Malang) 강제 적용 */
 * {
-  font-family: 'Hancom MalangMalrang', sans-serif !important;
+  /* 폰트 배포 사이트 명칭인 'Malang'으로 설정 */
+  font-family: 'Malang', sans-serif !important;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
