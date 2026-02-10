@@ -5,7 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Snack Chooser</title>
+  
+  <!-- 1. 말랑폰트 CSS 불러오기 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* 2. 폰트를 전역에 강제 적용 (style.css보다 우선순위 확보) */
+    @font-face {
+        font-family: 'HancomMalrangmalrang';
+        src: url('https://cdn.jsdelivr.net') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+    }
+    
+    body, input, button, textarea, select {
+        font-family: 'HancomMalrangmalrang', -apple-system, sans-serif !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -24,7 +41,6 @@
   </header>
 
   <main class="gh-main-container">
-    <!-- 기존 유저 섹션 유지 -->
     <section id="user-section" class="gh-card" style="display:none;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -44,7 +60,6 @@
       </div>
     </div>
 
-    <!-- 카테고리 탭 유지 -->
     <nav class="gh-tabs">
       <div class="gh-tab-list">
         <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
@@ -60,7 +75,6 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 로그인/회원가입 모달 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -83,7 +97,6 @@
     </div>
   </div>
 
-  <!-- 상세보기 모달 (쿠팡 스타일 통합) -->
   <div id="snack-detail-modal" class="gh-modal">
     <div class="gh-modal-box full-sheet">
       <div class="gh-modal-head">
@@ -91,16 +104,13 @@
         <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
       </div>
       <div class="gh-modal-body">
-        <!-- 1. 쿠팡 스타일 통계 카드 -->
         <div id="coupang-stats-card" class="coupon-stats-card">
            <div class="stats-left">
              <span id="avg-num">0.0</span>
              <div class="stars-display">★★★★★</div>
              <div class="total-count">리뷰 <span id="total-rev-count">0</span>건</div>
            </div>
-           <div class="stats-right" id="stat-bars-container">
-             <!-- JS에서 바 생성 -->
-           </div>
+           <div class="stats-right" id="stat-bars-container"></div>
         </div>
 
         <div class="detail-section">
@@ -108,7 +118,6 @@
           <div id="detail-allergies" class="gh-chips"></div>
         </div>
 
-        <!-- 2. 리뷰 작성 영역 (별점 + 텍스트) -->
         <div class="detail-section rating-zone">
           <label class="gh-label">⭐ 내 상품평 남기기</label>
           <div class="star-rating">
@@ -131,7 +140,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net"></script>
   <script src="script.js"></script>
 </body>
 </html>
