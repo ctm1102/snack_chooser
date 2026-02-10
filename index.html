@@ -1,41 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍪</text></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Snack Chooser</title>
+  <title>🍪 Snack Chooser</title>
   
-  <!-- 1. 긱블 말랑이(한컴 말랑말랑) 폰트 불러오기 -->
-  <link rel="stylesheet" href="https://webfontworld.github.io">
+  <!-- 1. 말랑말랑 폰트 및 파비콘 설정 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍪</text></svg>">
+  <link href="https://hangeul.pstatic.net" rel="stylesheet">
+  
+  <!-- 2. 외부 CSS 로드 -->
   <link rel="stylesheet" href="style.css">
   
+  <!-- 3. Supabase 라이브러리 (스크립트 실행 전 필수) -->
+  <script src="https://cdn.jsdelivr.net"></script>
+
   <style>
-    /* 2. 폰트 전역 강제 적용 (긱블 말랑이 폰트명: HancomMalrangmalrang) */
-    *{
-        font-family: 'HancomMalrangmalrang', sans-serif !important;
+    /* 폰트 강제 적용 및 기본 배경 */
+    * {
+        font-family: 'Hancom MalangMalrang', sans-serif !important;
     }
-
     body {
-        background-color: #f8f9fa;
+        background-color: #FFF8EE; /* CSS 변수 미로드 대비 기본색 */
     }
-
-    /* 버튼 클릭 시 반응 효과 (동작 확인용) */
     button:active {
-        transform: scale(0.98);
-        filter: brightness(0.9);
-    }
-
-    /* 수정 불가 항목 시각화 */
-    .read-only-info {
-        background-color: #f1f1f1 !important;
-        color: #888 !important;
-        cursor: not-allowed;
+        transform: scale(0.96);
     }
   </style>
 </head>
 <body>
 
+  <!-- 헤더 영역 -->
   <header class="gh-header">
     <div class="gh-nav-inner">
       <div class="gh-logo" onclick="location.reload()" style="cursor:pointer;">🍪 Snack Chooser</div>
@@ -50,20 +45,19 @@
     </div>
   </header>
 
+  <!-- 메인 컨텐츠 -->
   <main class="gh-main-container">
-    <!-- 내 정보 섹션 (한 번 저장하면 수정 안 됨) -->
+    <!-- 내 프로필 섹션 -->
     <section id="user-section" class="gh-card" style="display:none;">
-      <h3 class="gh-card-title">내 프로필 <span style="font-size:0.7em; color:#ff7675;">(수정 불가)</span></h3>
+      <h3 class="gh-card-title">내 프로필 <span style="font-size:0.75rem; color:#ff7675;">(수정 불가)</span></h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
       <div class="gh-allergy-group">
-        <label class="gh-label">🚫 내 알러지 정보</label>
+        <label class="gh-label" style="font-weight: 800; font-size: 0.9rem;">🚫 내 알러지 정보</label>
         <div id="allergy-list" class="gh-chips"></div>
-      </div>
-      <div class="gh-card-actions">
-        <button onclick="toggleTheme()" class="gh-btn-text">🎨 테마 변경</button>
       </div>
     </section>
 
+    <!-- 히어로 섹션 (뽑기 버튼) -->
     <div class="gh-hero-section">
       <button id="btn-pick" onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
       <div class="gh-hero-sub">
@@ -83,11 +77,12 @@
       </div>
     </nav>
 
+    <!-- 결과창 및 리스트 -->
     <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 통합 인증 모달 -->
+  <!-- 로그인/회원가입 모달 -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -100,24 +95,24 @@
         <input type="text" id="login-name" class="gh-input" placeholder="성함">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" style="color:#ff7675; cursor:pointer;">회원가입</span></p>
+        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" style="color:#E67E22; cursor:pointer;">회원가입</span></p>
       </div>
 
-      <!-- 회원가입 폼 (알러지 입력 추가 / 수정불가 강조) -->
+      <!-- 회원가입 폼 -->
       <div id="signup-form" class="gh-form" style="display:none;">
         <input type="text" id="signup-name" class="gh-input" placeholder="성함 (ID)">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
         <input type="text" id="signup-allergies" class="gh-input" placeholder="알러지 (예: 땅콩, 우유 / 쉼표 구분)">
-        <p class="gh-pw-warning" style="color:#ff7675;">* 한 번 등록된 정보는 절대 수정이 불가능합니다.</p>
+        <p class="gh-pw-warning" style="color:#E74C3C; font-size: 0.8rem;">* 등록 후 정보 수정이 절대 불가능합니다.</p>
         <button class="gh-btn-submit" onclick="handleSignup()">가입 완료 및 정보 저장</button>
-        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')" style="color:#ff7675; cursor:pointer;">로그인</span></p>
+        <p class="gh-modal-foot">이미 계정이 있나요? <span onclick="openModal('login')" style="color:#E67E22; cursor:pointer;">로그인</span></p>
       </div>
     </div>
   </div>
 
-  <!-- 간식 상세 & 리뷰 모달 -->
+  <!-- 간식 상세 모달 -->
   <div id="snack-detail-modal" class="gh-modal">
-    <div class="gh-modal-box full-sheet">
+    <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="detail-snack-name">간식 이름</h2>
         <span class="gh-modal-close" onclick="closeSnackModal()" style="cursor:pointer;">&times;</span>
@@ -128,8 +123,8 @@
           <div id="detail-allergies" class="gh-chips"></div>
         </div>
 
-        <div class="detail-section rating-zone">
-          <label class="gh-label">⭐ 내 상품평 남기기 <span style="font-size:10px; color:#ff7675;">(수정 불가)</span></label>
+        <div class="detail-section" style="margin-top: 20px;">
+          <label class="gh-label">⭐ 상품평 <span style="font-size:0.7rem; color:#ff7675;">(수정 불가)</span></label>
           <div class="star-rating">
             <input type="radio" id="rate5" name="rating" value="5" /><label for="rate5">★</label>
             <input type="radio" id="rate4" name="rating" value="4" /><label for="rate4">★</label>
@@ -141,14 +136,15 @@
           <button class="gh-btn-submit" onclick="submitRating()" style="margin-top:10px;">리뷰 등록하기</button>
         </div>
 
-        <div class="detail-section">
-          <label class="gh-label">👥 유저들의 후기</label>
+        <div class="detail-section" style="margin-top: 20px;">
+          <label class="gh-label">👥 다른 유저의 후기</label>
           <div id="detail-user-scores" class="gh-score-list"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- 4. 메인 로직 로드 -->
   <script src="script.js"></script>
 </body>
 </html>
