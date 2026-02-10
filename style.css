@@ -1,19 +1,9 @@
-/* 1. 긱블 말랑이 공식 웹폰트 고정 (어디서든 보임) */
-@font-face {
-    font-family: 'GeekbleMalang';
-    src: url('https://cdn.jsdelivr.net') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-}
-
-/* 2. 오리지널 색상 변수 및 폰트 강제 설정 */
 :root {
   --gh-bg: #FFF8EE;
   --gh-card-bg: #FFFFFF;
   --gh-text: #5A3E2B;
   --gh-primary: #E67E22;
   --gh-border: #E1D4C1;
-  --gh-font: 'GeekbleMalang', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 }
 
 body.dark {
@@ -23,41 +13,148 @@ body.dark {
   --gh-border: #4A3528;
 }
 
-/* 3. 모든 요소에 폰트 강제 적용 (* 사용) */
-* {
-    font-family: var(--gh-font) !important;
-}
+body { margin: 0; font-family: -apple-system, sans-serif; background: var(--gh-bg); color: var(--gh-text); line-height: 1.6; }
 
-body { 
-    margin: 0; 
-    background: var(--gh-bg); 
-    color: var(--gh-text); 
-    line-height: 1.6; 
-}
-
-/* Navbar 디자인 복구 */
+/* Navbar */
 .gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 64px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
 .gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
-.gh-logo { display: flex; align-items: center; gap: 8px; font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
-.gh-auth-zone { display: flex; align-items: center; gap: 15px; }
+.gh-logo { 
+    display: flex; align-items: center; gap: 8px; /* 쿠키와 텍스트 간격 */
+    font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; 
+}
+.gh-auth-zone { display: flex; align-items: center; gap: 15px; } /* 간격 축소 */
+.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 600; color: #777; }
 .gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* Main Container & Card */
+/* Main */
 .gh-main-container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
 .gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+.gh-card-title { margin-top: 0; font-size: 1rem; color: var(--gh-primary); }
 
-/* Tabs (기존 18px 밀착 간격 복구) */
-.gh-tabs { border-bottom: 1px solid var(--gh-border); margin-bottom: 20px; overflow-x: auto; }
-.gh-tab-list { display: flex; gap: 18px; } 
+/* Allergy Chips */
+.gh-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.gh-chip { padding: 8px 14px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 13px; cursor: pointer; background: var(--gh-bg); white-space: nowrap; }
+.gh-chip.active { background: #E74C3C; color: white; border-color: #E74C3C; }
+.gh-chip input { display: none; }
+
+/* Buttons */
+.gh-hero-section { margin-bottom: 30px; display: flex; flex-direction: column; gap: 12px; }
+.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+.gh-btn-outline { width: 100%; padding: 12px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+/* Tabs (카테고리 간격 축소) */
+.gh-tabs { border-bottom: 1px solid var(--gh-border); margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.gh-tab-list { display: flex; gap: 18px; } /* 24px -> 12px 밀착 */
 .gh-tab-btn { background: none; border: none; padding: 12px 2px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
 .gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
-/* Buttons & Result */
-.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+/* Result Card */
 .gh-result-card { padding: 48px; text-align: center; background: var(--gh-card-bg); border: 2px dashed var(--gh-primary); border-radius: 16px; font-size: 1.4rem; font-weight: bold; margin-bottom: 32px; }
 
-/* Modal (원래 수치 340px) */
-.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-.gh-modal-box { background: var(--gh-card-bg); width: 90%; max-width: 340px; padding: 15px 20px; border-radius: 12px; position: relative; box-sizing: border-box; }
+/* Snack Items */
+.gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.gh-snack-item { list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 10px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.gh-fav-star { background: none; border: none; font-size: 20px; cursor: pointer; color: #ddd; }
+.gh-fav-star.on { color: #F1C40F; }
+
+/* Modal (세로 크기 축소) */
+.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+.gh-modal-box {
+  background: var(--gh-card-bg);
+  width: 90%;
+  max-width: 340px;
+  padding: 15px 20px;   /* 세로 길이를 줄이기 위해 상하 패딩 유지 또는 축소 */
+  border-radius: 12px;
+  position: relative;
+  box-sizing: border-box;
+  
+  /* --- 추가/수정할 핵심 코드 --- */
+  height: auto;         /* 내용만큼만 높이 차지 (자동 축소) */
+  max-height: 85vh;     /* 키보드가 올라올 때를 대비해 최대 높이 제한 */
+  display: flex;
+  flex-direction: column;
+}
+
 .gh-input { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid var(--gh-border); border-radius: 8px; box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text); font-size: 14px; }
-.gh-btn-submit { width: 100%; padding: 12px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.gh-btn-submit { width: 100%; padding: 12px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+.gh-pw-warning { color: #E74C3C; font-size: 12px; font-weight: bold; margin: 5px 0; }
+.gh-modal-foot { text-align: center; margin-top: 15px; font-size: 13px; }
+/* 모달 제목(로그인/회원가입) 위치 하향 조정 */
+.gh-modal-head { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 20px; /* 아래쪽 간격 확보 */
+  padding-top: 30px;    /* 글자 위치를 아래로 낮춤 */
+}
+
+.gh-modal-head h2 { 
+  font-size: 1.15rem; 
+  margin: 0;
+  line-height: 1.4; /* 글자 높이 조절 */
+}
+
+/* 닫기 버튼도 글자 위치에 맞춰 정렬 */
+.gh-modal-close { 
+  font-size: 24px; 
+  /* 상세 모달 내 섹션 */
+.detail-section { margin-bottom: 20px; }
+.gh-score-list { font-size: 0.9rem; color: #57606a; line-height: 1.6; }
+.review-stats-container {
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+/* --- 쿠팡 스타일 리뷰 통계 --- */
+.coupon-stats-card {
+    display: flex;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+.stats-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    border-right: 1px solid #eee;
+    padding-right: 15px;
+}
+#avg-num { font-size: 2rem; font-weight: 800; color: var(--gh-text); line-height: 1; }
+.stars-display { color: var(--gh-star); font-size: 12px; margin: 5px 0; }
+.total-count { font-size: 11px; color: #888; }
+
+.stats-right { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.stat-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.stat-bar-bg { flex: 1; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+.stat-bar-fill { height: 100%; background: #ff8a3d; border-radius: 3px; }
+.stat-label { width: 15px; color: #666; }
+
+/* --- 별점 입력 (Radio) --- */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+}
+.star-rating input { display: none; }
+.star-rating label { font-size: 30px; color: #ddd; cursor: pointer; }
+.star-rating :checked ~ label { color: var(--gh-star); }
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: var(--gh-star); }
+
+.review-textarea {
+    width: 100%; height: 70px; padding: 12px;
+    border: 1px solid var(--gh-border); border-radius: 8px;
+    resize: none; font-size: 14px; box-sizing: border-box;
+    background: var(--gh-bg); color: var(--gh-text);
+}
+
+.detail-section { margin-top: 20px; }
+.gh-score-list { margin-top: 10px; border-top: 1px solid #eee; }
+.user-review-item { padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
