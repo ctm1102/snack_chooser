@@ -217,14 +217,13 @@ const snackNames = [
   { name: "죠스바 제로", cat: "icecream", allergies: [] }
 ];
 
-/* --- [1. 상태 관리 및 설정] --- */
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 let activeSnackName = null;
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
-// Supabase 설정 (본인의 키 유지)
+/* --- [2. Supabase 설정] --- */
 const SUPABASE_URL = 'SET_URL'; 
 const SUPABASE_KEY = 'SET_KEY';
 
@@ -267,8 +266,9 @@ async function handleSignup() {
     const allergies = allergyInput ? allergyInput.split(',').map(s => s.trim()).filter(s => s) : [];
 
     if (!name || !pw) return alert("성함과 비밀번호를 입력해주세요!");
+    if (!_supabase) return alert("DB 설정이 필요합니다.");
+
     const hashed = await hashPassword(pw);
-    
     const { error } = await _supabase.from('users').insert([{
         name, pw: hashed, allergies, favorites: [], ratings: {}, loginCount: 1
     }]);
@@ -281,6 +281,7 @@ async function handleLogin() {
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
     
+    if (!_supabase) return alert("DB 설정이 필요합니다.");
     const { data: user } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
     if (!user) return alert("등록되지 않은 이름입니다.");
 
@@ -314,11 +315,8 @@ function renderSnacks() {
     list.innerHTML = "";
     
     const filtered = snackNames.filter(s => {
-        // 1. 알러지 필터링: 유저 알러지 성분이 포함된 간식 제외
         if (currentUser && currentUser.allergies.some(a => s.allergies.includes(a))) return false;
-        // 2. 즐겨찾기 필터링
         if (showFavOnly && currentUser) return currentUser.favorites.includes(s.name);
-        // 3. 카테고리 필터링
         return currentCategory === "all" || s.cat === currentCategory;
     });
 
@@ -355,7 +353,7 @@ function pickRandom() {
     
     const picked = visibleNames[Math.floor(Math.random() * visibleNames.length)];
     document.getElementById("result").innerHTML = `
-        <div style="font-size: 1.1rem; color: #888; margin-bottom: 5px;">✨오늘의 간식:</div>
+        <div style="font-size: 1.2rem; color: #888; margin-bottom: 5px;">🍪 오늘의 랜덤 추천!</div>
         <div style="color:var(--gh-primary); font-size:1.9rem; font-weight: 800;">[ ${picked} ]</div>
     `;
 }
@@ -385,6 +383,7 @@ async function submitRating() {
         currentUser.ratings = updatedRatings;
         alert("리뷰가 소중하게 저장되었습니다!");
         closeSnackModal();
+        updateUI();
     }
 }
 
