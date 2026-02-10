@@ -390,7 +390,7 @@ function pickRandom() {
     const picked = items[Math.floor(Math.random() * items.length)].innerText;
     
     document.getElementById("result").innerHTML = `
-        <div style="font-size: 0.9rem; color: #888; margin-bottom: 5px;">오늘의 운세가 고른 간식은?</div>
+        <div style="font-size: 1.9rem; color: #888; margin-bottom: 5px;">✨오늘의 간식:</div>
         <div style="color:var(--gh-primary); font-size:1.6rem; font-weight: 800;">[ ${picked} ]</div>
     `;
 }
