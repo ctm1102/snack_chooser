@@ -216,17 +216,15 @@ const snackNames = [
   { name: "스크류바 제로", cat: "icecream", allergies: [] },
   { name: "죠스바 제로", cat: "icecream", allergies: [] }
 ];
-
-/* --- [1. 전역 변수 및 초기화] --- */
 let currentCategory = "all";
 let showFavOnly = false;
 let currentUser = null;
 let activeSnackName = null;
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
-// Supabase 설정
-const SUPABASE_URL = 'SET_URL'; 
-const SUPABASE_KEY = 'SET_KEY';
+// Supabase 설정 (본인의 키로 교체 필요)
+const SUPABASE_URL = 'https://your-project-url.supabase.co'; 
+const SUPABASE_KEY = 'your-anon-key';
 
 const _supabase = (window.supabase) 
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
@@ -292,28 +290,90 @@ function renderSnacks() {
     });
 }
 
-/* --- [4. 회원 시스템] --- */
-async function handleSignup() {
-    const name = document.getElementById("signup-name").value.trim();
-    const pw = document.getElementById("signup-pw").value.trim();
-    if (!name || !pw) return alert("빈칸 없이 입력해주세요.");
+/* --- [4. 기능 함수 - 말랑폰트 감성 적용] --- */
+function pickRandom() {
+    const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
+    if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
+    const picked = items[Math.floor(Math.random() * items.length)].innerText;
     
-    const { data: existing } = await _supabase.from('users').select('name').eq('name', name).maybeSingle();
-    if (existing) return alert("이미 등록된 이름입니다.");
-    
-    const hashedPw = await hashPassword(pw);
-    currentUser = { name, pw: hashedPw, loginCount: 1, favorites: [], allergies: [], ratings: {} };
-    await saveUserData();
-    closeModal();
-    updateUI();
+    // 말랑폰트는 크게 볼 때 더 귀엽습니다.
+    document.getElementById("result").innerHTML = `
+        <div style="font-size: 0.9rem; color: #888; margin-bottom: 5px;">오늘의 운세가 고른 간식은?</div>
+        <div style="color:var(--gh-primary); font-size:1.6rem; font-weight: 800;">[ ${picked} ]</div>
+    `;
+}
+
+async function openSnackModal(snackName) {
+    activeSnackName = snackName;
+    const modal = document.getElementById("snack-detail-modal");
+    const container = document.getElementById("detail-user-scores");
+    document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
+    modal.style.display = "flex";
+
+    // 알러지 칩 렌더링
+    const snackData = snackNames.find(s => s.name === snackName);
+    const allergyContainer = document.getElementById("detail-allergies");
+    allergyContainer.innerHTML = snackData.allergies.length > 0 
+        ? snackData.allergies.map(a => `<span class="gh-chip" style="background:#FFEFEF; color:#E74C3C; border:none;">${a}</span>`).join('')
+        : '<span style="font-size:13px; color:#999;">알러지 성분 없음</span>';
+
+    // 리뷰 로드
+    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
+    let scores = [];
+    let reviews = [];
+    if (allUsers) {
+        allUsers.forEach(u => {
+            const r = u.ratings?.[snackName];
+            if (r) {
+                const score = typeof r === 'object' ? r.score : r;
+                const comment = typeof r === 'object' ? r.comment : "";
+                scores.push(score);
+                if(comment) reviews.push({ name: u.name, score, comment });
+            }
+        });
+    }
+
+    const avg = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : "0.0";
+    document.getElementById("avg-num").innerText = avg;
+    document.getElementById("total-rev-count").innerText = scores.length;
+
+    container.innerHTML = reviews.length > 0 
+        ? reviews.map(r => `
+            <div class="user-review-item" style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                <div style="font-weight:bold; color:var(--gh-primary); font-size:13px;">${r.name} <span style="color:#FFB800;">★${r.score}</span></div>
+                <div style="font-size:14px; margin-top:3px;">${r.comment}</div>
+            </div>
+        `).join('')
+        : `<p style="text-align:center; color:#999; padding:20px;">첫 번째 리뷰를 남겨주세요!</p>`;
+}
+
+/* --- [기타 필수 함수들] --- */
+function setCategory(cat, e) { 
+    currentCategory = cat; 
+    document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
+    if(e && e.target) e.target.classList.add('active');
+    renderSnacks(); 
+}
+
+function renderAllergyList() {
+    const container = document.getElementById("allergy-list");
+    if (!container || !currentUser) return;
+    container.innerHTML = "";
+    allergyTypes.forEach(type => {
+        const isChecked = currentUser.allergies.includes(type);
+        const label = document.createElement("label");
+        label.className = `gh-chip ${isChecked ? 'active' : ''}`;
+        label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
+        container.appendChild(label);
+    });
 }
 
 async function handleLogin() {
     const name = document.getElementById("login-name").value.trim();
     const pw = document.getElementById("login-pw").value.trim();
-    const { data: userData, error } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
+    const { data: userData } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
     
-    if (!userData || error) return alert("사용자 정보가 없습니다.");
+    if (!userData) return alert("사용자 정보가 없습니다.");
     const hashedPw = await hashPassword(pw);
     if (userData.pw !== hashedPw) return alert("비밀번호가 일치하지 않습니다.");
     
@@ -330,162 +390,12 @@ async function saveUserData() {
     localStorage.setItem("currentSnackSession", currentUser.name); 
 }
 
-function logout() { localStorage.removeItem("currentSnackSession"); location.reload(); }
-
-/* --- [5. 기능 함수] --- */
-function addFavorite(name) {
-    if (!currentUser) {
-        if (confirm("이 기능은 로그인 후 이용하실 수 있습니다.\n로그인하시겠습니까?")) {
-            openModal('login');
-        }
-        return;
-    }
-    const idx = currentUser.favorites.indexOf(name);
-    if (idx > -1) currentUser.favorites.splice(idx, 1);
-    else currentUser.favorites.push(name);
-    saveUserData();
-    renderSnacks();
-}
-
-function setCategory(cat, e) { 
-    currentCategory = cat; 
-    document.querySelectorAll('.gh-tab-btn').forEach(t => t.classList.remove('active'));
-    if(e && e.target) e.target.classList.add('active');
-    renderSnacks(); 
-}
-
-function toggleFavorites() {
-    if (!currentUser) {
-        if (confirm("즐겨찾기 목록을 보려면 로그인이 필요합니다.\n로그인하시겠습니까?")) {
-            openModal('login');
-        }
-        return;
-    }
-    showFavOnly = !showFavOnly;
-    const btn = document.getElementById("fav-toggle-btn");
-    if (btn) btn.innerText = showFavOnly ? "🔙 전체 목록 보기" : "⭐ 즐겨찾기 목록만 보기";
-    renderSnacks();
-}
-
-function pickRandom() {
-    const items = document.querySelectorAll(".gh-snack-item .snack-name-clickable");
-    if (!items.length) return alert("조건에 맞는 간식이 없습니다.");
-    const picked = items[Math.floor(Math.random() * items.length)].innerText;
-    document.getElementById("result").innerHTML = `✨ 오늘의 추천 간식: <br><b style="color:#FF6B00; font-size:1.5rem;">[ ${picked} ]</b>`;
-}
-
-function updateAllergy(el) {
-    if (!currentUser) return;
-    if (el.checked) currentUser.allergies.push(el.value);
-    else currentUser.allergies = currentUser.allergies.filter(a => a !== el.value);
-    saveUserData();
-    renderSnacks();
-    renderAllergyList();
-}
-
-function renderAllergyList() {
-    const container = document.getElementById("allergy-list");
-    if (!container || !currentUser) return;
-    container.innerHTML = "";
-    allergyTypes.forEach(type => {
-        const isChecked = currentUser.allergies.includes(type);
-        const label = document.createElement("label");
-        label.className = `gh-chip ${isChecked ? 'active' : ''}`;
-        label.innerHTML = `<input type="checkbox" value="${type}" ${isChecked ? 'checked' : ''} onchange="updateAllergy(this)"> ${type}`;
-        container.appendChild(label);
-    });
-}
-
-// 스낵 상세 모달 (리뷰 기능 포함)
-// 별점과 AI 요약을 포함한 상세 모달 열기
-async function openSnackModal(snackName) {
-    activeSnackName = snackName;
-    const modal = document.getElementById("snack-detail-modal");
-    const container = document.getElementById("detail-user-scores");
-    document.getElementById("detail-snack-name").innerText = `🍪 ${snackName}`;
-
-    // 1. 데이터 가져오기
-    const { data: allUsers } = await _supabase.from('users').select('name, ratings');
-    
-    let scores = [];
-    let comments = [];
-    if (allUsers) {
-        allUsers.forEach(u => {
-            const r = u.ratings?.[snackName];
-            if (r) {
-                scores.push(typeof r === 'object' ? r.score : r);
-                if (r.comment) comments.push(r.comment);
-            }
-        });
-    }
-
-    const avg = scores.length > 0 ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : "0.0";
-
-    // 2. AI 요약 생성 로직 (리뷰 기반)
-    let aiSummary = "아직 리뷰가 부족하여 AI가 분석 중입니다.";
-    if (comments.length >= 2) {
-        aiSummary = `이 간식은 대체로 <b>"${comments[0]}"</b>라는 의견과 <b>"${comments[1]}"</b>라는 평가가 많습니다. 평균 별점 ${avg}점으로 인기가 좋습니다!`;
-    } else if (comments.length === 1) {
-        aiSummary = `최근 한 사용자가 <b>"${comments[0]}"</b>라고 평가했습니다.`;
-    }
-
-    // 3. UI 렌더링
-    container.innerHTML = `
-        <div class="ai-summary-box">
-            <span class="ai-badge">AI 분석</span>
-            <p id="ai-text" style="margin: 10px 0 0 0; font-size: 14px; line-height: 1.5;">${aiSummary}</p>
-        </div>
-
-        <div style="text-align:center; margin: 20px 0;">
-            <div style="font-size: 24px; color: #ff8a3d;">${avg} ⭐</div>
-            <small>${scores.length}명의 평가</small>
-        </div>
-
-        <div class="rating-input-section" style="background:#eee; padding:15px; border-radius:10px;">
-            <p style="margin:0 0 10px 0; font-weight:bold; text-align:center;">나의 별점 남기기</p>
-            <div class="star-rating">
-                <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
-                <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
-                <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
-                <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
-                <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
-            </div>
-            <textarea id="review-comment" class="gh-input" placeholder="AI에게 들려줄 맛 평가를 써주세요." style="width:100%; margin-top:10px;"></textarea>
-            <button onclick="submitRating()" class="gh-btn" style="width:100%; margin-top:10px; background:#ff6b00;">평가 등록</button>
-        </div>
-    `;
-    modal.style.display = "flex";
-}
-async function submitRating() {
-    if (!currentUser) { alert("로그인이 필요합니다."); openModal('login'); return; }
-    const selectedStar = document.querySelector('input[name="rating"]:checked');
-    const comment = document.getElementById("review-comment").value.trim();
-    if (!selectedStar) return alert("별점을 선택해주세요!");
-    if (!currentUser.ratings) currentUser.ratings = {};
-    currentUser.ratings[activeSnackName] = { score: parseInt(selectedStar.value), comment: comment, date: new Date().toISOString() };
-    await saveUserData();
-    alert("리뷰가 등록되었습니다!");
-    openSnackModal(activeSnackName);
-}
-
-function toggleTheme() { 
-    document.body.classList.toggle("dark"); 
-    localStorage.setItem("snackTheme", document.body.classList.contains("dark") ? "dark" : "light"); 
-}
-
-/* --- [6. 초기 실행 및 이벤트] --- */
+// 초기화 실행
 window.onload = async () => {
-    if (localStorage.getItem("snackTheme") === "dark") document.body.classList.add("dark");
-    renderSnacks();
-
-    const last = localStorage.getItem("currentSnackSession");
-    if (last && _supabase) {
-        const { data } = await _supabase.from('users').select('*').eq('name', last).maybeSingle();
-        if (data) { currentUser = data; updateUI(); }
+    const savedName = localStorage.getItem("currentSnackSession");
+    if (savedName && _supabase) {
+        const { data } = await _supabase.from('users').select('*').eq('name', savedName).maybeSingle();
+        if (data) currentUser = data;
     }
-}
-
-window.onclick = function(event) {
-    if (event.target == document.getElementById("auth-modal")) closeModal();
-    if (event.target == document.getElementById("snack-detail-modal")) closeSnackModal();
-}
+    updateUI();
+};
