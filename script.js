@@ -225,8 +225,8 @@ let activeSnackName = null;
 const allergyTypes = ["우유", "견과류", "밀가루", "새우", "계란", "대두"];
 
 // Supabase 설정 (본인의 키 유지)
-const SUPABASE_URL = 'https://your-project-url.supabase.co'; 
-const SUPABASE_KEY = 'your-anon-key';
+const SUPABASE_URL = 'SET_URL'; 
+const SUPABASE_KEY = 'SET_KEY';
 
 const _supabase = (window.supabase) 
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
