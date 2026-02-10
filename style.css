@@ -1,10 +1,9 @@
-/* 1. 말랑폰트(한컴 말랑말랑체) 불러오기 */
+/* 1. 긱블 말랑이 공식 웹폰트 불러오기 */
 @font-face {
-    font-family: 'HancomMalrangmalrang';
+    font-family: 'GeekbleMalang';
     src: url('https://cdn.jsdelivr.net') format('woff2');
-    font-weight: 400;
+    font-weight: normal;
     font-style: normal;
-    font-display: swap;
 }
 
 :root {
@@ -13,8 +12,8 @@
   --gh-text: #5A3E2B;
   --gh-primary: #E67E22;
   --gh-border: #E1D4C1;
-  /* 폰트 변수 추가 */
-  --gh-font: 'HancomMalrangmalrang', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* 긱블 말랑이 폰트 변수 */
+  --gh-font: 'GeekbleMalang', -apple-system, sans-serif;
 }
 
 body.dark {
@@ -24,14 +23,18 @@ body.dark {
   --gh-border: #4A3528;
 }
 
-/* 2. 바디에 폰트 적용 */
+/* 2. 전역 폰트 적용 (기존 간격 및 레이아웃 100% 복구) */
 body { 
     margin: 0; 
     font-family: var(--gh-font); 
     background: var(--gh-bg); 
     color: var(--gh-text); 
     line-height: 1.6; 
-    -webkit-font-smoothing: antialiased; /* 폰트를 더 매끄럽게 */
+}
+
+/* 모든 입력창, 버튼, 로고에 폰트 강제 적용 */
+input, button, textarea, select, .gh-logo, .gh-tab-btn, .gh-btn-main {
+    font-family: var(--gh-font) !important;
 }
 
 /* Navbar */
@@ -43,7 +46,7 @@ body {
 }
 .gh-auth-zone { display: flex; align-items: center; gap: 15px; }
 .gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 600; color: #777; }
-.gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; }
+.gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
 /* Main */
 .gh-main-container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
@@ -52,19 +55,19 @@ body {
 
 /* Allergy Chips */
 .gh-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.gh-chip { padding: 8px 14px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 13px; cursor: pointer; background: var(--gh-bg); white-space: nowrap; font-family: inherit; }
+.gh-chip { padding: 8px 14px; border: 1px solid var(--gh-border); border-radius: 50px; font-size: 13px; cursor: pointer; background: var(--gh-bg); white-space: nowrap; }
 .gh-chip.active { background: #E74C3C; color: white; border-color: #E74C3C; }
 .gh-chip input { display: none; }
 
 /* Buttons */
 .gh-hero-section { margin-bottom: 30px; display: flex; flex-direction: column; gap: 12px; }
-.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; font-family: inherit; }
-.gh-btn-outline { width: 100%; padding: 12px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 10px; font-weight: bold; cursor: pointer; font-family: inherit; }
+.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+.gh-btn-outline { width: 100%; padding: 12px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-/* Tabs */
+/* Tabs (원래의 밀착된 18px 간격 복구) */
 .gh-tabs { border-bottom: 1px solid var(--gh-border); margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.gh-tab-list { display: flex; gap: 18px; }
-.gh-tab-btn { background: none; border: none; padding: 12px 2px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; font-family: inherit; }
+.gh-tab-list { display: flex; gap: 18px; } 
+.gh-tab-btn { background: none; border: none; padding: 12px 2px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
 .gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
 /* Result Card */
@@ -75,32 +78,14 @@ body {
 .gh-snack-item { list-style: none; background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 10px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
 
 /* Modal & Inputs */
+.gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
 .gh-modal-box {
-  background: var(--gh-card-bg);
-  width: 90%;
-  max-width: 340px;
-  padding: 15px 20px;
-  border-radius: 12px;
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  font-family: inherit;
+  background: var(--gh-card-bg); width: 90%; max-width: 340px; padding: 15px 20px;
+  border-radius: 12px; position: relative; box-sizing: border-box;
 }
-
 .gh-input, .review-textarea { 
-    width: 100%; 
-    padding: 12px; 
-    margin-bottom: 8px; 
-    border: 1px solid var(--gh-border); 
-    border-radius: 8px; 
-    box-sizing: border-box; 
-    background: var(--gh-bg); 
-    color: var(--gh-text); 
-    font-size: 14px; 
-    font-family: inherit; /* 입력창에도 폰트 적용 */
+    width: 100%; padding: 12px; margin-bottom: 8px; 
+    border: 1px solid var(--gh-border); border-radius: 8px; 
+    box-sizing: border-box; background: var(--gh-bg); color: var(--gh-text); font-size: 14px; 
 }
-
-.gh-btn-submit { width: 100%; padding: 12px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; font-family: inherit; }
+.gh-btn-submit { width: 100%; padding: 12px; background: var(--gh-primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
