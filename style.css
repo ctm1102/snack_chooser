@@ -1,20 +1,18 @@
-/* --- [1. 폰트 및 변수 설정] --- */
+/* --- [1. 변수 및 폰트] --- */
 :root {
-  --gh-bg: #FFF8EE;          /* 부드러운 쿠키 배경색 */
+  --gh-bg: #FFF8EE;
   --gh-card-bg: #FFFFFF;
-  --gh-text: #5A3E2B;        /* 초코 브라운 텍스트 */
-  --gh-primary: #E67E22;     /* 메인 오렌지 */
+  --gh-text: #5A3E2B;
+  --gh-primary: #E67E22;
   --gh-border: #E1D4C1;
-  --gh-star: #F1C40F;        /* 별점 노란색 */
-  --gh-danger: #E74C3C;      /* 알러지 경고색 */
+  --gh-star: #F1C40F;
+  --gh-danger: #E74C3C;
 }
 
-/* 긱블 말랑이체(Malang) 강제 적용 */
+/* 긱블 말랑이체(Malang) 전체 강제 적용 */
 * {
-  /* 폰트 배포 사이트 명칭인 'Malang'으로 설정 */
   font-family: 'Malang', sans-serif !important;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
 }
 
 body { 
@@ -22,10 +20,9 @@ body {
   background: var(--gh-bg); 
   color: var(--gh-text); 
   line-height: 1.6; 
-  word-break: keep-all;
 }
 
-/* --- [2. 헤더 및 네비게이션] --- */
+/* --- [2. 헤더 및 로고] --- */
 .gh-header { 
   background: var(--gh-card-bg); 
   border-bottom: 1px solid var(--gh-border); 
@@ -47,30 +44,28 @@ body {
 }
 
 .gh-logo { 
-  font-size: 1.4rem; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 1.35rem; 
   font-weight: 800; 
   color: var(--gh-primary); 
   cursor: pointer; 
 }
 
+.gh-logo img { width: 28px; height: 28px; }
+
 .gh-auth-zone { display: flex; align-items: center; gap: 12px; }
-.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 600; color: #8E7A6B; }
+.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 800; color: #8E7A6B; }
 .gh-btn-signup { 
   background: var(--gh-primary); 
-  color: white; 
-  border: none; 
-  padding: 8px 16px; 
-  border-radius: 8px; 
-  font-weight: 800; 
-  cursor: pointer; 
+  color: white; border: none; 
+  padding: 8px 15px; border-radius: 8px; 
+  font-weight: 800; cursor: pointer; 
 }
 
-/* --- [3. 메인 레이아웃 및 카드] --- */
-.gh-main-container { 
-  max-width: 600px; 
-  margin: 20px auto; 
-  padding: 0 16px; 
-}
+/* --- [3. 레이아웃 컴포넌트] --- */
+.gh-main-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
 
 .gh-card { 
   background: var(--gh-card-bg); 
@@ -78,199 +73,78 @@ body {
   border-radius: 16px; 
   padding: 20px; 
   margin-bottom: 20px; 
-  box-shadow: 0 4px 12px rgba(90, 62, 43, 0.05);
 }
 
-.gh-card-title { 
-  margin: 0 0 12px 0; 
-  font-size: 1.1rem; 
-  color: var(--gh-primary); 
-  font-weight: 800;
-}
+.gh-card-title { margin: 0 0 10px 0; color: var(--gh-primary); font-weight: 800; }
 
-.gh-label { font-weight: 800; font-size: 0.9rem; color: #8E7A6B; }
-
-/* 알러지 칩 */
 .gh-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .gh-chip { 
-  padding: 6px 14px; 
-  border: 1px solid var(--gh-border); 
-  border-radius: 50px; 
-  font-size: 13px; 
-  background: var(--gh-bg); 
-  font-weight: 600;
+  padding: 6px 12px; border: 1px solid var(--gh-border); 
+  border-radius: 50px; font-size: 13px; background: var(--gh-bg); 
+  font-weight: 800;
 }
-.gh-chip.active { 
-  background: var(--gh-danger); 
-  color: white; 
-  border-color: var(--gh-danger); 
-}
+.gh-chip.active { background: var(--gh-danger); color: white; border-color: var(--gh-danger); }
 
-/* --- [4. 랜덤 뽑기 섹션] --- */
-.gh-hero-section { margin-bottom: 30px; display: flex; flex-direction: column; gap: 12px; }
+/* --- [4. 랜덤 뽑기 & 탭] --- */
 .gh-btn-main { 
-  width: 100%; 
-  padding: 20px; 
-  background: var(--gh-primary); 
-  color: white; 
-  border: none; 
-  border-radius: 16px; 
-  font-size: 1.2rem; 
-  font-weight: 800; 
-  cursor: pointer; 
-  transition: 0.2s;
+  width: 100%; padding: 18px; 
+  background: var(--gh-primary); color: white; 
+  border: none; border-radius: 16px; 
+  font-size: 1.15rem; font-weight: 800; cursor: pointer; 
 }
-.gh-btn-main:active { transform: scale(0.97); }
-
 .gh-btn-outline { 
-  width: 100%; 
-  padding: 12px; 
-  background: var(--gh-card-bg); 
-  border: 2.5px solid var(--gh-primary); 
-  color: var(--gh-primary); 
-  border-radius: 12px; 
-  font-weight: 800; 
-  cursor: pointer; 
+  width: 100%; padding: 12px; margin-top: 10px;
+  background: var(--gh-card-bg); border: 2.5px solid var(--gh-primary); 
+  color: var(--gh-primary); border-radius: 12px; font-weight: 800; cursor: pointer; 
 }
 
-/* 결과창 */
-.gh-result-card { 
-  padding: 40px 20px; 
-  text-align: center; 
-  background: var(--gh-card-bg); 
-  border: 3px dashed var(--gh-primary); 
-  border-radius: 20px; 
-  font-size: 1.2rem; 
-  margin-bottom: 24px;
-}
-
-/* --- [5. 카테고리 탭] --- */
-.gh-tabs { 
-  border-bottom: 2px solid var(--gh-border); 
-  margin-bottom: 20px; 
-  overflow-x: auto; 
-  white-space: nowrap;
-}
-.gh-tab-list { display: flex; gap: 20px; padding-bottom: 2px; }
+.gh-tabs { border-bottom: 2px solid var(--gh-border); margin-bottom: 20px; overflow-x: auto; }
+.gh-tab-list { display: flex; gap: 18px; }
 .gh-tab-btn { 
-  background: none; 
-  border: none; 
-  padding: 10px 4px; 
-  font-size: 15px; 
-  font-weight: 800; 
-  color: #BDB2A7; 
-  cursor: pointer; 
-  border-bottom: 4px solid transparent; 
+  background: none; border: none; padding: 12px 2px; 
+  font-size: 14px; font-weight: 800; color: #BDB2A7; 
+  cursor: pointer; border-bottom: 4px solid transparent; 
 }
-.gh-tab-btn.active { 
-  color: var(--gh-primary); 
-  border-bottom-color: var(--gh-primary); 
+.gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
+
+.gh-result-card { 
+  padding: 40px; text-align: center; 
+  background: var(--gh-card-bg); border: 3px dashed var(--gh-primary); 
+  border-radius: 20px; font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; 
 }
 
-/* --- [6. 간식 리스트] --- */
+/* --- [5. 리스트 & 모달] --- */
 .gh-snack-list { padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .gh-snack-item { 
-  list-style: none; 
-  background: var(--gh-card-bg); 
-  border: 1px solid var(--gh-border); 
-  border-radius: 14px; 
-  padding: 16px 20px; 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
+  list-style: none; background: var(--gh-card-bg); 
+  border: 1px solid var(--gh-border); border-radius: 12px; 
+  padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
 }
-.gh-fav-star { 
-  background: none; 
-  border: none; 
-  font-size: 24px; 
-  cursor: pointer; 
-  color: #E1D4C1; 
-  transition: 0.2s;
-}
-.gh-fav-star.on { color: var(--gh-star); }
 
-/* --- [7. 모달 시스템] --- */
 .gh-modal { 
-  display: none; 
-  position: fixed; 
-  top: 0; left: 0; 
-  width: 100%; height: 100%; 
-  background: rgba(90, 62, 43, 0.6); 
-  justify-content: center; 
-  align-items: center; 
-  z-index: 2000; 
-  padding: 16px;
+  display: none; position: fixed; 
+  top: 0; left: 0; width: 100%; height: 100%; 
+  background: rgba(90, 62, 43, 0.5); justify-content: center; align-items: center; z-index: 2000; 
 }
-
 .gh-modal-box { 
-  background: var(--gh-card-bg); 
-  width: 100%; 
-  max-width: 380px; 
-  padding: 24px; 
-  border-radius: 24px; 
-  position: relative; 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: var(--gh-card-bg); width: 90%; max-width: 350px; 
+  padding: 25px; border-radius: 20px; 
 }
-
-.gh-modal-head { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 20px; 
-}
-.gh-modal-head h2 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--gh-text); }
-.gh-modal-close { font-size: 32px; cursor: pointer; color: #BDB2A7; font-weight: 400; }
-
-/* 입력 필드 */
 .gh-input { 
-  width: 100%; 
-  padding: 14px; 
-  margin-bottom: 12px; 
-  border: 2px solid var(--gh-border); 
-  border-radius: 12px; 
-  background: var(--gh-bg); 
-  font-size: 15px;
-  outline: none;
+  width: 100%; padding: 12px; margin-bottom: 10px; 
+  border: 2px solid var(--gh-border); border-radius: 10px; background: var(--gh-bg); 
 }
-.gh-input:focus { border-color: var(--gh-primary); }
-
-.gh-pw-warning { 
-  color: var(--gh-danger); 
-  font-size: 12px; 
-  font-weight: 800; 
-  margin-bottom: 12px; 
+.gh-btn-submit { 
+  width: 100%; padding: 12px; background: var(--gh-primary); 
+  color: white; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; 
 }
 
-/* --- [8. 별점 및 리뷰 상세] --- */
-.star-rating { 
-  display: flex; 
-  flex-direction: row-reverse; 
-  justify-content: center; 
-  gap: 8px; 
-  margin: 15px 0;
-}
+/* --- [6. 별점] --- */
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; margin: 10px 0; }
 .star-rating input { display: none; }
-.star-rating label { font-size: 36px; color: #E1D4C1; cursor: pointer; }
-.star-rating :checked ~ label, 
-.star-rating label:hover, 
-.star-rating label:hover ~ label { color: var(--gh-star); }
-
+.star-rating label { font-size: 32px; color: #E1D4C1; cursor: pointer; }
+.star-rating :checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--gh-star); }
 .review-textarea { 
-  width: 100%; 
-  height: 90px; 
-  padding: 12px; 
-  border-radius: 12px; 
-  border: 2px solid var(--gh-border); 
-  background: var(--gh-bg); 
-  resize: none; 
-  font-size: 14px;
-}
-
-.detail-section { margin-bottom: 24px; }
-.gh-score-list { 
-  margin-top: 10px; 
-  max-height: 150px; 
-  overflow-y: auto; 
-  border-top: 1px solid var(--gh-border); 
-  padding-top: 10px;
+  width: 100%; height: 80px; padding: 10px; border-radius: 10px; 
+  border: 2px solid var(--gh-border); background: var(--gh-bg); resize: none; 
 }
