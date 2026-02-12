@@ -6,8 +6,12 @@
 }
 
 :root {
-  --gh-bg: #FFF8EE; --gh-card-bg: #FFFFFF; --gh-text: #5A3E2B;
-  --gh-primary: #E67E22; --gh-border: #E1D4C1; --gh-star: #F1C40F;
+  --gh-bg: #FFF8EE;
+  --gh-card-bg: #FFFFFF;
+  --gh-text: #5A3E2B;
+  --gh-primary: #E67E22;
+  --gh-border: #E1D4C1;
+  --gh-star: #F1C40F;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -17,52 +21,82 @@ body { margin: 0; background: var(--gh-bg); color: var(--gh-text); line-height: 
 /* Navbar */
 .gh-header { background: var(--gh-card-bg); border-bottom: 1px solid var(--gh-border); height: 60px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
 .gh-nav-inner { width: 100%; max-width: 700px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; }
-.gh-logo { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
-.gh-logo img { width: 28px; height: 28px; object-fit: contain; }
+.gh-logo { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
+.gh-logo img { width: 28px; height: 28px; }
 
 .gh-auth-zone { display: flex; align-items: center; gap: 10px; }
-.gh-nav-link { font-size: 13px; cursor: pointer; font-weight: 600; color: #777; }
-.gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 18px; border-radius: 50px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 #c86a18; }
+.gh-btn-signup { 
+    background: var(--gh-primary); color: white; border: none; padding: 8px 16px; 
+    border-radius: 50px; font-weight: 800; cursor: pointer; font-size: 13px;
+    box-shadow: 0 3px 0 #c86a18; 
+}
 
-/* Layout 순서 제어 */
+/* Main Container */
 .gh-main-container { max-width: 600px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; }
+
+/* 1. 뽑기 버튼 & 2. 즐겨찾기 버튼 (Hero Section) */
 .gh-hero-section { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; order: 1; }
-.gh-tabs { order: 2; margin-bottom: 16px; overflow-x: auto; border-bottom: 1px solid var(--gh-border); scrollbar-width: none; }
+.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #c86a18; }
+.gh-btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #c86a18; }
+.gh-btn-outline { width: 100%; padding: 12px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+/* 3. 카테고리 탭 (모바일 잘림 방지 가로 스크롤) */
+.gh-tabs { 
+    margin-bottom: 20px; 
+    overflow-x: auto; 
+    border-bottom: 1px solid var(--gh-border);
+    scrollbar-width: none; 
+    order: 2; 
+}
 .gh-tabs::-webkit-scrollbar { display: none; }
-.gh-tab-list { display: flex; gap: 16px; min-width: max-content; }
-.gh-tab-btn { background: none; border: none; padding: 12px 4px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.gh-tab-list { 
+    display: flex; 
+    gap: 16px; 
+    padding-bottom: 2px;
+    min-width: max-content; /* 핸드폰에서 글자 안 잘리게 고정 */
+}
+.gh-tab-btn { 
+    background: none; border: none; padding: 10px 4px; 
+    font-size: 14px; font-weight: 600; color: #999; 
+    cursor: pointer; border-bottom: 3px solid transparent; 
+    white-space: nowrap; 
+}
 .gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
-.gh-result-card { order: 3; padding: 35px 16px; text-align: center; background: var(--gh-card-bg); border: 2px dashed var(--gh-primary); border-radius: 16px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
-.gh-snack-list { order: 4; padding: 0; margin: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
-
-/* Buttons */
-.gh-btn-main { width: 100%; padding: 18px; background: var(--gh-primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #c86a18; }
-.gh-btn-outline { width: 100%; padding: 14px; background: var(--gh-card-bg); border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 12px; font-weight: 800; cursor: pointer; }
-
-/* ⭐ 즐겨찾기 별 버튼 (수정됨) */
-.gh-fav-star { 
-    background: transparent !important; border: none !important; 
-    font-size: 26px; cursor: pointer; color: #ddd; 
-    padding: 0; line-height: 1; transition: transform 0.2s;
+/* 4. 결과창 (탭 아래로 이동) */
+.gh-result-card { 
+    order: 3; 
+    padding: 30px 16px; text-align: center; background: var(--gh-card-bg); 
+    border: 2px dashed var(--gh-primary); border-radius: 16px; 
+    font-size: 1.2rem; font-weight: bold; margin-bottom: 24px; 
+    min-height: 100px; display: flex; align-items: center; justify-content: center;
 }
+
+/* Snack List (결과창 아래 리스트) */
+.gh-snack-list { order: 4; padding: 0; margin: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.gh-snack-item { 
+    background: var(--gh-card-bg); border: 1px solid var(--gh-border); 
+    border-radius: 12px; padding: 14px 16px; 
+    display: flex; justify-content: space-between; align-items: center; 
+    font-size: 15px; 
+}
+.gh-fav-star { background: none; border: none; font-size: 24px; cursor: pointer; color: #ddd; padding: 0; line-height: 1; }
 .gh-fav-star.on { color: var(--gh-star); }
 
-/* Modal */
+/* Modal & Review UI (이전 최적화 유지) */
 .gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; padding: 16px; }
-.gh-modal-box { background: var(--gh-card-bg); width: 100%; max-width: 360px; padding: 20px; border-radius: 24px; position: relative; max-height: 85vh; overflow-y: auto; }
-.gh-modal-close { font-size: 32px; cursor: pointer; color: #aaa; background: none; border: none; line-height: 1; position: absolute; right: 20px; top: 20px; }
+.gh-modal-box {
+    background: var(--gh-card-bg); width: 100%; max-width: 360px; 
+    padding: 20px; border-radius: 24px; position: relative;
+    max-height: 85vh; overflow-y: auto;
+}
+.gh-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-top: 10px; }
+.gh-modal-close { font-size: 32px; cursor: pointer; color: #aaa; background: none; border: none; line-height: 1; }
 
-/* Review Stats */
 .coupon-stats-card { display: flex; background: var(--gh-bg); padding: 16px; border-radius: 16px; margin-bottom: 16px; gap: 12px; border: 1px solid var(--gh-border); }
 .stats-left { display: flex; flex-direction: column; align-items: center; min-width: 70px; border-right: 1px solid var(--gh-border); padding-right: 12px; }
 #avg-num { font-size: 1.8rem; font-weight: 800; color: var(--gh-primary); }
 .stats-right { flex: 1; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
 .stat-row { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; }
 .stat-bar-bg { flex: 1; height: 7px; background: #eee; border-radius: 4px; overflow: hidden; }
-.stat-bar-fill { height: 100%; background: var(--gh-primary); width: 0%; transition: 0.5s; }
-
-.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 4px; margin: 12px 0; }
-.star-rating input { display: none; }
-.star-rating label { font-size: 32px; color: #ddd; cursor: pointer; }
-.star-rating :checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--gh-star); }
+.stat-bar-fill { height: 100%; background: var(--gh-primary); width: 0%; transition: width 0.5s ease-out; }
