@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🍪 Snack Chooser</title>
-  <!-- 어느 기기에서나 윈도우 스타일 쿠키 파비콘 고정 -->
+  <!-- 윈도우 스타일 쿠키 파비콘 고정 -->
   <link rel="icon" type="image/svg+xml" href="https://api.iconify.design">
   <link rel="apple-touch-icon" href="https://api.iconify.design">
   <link rel="stylesheet" href="style.css">
@@ -17,10 +17,12 @@
         <img src="https://api.iconify.design" alt="cookie">
         <span>Snack Chooser</span>
       </div>
+      
       <div id="auth-menu" class="gh-auth-zone">
         <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
         <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
       </div>
+      
       <div id="user-menu" class="gh-auth-zone" style="display: none;">
         <span id="header-user-name" class="gh-user-name"></span>
         <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
@@ -38,17 +40,21 @@
       </div>
     </section>
 
+    <!-- 랜덤 뽑기 영역 -->
     <div class="gh-hero-section">
       <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
       <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
       <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
     </div>
 
+    <!-- 카테고리 탭 (원래대로 확장) -->
     <nav class="gh-tabs">
       <div class="gh-tab-list">
         <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
         <button onclick="setCategory('snack', event)" class="gh-tab-btn">과자</button>
         <button onclick="setCategory('icecream', event)" class="gh-tab-btn">아이스크림</button>
+        <button onclick="setCategory('tradition', event)" class="gh-tab-btn">전통</button>
+        <button onclick="setCategory('candy', event)" class="gh-tab-btn">사탕&젤리</button>
         <button onclick="setCategory('drink', event)" class="gh-tab-btn">음료</button>
       </div>
     </nav>
@@ -56,7 +62,7 @@
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 인증 모달 -->
+  <!-- 인증 모달 (닫기 버튼 추가) -->
   <div id="auth-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -67,19 +73,17 @@
         <input type="text" id="login-name" class="gh-input" placeholder="성함">
         <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
         <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
-        <p class="gh-modal-foot">계정이 없으신가요? <span onclick="openModal('signup')" class="link-txt">회원가입</span></p>
       </div>
       <div id="signup-form" style="display:none;">
         <input type="text" id="signup-name" class="gh-input" placeholder="성함">
         <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <label class="gh-label" style="margin-top:10px;">🚫 제외할 알러지 선택</label>
-        <div id="signup-allergy-list" class="gh-chips" style="margin-bottom:15px;"></div>
+        <div id="signup-allergy-list" class="gh-chips" style="margin: 15px 0;"></div>
         <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
       </div>
     </div>
   </div>
 
-  <!-- 상세 모달 -->
+  <!-- 상세 모달 (닫기 버튼 추가) -->
   <div id="snack-detail-modal" class="gh-modal">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
@@ -89,11 +93,11 @@
       <div class="coupon-stats-card">
         <div class="stats-left"><span id="avg-num">0.0</span><div style="color:var(--gh-star); font-size:12px;">★★★★★</div></div>
         <div class="stats-right">
-          <div class="stat-row"><span>5</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%"></div></div></div>
-          <div class="stat-row"><span>4</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%"></div></div></div>
-          <div class="stat-row"><span>3</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%"></div></div></div>
-          <div class="stat-row"><span>2</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%"></div></div></div>
-          <div class="stat-row"><span>1</span><div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%"></div></div></div>
+          <div class="stat-row"><span>5</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
+          <div class="stat-row"><span>4</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
+          <div class="stat-row"><span>3</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
+          <div class="stat-row"><span>2</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
+          <div class="stat-row"><span>1</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
         </div>
       </div>
       <div class="star-rating">
