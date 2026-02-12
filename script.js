@@ -314,11 +314,11 @@ function renderSnacks() {
 function pickRandom() {
     const items = Array.from(document.querySelectorAll(".gh-snack-item span")).map(el => el.innerText);
     if (!items.length) return alert("간식이 없습니다.");
-    document.getElementById("result").innerHTML = `🍪 추천: <span style="color:var(--gh-primary)">[ ${items[Math.floor(Math.random() * items.length)]} ]</span>`;
+    document.getElementById("result").innerHTML = `✨오늘의 간식: <span style="color:var(--gh-primary)">[ ${items[Math.floor(Math.random() * items.length)]} ]</span>`;
 }
 
 async function addFavorite(name) {
-    if (!currentUser) return alert("로그인 필요");
+    if (!currentUser) return alert("로그인이 필요한 기능입니다.");
     const idx = currentUser.favorites.indexOf(name);
     idx > -1 ? currentUser.favorites.splice(idx, 1) : currentUser.favorites.push(name);
     await _supabase.from('users').update({ favorites: currentUser.favorites }).eq('name', currentUser.name);
