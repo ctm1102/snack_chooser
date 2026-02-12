@@ -8,14 +8,16 @@
   --gh-star: #F1C40F;
   --gh-danger: #E74C3C;
 }
-
-/* 긱블 말랑이체(Malang) 전체 강제 적용 */
-* {
-  font-family: 'Malang', sans-serif !important;
-  box-sizing: border-box;
+@font-face {
+    font-family: 'GeekbleMalang2';
+    src: url('https://fastly.jsdelivr.net') format('woff2');
+    font-weight: normal;
+    font-style: normal;
 }
 
+
 body { 
+  font-family: 'GeekbleMalang2', sans-serif;
   margin: 0; 
   background: var(--gh-bg); 
   color: var(--gh-text); 
