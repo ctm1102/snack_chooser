@@ -1,8 +1,7 @@
 @font-face {
     font-family: 'GeekbleMalrangiche';
     src: url('https://cdn.jsdelivr.net') format('woff2');
-    font-weight: normal;
-    font-display: swap;
+    font-weight: normal; font-display: swap;
 }
 
 :root {
@@ -18,37 +17,27 @@ body { margin: 0; background: var(--gh-bg); color: var(--gh-text); line-height: 
 .gh-nav-inner { width: 100%; max-width: 1000px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
 .gh-logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 800; color: var(--gh-primary); cursor: pointer; }
 .gh-logo img { width: 32px; height: 32px; }
-.gh-auth-zone { display: flex; align-items: center; gap: 12px; }
-.gh-nav-link { font-size: 14px; cursor: pointer; font-weight: 800; color: #777; }
-.gh-btn-signup { background: var(--gh-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
 .gh-main-container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
 .gh-card { background: var(--gh-card-bg); border: 1px solid var(--gh-border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
-.gh-card-title { margin-top: 0; font-size: 0.9rem; color: var(--gh-primary); font-weight: 800; }
-.gh-welcome-txt { font-size: 1.1rem; font-weight: 800; margin: 10px 0; }
-
 .gh-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.gh-chip { padding: 6px 12px; border-radius: 50px; font-size: 12px; background: #eee; color: #777; border: 1px solid #ddd; font-weight: 800; }
-.gh-chip.active { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+.gh-chip { padding: 6px 12px; border-radius: 50px; font-size: 12px; background: #eee; border: 1px solid #ddd; cursor: pointer; }
+.gh-chip.active { background: #fee2e2; color: #ef4444; border-color: #fca5a5; font-weight: 800; }
 
-.gh-btn-main { width: 100%; padding: 20px; background: var(--gh-primary); color: white; border: none; border-radius: 16px; font-size: 1.2rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #c86a18; margin-bottom: 15px; }
+.gh-btn-main { width: 100%; padding: 20px; background: var(--gh-primary); color: white; border: none; border-radius: 16px; font-size: 1.2rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #c86a18; }
 .gh-btn-outline { width: 100%; padding: 12px; background: white; border: 2px solid var(--gh-primary); color: var(--gh-primary); border-radius: 12px; font-weight: 800; cursor: pointer; }
-.gh-result-card { padding: 30px; text-align: center; background: white; border: 2px dashed var(--gh-primary); border-radius: 16px; min-height: 100px; display: flex; justify-content: center; align-items: center; font-weight: 800; margin-bottom: 15px; }
+.gh-result-card { padding: 30px; text-align: center; background: white; border: 2px dashed var(--gh-primary); border-radius: 16px; min-height: 100px; display: flex; align-items: center; justify-content: center; font-weight: 800; margin: 20px 0; }
 
 .gh-tabs { margin-bottom: 15px; overflow-x: auto; }
 .gh-tab-list { display: flex; gap: 15px; border-bottom: 1px solid var(--gh-border); }
 .gh-tab-btn { background: none; border: none; padding: 12px 5px; font-size: 14px; font-weight: 800; color: #aaa; cursor: pointer; border-bottom: 3px solid transparent; }
 .gh-tab-btn.active { color: var(--gh-primary); border-bottom-color: var(--gh-primary); }
 
-.gh-snack-list { padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.gh-snack-item { background: white; border: 1px solid var(--gh-border); border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-.gh-fav-star { background: none; border: none; font-size: 20px; cursor: pointer; color: #ddd; }
-.gh-fav-star.on { color: var(--gh-star); }
+.gh-snack-list { padding: 0; list-style: none; }
+.gh-snack-item { background: white; border: 1px solid var(--gh-border); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
 .gh-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
 .gh-modal-box { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
-.gh-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.gh-modal-close { font-size: 28px; cursor: pointer; }
 .gh-input { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid var(--gh-border); border-radius: 10px; background: var(--gh-bg); }
 .gh-btn-submit { width: 100%; padding: 15px; background: var(--gh-primary); color: white; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; }
 
@@ -58,10 +47,11 @@ body { margin: 0; background: var(--gh-bg); color: var(--gh-text); line-height: 
 .stats-right { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 .stat-row { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; }
 .stat-bar-bg { flex: 1; height: 7px; background: #ddd; border-radius: 4px; overflow: hidden; }
-.stat-bar-fill { height: 100%; background: var(--gh-primary); }
+.stat-bar-fill { height: 100%; background: var(--gh-primary); transition: 0.5s; }
 
-.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; margin: 15px 0; }
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 5px; }
 .star-rating input { display: none; }
 .star-rating label { font-size: 35px; color: #eee; cursor: pointer; }
 .star-rating :checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: var(--gh-star); }
 .review-textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid var(--gh-border); border-radius: 12px; resize: none; background: var(--gh-bg); }
+.link-txt { color: var(--gh-primary); cursor: pointer; text-decoration: underline; font-weight: 800; }
