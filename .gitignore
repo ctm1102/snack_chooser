@@ -1,0 +1,15 @@
+# 환경 변수 파일 (가장 중요!)
+.env
+.env.local
+.env.development.local
+
+# 의존성 모듈 (용량이 크므로 제외)
+node_modules/
+
+# 빌드 결과물 (배포용 파일들)
+dist/
+build/
+
+# 운영체제 생성 파일
+.DS_Store
+Thumbs.db
