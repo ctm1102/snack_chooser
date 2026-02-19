@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>🍪 Snack Chooser</title>
-  <!-- 윈도우 스타일 쿠키 파비콘 고정 (수정됨) -->
+  
+  <!-- 윈도우(Fluent) 스타일 쿠키 파비콘 고정 -->
   <link rel="icon" type="image/svg+xml" href="https://api.iconify.design">
   <link rel="apple-touch-icon" href="https://api.iconify.design">
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,8 +16,8 @@
   <header class="gh-header">
     <div class="gh-nav-inner">
       <div class="gh-logo" onclick="location.reload()">
-        <!-- 로고 이미지 경로 수정됨 -->
-        <img src="https://api.iconify.design" alt="cookie">
+        <!-- 로고에도 동일한 윈도우 스타일 아이콘 적용 -->
+        <img src="https://api.iconify.design" alt="cookie" style="width:24px; height:24px;">
         <span>Snack Chooser</span>
       </div>
       
@@ -42,7 +44,7 @@
       </div>
     </section>
 
-    <!-- 메인 액션 영역 (순서: 뽑기 -> 결과창 -> 즐겨찾기버튼 -> 카테고리) -->
+    <!-- 메인 액션 영역 -->
     <div class="gh-hero-section">
       <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
       <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
@@ -60,7 +62,7 @@
       </div>
     </nav>
 
-    <!-- 결과창 (카테고리 아래로 배치) -->
+    <!-- 결과창 -->
     <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
 
     <ul id="snack-list" class="gh-snack-list"></ul>
@@ -95,7 +97,10 @@
         <span class="gh-modal-close" onclick="closeSnackModal()">&times;</span>
       </div>
       <div class="coupon-stats-card">
-        <div class="stats-left"><span id="avg-num">0.0</span><div style="color:var(--gh-star); font-size:12px;">★★★★★</div></div>
+        <div class="stats-left">
+          <span id="avg-num">0.0</span>
+          <div style="color:#ffcc00; font-size:12px;">★★★★★</div>
+        </div>
         <div class="stats-right">
           <div class="stat-row"><span>5</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
           <div class="stat-row"><span>4</span><div class="stat-bar-bg"><div class="stat-bar-fill"></div></div></div>
@@ -116,8 +121,9 @@
     </div>
   </div>
 
-  <!-- Supabase 라이브러리 전체 주소 (수정됨) -->
+  <!-- Supabase 라이브러리 로드 (버전 2 명시) -->
   <script src="https://unpkg.com"></script>
+  <!-- 커스텀 스크립트 로드 -->
   <script src="script.js"></script>
 </body>
 </html>
