@@ -2,39 +2,34 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fff8ee">
+  <meta name="description" content="먹고 싶은 간식을 쉽고 재미있게 골라보세요.">
   <title>🍪 Snack Chooser</title>
-  
-  <!-- 윈도우(Fluent) 스타일 쿠키 파비콘 고정 -->
-  <link rel="icon" type="image/svg+xml" href="https://api.iconify.design">
-  <link rel="apple-touch-icon" href="https://api.iconify.design">
-  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='.9em' font-size='56'%3E🍪%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='.9em' font-size='56'%3E🍪%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="responsive.css">
 </head>
 <body>
-
   <header class="gh-header">
     <div class="gh-nav-inner">
-      <div class="gh-logo" onclick="location.reload()">
-        <!-- 로고에도 동일한 윈도우 스타일 아이콘 적용 -->
-        <img src="https://api.iconify.design" alt="cookie" style="width:24px; height:24px;">
+      <button class="gh-logo" type="button" onclick="location.reload()" aria-label="Snack Chooser 홈">
+        <span class="gh-logo-emoji" aria-hidden="true">🍪</span>
         <span>Snack Chooser</span>
-      </div>
-      
+      </button>
       <div id="auth-menu" class="gh-auth-zone">
-        <span class="gh-nav-link" onclick="openModal('login')">로그인</span>
-        <button class="gh-btn-signup" onclick="openModal('signup')">회원가입</button>
+        <button class="gh-nav-link" type="button" onclick="openModal('login')">로그인</button>
+        <button class="gh-btn-signup" type="button" onclick="openModal('signup')">회원가입</button>
       </div>
-      
       <div id="user-menu" class="gh-auth-zone" style="display: none;">
         <span id="header-user-name" class="gh-user-name"></span>
-        <span class="gh-nav-link logout" onclick="logout()">로그아웃</span>
+        <button class="gh-nav-link logout" type="button" onclick="logout()">로그아웃</button>
       </div>
     </div>
   </header>
 
   <main class="gh-main-container">
-    <!-- 유저 섹션 (로그인 후 보임) -->
     <section id="user-section" class="gh-card" style="display:none; order: 0;">
       <h3 class="gh-card-title">My Preferences</h3>
       <p id="welcome-msg" class="gh-welcome-txt"></p>
@@ -44,57 +39,59 @@
       </div>
     </section>
 
-    <!-- 메인 액션 영역 -->
     <div class="gh-hero-section">
-      <button onclick="pickRandom()" class="gh-btn-main">🎲 오늘의 간식 랜덤 뽑기</button>
-      <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline">⭐ 즐겨찾기 목록만 보기</button>
+      <button onclick="pickRandom()" class="gh-btn-main" type="button">🎲 오늘의 간식 랜덤 뽑기</button>
+      <button onclick="toggleFavorites()" id="fav-toggle-btn" class="gh-btn-outline" type="button">⭐ 즐겨찾기 목록만 보기</button>
     </div>
 
-    <!-- 카테고리 탭 -->
-    <nav class="gh-tabs">
+    <nav class="gh-tabs" aria-label="간식 카테고리">
       <div class="gh-tab-list">
-        <button onclick="setCategory('all', event)" class="gh-tab-btn active">전체</button>
-        <button onclick="setCategory('snack', event)" class="gh-tab-btn">과자</button>
-        <button onclick="setCategory('icecream', event)" class="gh-tab-btn">아이스크림</button>
-        <button onclick="setCategory('tradition', event)" class="gh-tab-btn">전통</button>
-        <button onclick="setCategory('candy', event)" class="gh-tab-btn">사탕&젤리</button>
-        <button onclick="setCategory('drink', event)" class="gh-tab-btn">음료</button>
+        <button onclick="setCategory('all', event)" class="gh-tab-btn active" type="button">전체</button>
+        <button onclick="setCategory('snack', event)" class="gh-tab-btn" type="button">과자</button>
+        <button onclick="setCategory('icecream', event)" class="gh-tab-btn" type="button">아이스크림</button>
+        <button onclick="setCategory('tradition', event)" class="gh-tab-btn" type="button">전통</button>
+        <button onclick="setCategory('candy', event)" class="gh-tab-btn" type="button">사탕&젤리</button>
+        <button onclick="setCategory('drink', event)" class="gh-tab-btn" type="button">음료</button>
       </div>
     </nav>
 
-    <!-- 결과창 -->
-    <div id="result" class="gh-result-card">어떤 간식을 먹을까요?</div>
-
+    <div id="result" class="gh-result-card" aria-live="polite">어떤 간식을 먹을까요?</div>
     <ul id="snack-list" class="gh-snack-list"></ul>
   </main>
 
-  <!-- 인증 모달 -->
-  <div id="auth-modal" class="gh-modal">
+  <div id="auth-modal" class="gh-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="modal-title">로그인</h2>
-        <button class="gh-modal-close" onclick="closeModal()" aria-label="닫기">&times;</button>
+        <button class="gh-modal-close" type="button" onclick="closeModal()" aria-label="닫기">×</button>
       </div>
+      <div id="auth-message" class="auth-message" role="status" aria-live="polite"></div>
       <div id="login-form">
-        <input type="text" id="login-name" class="gh-input" placeholder="성함">
-        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호">
-        <button class="gh-btn-submit" onclick="handleLogin()">로그인</button>
+        <label class="auth-label" for="login-email">이메일</label>
+        <input type="email" id="login-email" class="gh-input" placeholder="name@example.com" autocomplete="email" maxlength="254" required>
+        <label class="auth-label" for="login-pw">비밀번호</label>
+        <input type="password" id="login-pw" class="gh-input" placeholder="비밀번호" autocomplete="current-password" required>
+        <button class="gh-btn-submit" type="button" onclick="handleLogin()">로그인</button>
       </div>
       <div id="signup-form" style="display:none;">
-        <input type="text" id="signup-name" class="gh-input" placeholder="성함">
-        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호">
-        <div id="signup-allergy-list" class="gh-chips" style="margin: 15px 0;"></div>
-        <button class="gh-btn-submit" onclick="handleSignup()">가입 완료</button>
+        <label class="auth-label" for="signup-name">이름</label>
+        <input type="text" id="signup-name" class="gh-input" placeholder="이름" autocomplete="name" maxlength="50" required>
+        <label class="auth-label" for="signup-email">이메일</label>
+        <input type="email" id="signup-email" class="gh-input" placeholder="name@example.com" autocomplete="email" maxlength="254" required>
+        <label class="auth-label" for="signup-pw">비밀번호 (8자 이상)</label>
+        <input type="password" id="signup-pw" class="gh-input" placeholder="비밀번호" autocomplete="new-password" minlength="8" required>
+        <div class="auth-label allergy-prompt">알러지 선택 (선택사항)</div>
+        <div id="signup-allergy-list" class="gh-chips" style="margin: 10px 0 15px;"></div>
+        <button class="gh-btn-submit" type="button" onclick="handleSignup()">가입 완료</button>
       </div>
     </div>
   </div>
 
-  <!-- 상세보기 모달 (리뷰 섹션 제거됨) -->
-  <div id="snack-detail-modal" class="gh-modal">
+  <div id="snack-detail-modal" class="gh-modal" role="dialog" aria-modal="true" aria-labelledby="detail-snack-name">
     <div class="gh-modal-box">
       <div class="gh-modal-head">
         <h2 id="detail-snack-name">이름</h2>
-        <button class="gh-modal-close" onclick="closeSnackModal()" aria-label="닫기">&times;</button>
+        <button class="gh-modal-close" type="button" onclick="closeSnackModal()" aria-label="닫기">×</button>
       </div>
       <div class="snack-detail-info">
         <p id="snack-detail-allergies" style="margin: 10px 0; font-size: 14px;"></p>
@@ -102,9 +99,8 @@
     </div>
   </div>
 
-  <!-- Supabase 라이브러리 로드 (버전 2 명시) -->
-  <script src="https://unpkg.com"></script>
-  <!-- 커스텀 스크립트 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>
