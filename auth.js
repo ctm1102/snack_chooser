@@ -1,7 +1,12 @@
-/* Supabase Auth integration. Passwords are handled and hashed by Supabase Auth; do not store or hash them in the browser. */
+/* Supabase Auth integration: Supabase handles password hashing and credential storage. */
 (() => {
   'use strict';
 
+  const SUPABASE_URL = 'https://tpbtjnqexwubctkurpqp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ShRhGoTEr207ESTQdghLBQ_ebkwaw1';
+  const client = window.supabase?.createClient
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
   const favoritesKey = (userId) => `snackChooserFavorites:${userId}`;
   let selectedAllergies = [];
   let authReady = false;
@@ -43,7 +48,6 @@
   }
 
   function renderAuthenticatedUser(authUser) {
-    const metadata = authUser?.user_metadata || {};
     if (!authUser) {
       currentUser = null;
       document.getElementById('auth-menu').style.display = 'flex';
@@ -53,6 +57,7 @@
       return;
     }
 
+    const metadata = authUser.user_metadata || {};
     const allergies = Array.isArray(metadata.allergies)
       ? metadata.allergies.filter((item) => typeof item === 'string')
       : [];
@@ -90,8 +95,7 @@
     document.getElementById('modal-title').textContent = signingUp ? '회원가입' : '로그인';
     message('');
     if (signingUp) renderSignupAllergies();
-    const field = document.getElementById(signingUp ? 'signup-name' : 'login-email');
-    field?.focus();
+    document.getElementById(signingUp ? 'signup-name' : 'login-email')?.focus();
   };
 
   window.closeModal = () => {
@@ -107,15 +111,15 @@
       message('이름, 이메일을 확인하고 비밀번호를 8자 이상 입력해주세요.', true);
       return;
     }
-    if (!window._supabase) {
-      message('Supabase에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.', true);
+    if (!client) {
+      message('Supabase SDK를 불러오지 못했습니다. 인터넷 연결과 설정을 확인해주세요.', true);
       return;
     }
     const button = document.querySelector('#signup-form .gh-btn-submit');
     button.disabled = true;
     message('가입 처리 중입니다.');
     try {
-      const { data, error } = await _supabase.auth.signUp({
+      const { data, error } = await client.auth.signUp({
         email,
         password,
         options: { data: { name, allergies: selectedAllergies } }
@@ -125,11 +129,10 @@
       document.getElementById('signup-pw').value = '';
       if (data.session) {
         window.closeModal();
-        message('');
       } else {
         message('가입 요청이 완료되었습니다. 이메일 인증을 마친 뒤 로그인해주세요.');
       }
-    } catch (error) {
+    } catch {
       message('회원가입에 실패했습니다. 이메일이 이미 등록되었는지, Supabase 설정을 확인해주세요.', true);
     } finally {
       button.disabled = false;
@@ -143,15 +146,15 @@
       message('이메일과 비밀번호를 입력해주세요.', true);
       return;
     }
-    if (!window._supabase) {
-      message('Supabase에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.', true);
+    if (!client) {
+      message('Supabase SDK를 불러오지 못했습니다. 인터넷 연결과 설정을 확인해주세요.', true);
       return;
     }
     const button = document.querySelector('#login-form .gh-btn-submit');
     button.disabled = true;
     message('로그인 중입니다.');
     try {
-      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      const { error } = await client.auth.signInWithPassword({ email, password });
       if (error) throw error;
       document.getElementById('login-pw').value = '';
       window.closeModal();
@@ -175,14 +178,17 @@
       localStorage.setItem(favoritesKey(currentUser.id), JSON.stringify(currentUser.favorites));
       renderSnacks();
     } catch {
-      alert('즐겨찾기를 저장할 수 없습니다. 브라우저 저장 공간을 확인해주세요.');
+      alert('즐겨찾기를 저장할 수 없습니다. 브��우저 저장 공간을 확인해주세요.');
     }
   };
 
   window.logout = async () => {
-    if (window._supabase) {
-      const { error } = await _supabase.auth.signOut();
-      if (error) alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+    if (client) {
+      const { error } = await client.auth.signOut();
+      if (error) {
+        alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+        return;
+      }
     }
     currentUser = null;
     showFavOnly = false;
@@ -198,19 +204,23 @@
     }
   });
 
-  window.addEventListener('DOMContentLoaded', async () => {
-    if (!window._supabase) {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Replace the previous localStorage/users-table login restore handler.
+    window.onload = null;
+    localStorage.removeItem('snackUser');
+    if (!client) {
       message('Supabase SDK 또는 설정을 불러오지 못했습니다.', true);
       renderSnacks();
       return;
     }
-    _supabase.auth.onAuthStateChange((_event, session) => {
+    client.auth.onAuthStateChange((_event, session) => {
       renderAuthenticatedUser(session?.user || null);
       authReady = true;
     });
-    const { data, error } = await _supabase.auth.getSession();
+    const { data, error } = await client.auth.getSession();
     if (error) {
       renderAuthenticatedUser(null);
+      message('로그인 상태를 확인하지 못했습니다. 페이지를 새로고침해주세요.', true);
       return;
     }
     if (!authReady) renderAuthenticatedUser(data.session?.user || null);
